@@ -1,49 +1,62 @@
-<div class="container-fluid contenedor img-fluid">
-  <div class="row justify-content-center">
-    <div class="col-lg-6 col-md-8">
+<div class="contenedor container-fluid min-vh-100 d-flex align-items-center justify-content-center">
+  <div class="row justify-content-center w-100">
+    <div class="col-11 col-sm-8 col-md-6 col-lg-4">
 
-        <img src="/images/logo.png" class="img-fluid " alt="Imagen responsiva">   
+      <!-- Imagen -->
+      <div class="text-center mb-3">
+        <img src="/images/logo.png" class="img-fluid logo">
+      </div>
 
-      <!-- Card principal -->
-      <div class="card shadow-lg rounded-4 border-0">
-        <div class="card-body p-5 bg-light rounded-4 border-0">
+      <!-- Card -->
+      <div class="card shadow rounded-4 border-0">
+        <div class="card-body p-4 p-md-4 bg-light rounded-4">
 
+          <h5 class="text-center mb-3 text-success fw-bold">
+            Iniciar Sesión
+          </h5>
 
-          <h2 class="text-center mb-4 text-success fw-bold">Iniciar Sesión</h2>
-          <p class="text-center text-muted mb-4">
-            Completa los campos para registrarte en nuestra plataforma
+          <p class="text-center text-muted mb-4 small">
+            Completa los campos para registrarte
           </p>
 
           <form>
-
-            <!-- Usuario -->
             <div class="mb-3">
-              <label class="form-label">Nombre de usuario</label>
-              <input type="text" class="form-control rounded-pill border border-success shadow-sm" placeholder="username">
+              <label class="form-label small">Nombre de usuario</label>
+              <input
+                type="text"
+                class="form-control form-control-sm rounded-pill border border-success shadow-sm"
+                placeholder="username"
+              >
             </div>
 
-            <!-- Contraseña -->
             <div class="mb-3">
-              <label class="form-label">Contraseña</label>
-              <input type="password" class="form-control rounded-pill border border-success shadow-sm" placeholder="********">
+              <label class="form-label small">Contraseña</label>
+              <input
+                type="password"
+                class="form-control form-control-sm rounded-pill border border-success shadow-sm"
+                placeholder="********"
+              >
             </div>
 
-            <!-- Botón principal -->
-            <button type="submit" class="btn btn-success w-100 rounded-pill shadow-sm py-2">
+            <button
+              type="submit"
+              class="btn btn-success w-100 rounded-pill shadow-sm py-2"
+            >
               Iniciar sesión
             </button>
-
           </form>
 
         </div>
       </div>
 
-      <!-- Pie con llamada a acción -->
-      <p class="text-center text-muted mt-3">
-        ¿No tienes cuenta? <a routerLink="/signIn" class="text-primary fw-bold">Crear cuenta</a>
+      <!-- Footer -->
+      <p class="text-center text-muted mt-3 small">
+        ¿No tienes cuenta?
+        <a routerLink="/signIn" class="fw-bold text-success text-decoration-none">
+          Crear cuenta
+        </a>
       </p>
 
     </div>
   </div>
 </div>
-
