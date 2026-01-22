@@ -5,6 +5,7 @@ import { SignInComponent } from './componentes/sign-in/sign-in.component';
 import { PortadaComponent } from './componentes/portada/portada.component';
 import { PlantasListaComponent } from './componentes/plantas-lista/plantas-lista.component';
 import { SidebarComponent } from './componentes/sidebar/sidebar.component';
+import { AjustesComponent } from './componentes/ajustes/ajustes.component';
 
 export const routes: Routes = [
 
@@ -12,6 +13,7 @@ export const routes: Routes = [
   { path: '', component: PortadaComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signIn', component: SignInComponent },
+  { path: 'ajustes', component: AjustesComponent },
 
   // Rutas privadas (con sidebar SIEMPRE)
   {
@@ -19,7 +21,7 @@ export const routes: Routes = [
     component: SidebarComponent,
     children: [
       { path: 'home', component: HomeComponent },
-      { path: 'plantas', component: PlantasListaComponent },
+      { path: 'plantas_lista', component: PlantasListaComponent },
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]
   },

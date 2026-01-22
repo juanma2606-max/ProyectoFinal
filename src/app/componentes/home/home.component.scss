@@ -1,0 +1,108 @@
+/* Contenedor general */
+.contenedor {
+  min-height: 100vh;
+  background-image: url(/images/fondo.png);
+   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 🔑 centra verticalmente */
+  padding: 3rem 2rem;
+}
+
+/* Card principal */
+.huerto-card {
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.huerto-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+}
+
+/* Imagen */
+.huerto-img {
+  height: 190px;
+  overflow: hidden;
+}
+
+.huerto-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.huerto-card:hover .huerto-img img {
+  transform: scale(1.08);
+}
+
+/* Título */
+.huerto-title {
+  background: linear-gradient(135deg, #3fa34d, #2d7a36);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 10px;
+  letter-spacing: 0.5px;
+}
+
+/* Barra de acciones */
+.huerto-actions {
+  background: #f8f9fa;
+  padding: 10px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Botones */
+.action-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:hover {
+  transform: scale(1.15);
+}
+
+/* Colores por acción */
+.action-btn.delete {
+  color: #e63946;
+}
+
+.action-btn.delete:hover {
+  background: #e63946;
+  color: #ffffff;
+}
+
+.action-btn.edit {
+  color: #f4a261;
+}
+
+.action-btn.edit:hover {
+  background: #f4a261;
+  color: #ffffff;
+}
+
+.action-btn.view {
+  color: #2a9d8f;
+}
+
+.action-btn.view:hover {
+  background: #2a9d8f;
+  color: #ffffff;
+}

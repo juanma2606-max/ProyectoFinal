@@ -3,24 +3,21 @@
   rel="stylesheet"
 />
 
-<div class="d-flex">
+<div class="layout">
 
   <!-- SIDEBAR -->
-  <nav class="sidebar d-flex flex-column flex-shrink-0 position-fixed">
+  <nav class="sidebar d-flex flex-column flex-shrink-0">
 
-    <button class="toggle-btn">
-      <i class="fas fa-chevron-left"></i>
-    </button>
+    <div class="logo-container text-center py-3">
+  <img src="/images/logo.png" class="img-fluid" style="max-width: 100px;">
+  <p class="text-muted small hide-on-collapse mb-0">Dashboard</p>
+</div>
 
-    <div class="p-4">
-      <h4 class="logo-text fw-bold mb-0">NexusFlow</h4>
-      <p class="text-muted small hide-on-collapse">Dashboard</p>
-    </div>
 
     <div class="nav flex-column">
 
       <a
-        routerLink="/home"
+        routerLink="/app/home"
         routerLinkActive="active"
         class="sidebar-link text-decoration-none p-3"
       >
@@ -29,7 +26,7 @@
       </a>
 
       <a
-        routerLink="/plantas_lista"
+        routerLink="/app/plantas_lista"
         routerLinkActive="active"
         class="sidebar-link text-decoration-none p-3"
       >
@@ -57,24 +54,29 @@
 
     </div>
 
-    <div class="profile-section mt-auto p-4">
-      <div class="d-flex align-items-center">
-        <img
-          src="https://randomuser.me/api/portraits/women/70.jpg"
-          style="height:60px"
-          class="rounded-circle"
-        />
-        <div class="ms-3 profile-info">
-          <h6 class="text-white mb-0">Alex Morgan</h6>
-          <small class="text-muted">Admin</small>
-        </div>
-      </div>
-    </div>
+<a
+  routerLink="/ajustes"
+  class="profile-section mt-auto p-4 text-decoration-none"
+>
 
+  <div class="d-flex align-items-center">
+    <img
+      src="/images/crazy_dave.jpg"
+      style="height:60px"
+      class="rounded-circle"
+    />
+
+    <div class="ms-3 profile-info">
+      <h6 class="text-white mb-0">Crazy Dave</h6>
+      <small class="text-success">Admin</small>
+    </div>
+  </div>
+
+</a>
   </nav>
 
   <!-- CONTENIDO DINÁMICO -->
-  <main class="main-content flex-grow-1 ms-auto p-4">
+  <main class="main-content">
     <router-outlet></router-outlet>
   </main>
 
