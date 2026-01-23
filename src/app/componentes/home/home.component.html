@@ -1,72 +1,98 @@
-<div class="contenedor container-fluid py-4">
+<div class="contenedor container-fluid min-vh-100 d-flex flex-column justify-content-center py-5 px-4">
 
-    <!-- Header sutil -->
-  <div class="home-header text-center mb-5">
-    <h2 class="text-light text-bold">Mis Huertos</h2>
-    <p class="text-light">Gestiona tus huertos y macetas de un vistazo</p>
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <h2 class="text-light fw-bold">Mis Huertos</h2>
+    <p class="text-light mb-0">Gestiona tus huertos y macetas de un vistazo</p>
   </div>
 
   <div class="row g-4 justify-content-center">
 
     <!-- CARD -->
-    <div class="col-12 col-sm-6 col-lg-4 col-xl-3" *ngFor="let item of [1,2,3,4,5,6,7,8,9,10,11]">
-
-      <div class="huerto-card shadow">
+    <div
+      class="col-12 col-sm-6 col-lg-4 col-xl-3"
+      *ngFor="let item of [1,2,3,4,5,6,7,8,9,10,11]"
+    >
+      <div class="card huerto-card h-100 border-0 shadow">
 
         <!-- Imagen -->
         <div class="huerto-img">
           <img
             src="/images/huerto1.jpg"
             alt="Huerto"
-            class="img-fluid"
+            class="img-fluid w-100 h-100"
           />
         </div>
 
-        <!-- Nombre -->
+        <!-- Título -->
         <div class="huerto-title text-center">
           Huerto {{ item }}
         </div>
 
-        <!-- Barra de acciones -->
-        <div class="huerto-actions d-flex justify-content-around align-items-center">
-
-          <button class="action-btn delete" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <!-- Acciones -->
+        <div
+          class="d-flex justify-content-around align-items-center bg-light py-2 border-top"
+        >
+          <button
+            class="btn action-btn delete"
+            data-bs-toggle="modal"
+            data-bs-target="#exampleModal"
+          >
             <i class="fa-solid fa-trash"></i>
           </button>
-          <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
 
-          <button class="action-btn edit">
+          <button class="btn action-btn edit">
             <i class="fa-solid fa-pen"></i>
           </button>
 
-          <button class="action-btn view">
-            <i class="fa-solid fa-book"></i>
-          </button>
+          <a
+  class="btn action-btn view"
+  routerLink="/app/huerto"
+  role="button"
+>
+  <i class="fa-solid fa-book"></i>
+</a>
 
         </div>
-
       </div>
-
     </div>
 
   </div>
-  
+
 </div>
 
+<!-- Modal (sin cambios estéticos) -->
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger" id="exampleModalLabel">Eliminar</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">¿Estás seguro de querer eliminar este huerto?</div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-danger">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

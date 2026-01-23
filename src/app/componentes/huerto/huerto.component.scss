@@ -2,6 +2,10 @@
 .contenedor {
   background-image: url(/images/fondo.png);
 }
+.card {
+  background-color: #f1f5f1;
+}
+
 
 /* Card */
 .huerto-card {
@@ -84,4 +88,9 @@
     background: #2a9d8f;
     color: #fff;
   }
+}
+
+.card img {
+  max-height: 120px;
+  object-fit: contain;
 }

@@ -6,6 +6,8 @@ import { PortadaComponent } from './componentes/portada/portada.component';
 import { PlantasListaComponent } from './componentes/plantas-lista/plantas-lista.component';
 import { SidebarComponent } from './componentes/sidebar/sidebar.component';
 import { AjustesComponent } from './componentes/ajustes/ajustes.component';
+import { PlagasListaComponent } from './componentes/plagas-lista/plagas-lista.component';
+import { HuertoComponent } from './componentes/huerto/huerto.component';
 
 export const routes: Routes = [
 
@@ -22,6 +24,8 @@ export const routes: Routes = [
     children: [
       { path: 'home', component: HomeComponent },
       { path: 'plantas_lista', component: PlantasListaComponent },
+      { path: 'plagas_lista', component: PlagasListaComponent },
+      {path: 'huerto', component:HuertoComponent},
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]
   },

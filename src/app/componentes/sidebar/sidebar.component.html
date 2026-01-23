@@ -25,23 +25,49 @@
         <span class="hide-on-collapse">Home</span>
       </a>
 
-      <a
-        routerLink="/app/plantas_lista"
-        routerLinkActive="active"
-        class="sidebar-link text-decoration-none p-3"
-      >
-        <i class="fas fa-leaf me-3"></i>
-        <span class="hide-on-collapse">Plantas</span>
-      </a>
+      <!-- LISTAS -->
+<div class="sidebar-group">
 
-      <a
-        routerLink="/plagas_lista"
-        routerLinkActive="active"
-        class="sidebar-link text-decoration-none p-3"
-      >
-        <i class="fas fa-bug me-3"></i>
-        <span class="hide-on-collapse">Plagas</span>
-      </a>
+  <!-- Link principal -->
+  <a
+    class="sidebar-link d-flex align-items-center justify-content-between p-3 text-decoration-none"
+    data-bs-toggle="collapse"
+    href="#listasMenu"
+    role="button"
+    aria-expanded="false"
+  >
+    <div class="d-flex align-items-center">
+      <i class="fas fa-list me-3"></i>
+      <span class="hide-on-collapse">Listas</span>
+    </div>
+
+    <i class="fas fa-chevron-down small transition"></i>
+  </a>
+
+  <!-- Submenú -->
+  <div class="collapse ps-4 mt-1" id="listasMenu">
+
+    <a
+      routerLink="/app/plantas_lista"
+      routerLinkActive="active"
+      class="sidebar-sublink d-flex align-items-center text-decoration-none py-2"
+    >
+      <i class="fas fa-leaf me-3"></i>
+      <span class="hide-on-collapse">Plantas</span>
+    </a>
+
+    <a
+      routerLink="/app/plagas_lista"
+      routerLinkActive="active"
+      class="sidebar-sublink d-flex align-items-center text-decoration-none py-2"
+    >
+      <i class="fas fa-bug me-3"></i>
+      <span class="hide-on-collapse">Plagas</span>
+    </a>
+
+  </div>
+</div>
+
 
       <a
         routerLink="/chat-ia"
