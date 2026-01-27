@@ -23,7 +23,7 @@ export const routes: Routes = [
     component: SidebarComponent,
     children: [
       { path: 'home', component: HomeComponent },
-      { path: 'plantas_lista', component: PlantasListaComponent },
+      { path: 'plantas_lista', component: PlantasListaComponent},
       { path: 'plagas_lista', component: PlagasListaComponent },
       {path: 'huerto', component:HuertoComponent},
       { path: '', redirectTo: 'home', pathMatch: 'full' }
