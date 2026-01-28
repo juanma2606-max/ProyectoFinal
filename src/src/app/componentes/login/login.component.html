@@ -1,0 +1,59 @@
+<div class="contenedor container-fluid min-vh-100 d-flex align-items-center justify-content-center">
+  <div class="row justify-content-center w-100">
+    <div class="col-11 col-sm-8 col-md-6 col-lg-4">
+
+      <!-- Imagen -->
+      <div class="text-center mb-3">
+        <img src="/images/logo.png" class="img-fluid logo">
+      </div>
+
+      <!-- Card -->
+      <div class="card shadow rounded-4 border-0">
+        <div class="card-body p-4 p-md-4 bg-light rounded-4">
+
+          <h5 class="text-center mb-3 text-success fw-bold">
+            Iniciar Sesión
+          </h5>
+
+          <p class="text-center text-muted mb-4 small">
+            Completa los campos para registrarte
+          </p>
+
+          <form>
+            <div class="mb-3">
+              <label class="form-label small">Nombre de usuario</label>
+              <input
+                type="text"
+                class="form-control form-control-sm rounded-pill border border-success shadow-sm"
+                placeholder="username"
+              >
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small">Contraseña</label>
+              <input
+                type="password"
+                class="form-control form-control-sm rounded-pill border border-success shadow-sm"
+                placeholder="********"
+              >
+            </div>
+            <button
+              type="button"
+              routerLink="/app"
+              class="btn btn-success w-100 rounded-pill shadow-sm py-2">Iniciar sesión</button>   
+          </form>
+
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <p class="text-center text-light mt-3 small">
+        ¿No tienes cuenta?
+        <a routerLink="/signIn" class="fw-bold text-success text-decoration-none">
+          Crear cuenta
+        </a>
+      </p>
+
+    </div>
+  </div>
+</div>

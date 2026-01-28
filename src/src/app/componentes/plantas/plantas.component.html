@@ -1,0 +1,131 @@
+<div class="contenedor row g-4">
+
+  <!-- COLUMNA IZQUIERDA: LISTA -->
+  <div class="col-12 col-lg-4">
+
+    <!-- FILTRO POR TIPO -->
+
+    <div class="btn-group w-100 mb-3 flex-wrap gap-2">
+
+  <!-- TODAS -->
+  <button
+    type="button"
+    class="btn rounded-pill"
+    [ngClass]="{
+      'btn-dark': !tipoActivo,
+      'btn-secondary': tipoActivo
+    }"
+    (click)="seleccionarTipo(null)"
+  >
+    Todas
+  </button>
+
+  <!-- HORTALIZAS -->
+  <button
+    type="button"
+    class="btn rounded-pill"
+    [ngClass]="{
+      'btn-success': tipoActivo === 'hortaliza',
+      'btn-secondary': tipoActivo !== 'hortaliza'
+    }"
+    (click)="seleccionarTipo('hortaliza')"
+  >
+    Hortalizas
+  </button>
+
+  <!-- FRUTAS -->
+  <button
+    type="button"
+    class="btn rounded-pill"
+    [ngClass]="{
+      'btn-success': tipoActivo === 'fruta',
+      'btn-secondary': tipoActivo !== 'fruta'
+    }"
+    (click)="seleccionarTipo('fruta')"
+  >
+    Frutas
+  </button>
+
+  <!-- HIERBAS -->
+  <button
+    type="button"
+    class="btn rounded-pill"
+    [ngClass]="{
+      'btn-success': tipoActivo === 'hierba',
+      'btn-secondary': tipoActivo !== 'hierba'
+    }"
+    (click)="seleccionarTipo('hierba')"
+  >
+    Hierbas
+  </button>
+
+  <!-- FLORES -->
+  <button
+    type="button"
+    class="btn rounded-pill"
+    [ngClass]="{
+      'btn-success': tipoActivo === 'flor',
+      'btn-secondary': tipoActivo !== 'flor'
+    }"
+    (click)="seleccionarTipo('flor')"
+  >
+    Flores
+  </button>
+
+  <!-- ÁRBOLES -->
+  <button
+    type="button"
+    class="btn rounded-pill"
+    [ngClass]="{
+      'btn-success': tipoActivo === 'arbol',
+      'btn-secondary': tipoActivo !== 'arbol'
+    }"
+    (click)="seleccionarTipo('arbol')"
+  >
+    Árboles
+  </button>
+
+</div>
+
+    <app-plantas-lista
+      [plantas]="plantasFiltradas"
+      (plantaSeleccionada)="onPlantaSeleccionada($event)">
+    </app-plantas-lista>
+
+  </div>
+
+  <!-- COLUMNA DERECHA: DETALLE -->
+  <div class="col-12 col-lg-8 d-flex justify-content-center">
+
+    <!-- ESTADO VACÍO -->
+    <div *ngIf="!plantaActiva" class="text-muted py-5 text-center">
+      Selecciona una planta
+    </div>
+
+    <!-- CARD -->
+    <div
+      *ngIf="plantaActiva"
+      class="card shadow-sm mx-auto w-100"
+      style="max-width: 900px; background: rgba(248, 250, 245, 0.95); border-radius: 16px;"
+    >
+
+      <!-- CONTENEDOR DE IMAGEN CONTROLADO -->
+      <div class="ratio ratio-16x9 bg-light rounded-top">
+        <img
+          [src]="plantaActiva.imagen"
+          [alt]="plantaActiva.nombre"
+          class="img-fluid p-3"
+          style="object-fit: contain;"
+        />
+      </div>
+
+      <div class="card-body">
+        <h5 class="card-title mb-2">{{ plantaActiva.nombre }}</h5>
+        <p class="card-text mb-0" style="white-space: pre-line;">{{ plantaActiva.descripcion }}</p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

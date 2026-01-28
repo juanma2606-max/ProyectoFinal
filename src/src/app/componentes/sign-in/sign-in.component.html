@@ -1,0 +1,96 @@
+<div class="contenedor container-fluid">
+  <div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-xl-8 col-lg-10 col-md-11">
+
+      <!-- Card principal -->
+      <div class="card shadow-lg rounded-4 border-0 overflow-hidden">
+        <div class="row g-0">
+
+          <!-- Imagen izquierda -->
+          <div class="col-lg-5 d-flex align-items-center justify-content-center bg-success bg-opacity-10">
+            <img
+              src="/images/logo.png"
+              class="img-fluid p-4"
+              alt="Imagen responsiva"
+              style="max-height: 300px;"
+            />
+          </div>
+
+          <!-- Formulario derecha -->
+          <div class="col-lg-7">
+            <div class="card-body p-4 p-md-5 bg-light">
+
+              <h2 class="text-center mb-3 text-success fw-bold">
+                Crear cuenta
+              </h2>
+
+              <p class="text-center text-muted mb-4">
+                Completa los campos para registrarte en nuestra plataforma
+              </p>
+
+              <form>
+
+                <!-- Email -->
+                <div class="mb-3">
+                  <label class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control rounded-pill border border-success shadow-sm"
+                    placeholder="usuario@email.com"
+                  />
+                  <div class="form-text text-muted">
+                    Nunca compartiremos tu email con terceros
+                  </div>
+                </div>
+
+                <!-- Usuario -->
+                <div class="mb-3">
+                  <label class="form-label">Nombre de usuario</label>
+                  <input
+                    type="text"
+                    class="form-control rounded-pill border border-success shadow-sm"
+                    placeholder="username"
+                  />
+                </div>
+
+                <!-- Contraseña -->
+                <div class="mb-3">
+                  <label class="form-label">Contraseña</label>
+                  <input
+                    type="password"
+                    class="form-control rounded-pill border border-success shadow-sm"
+                    placeholder="********"
+                  />
+                </div>
+
+                <!-- Repetir contraseña -->
+                <div class="mb-3">
+                  <label class="form-label">Repetir contraseña</label>
+                  <input
+                    type="password"
+                    class="form-control rounded-pill border border-success shadow-sm"
+                    placeholder="********"
+                  />
+                </div>
+                <button
+              type="button"
+              routerLink="/app"
+              class="btn btn-success w-100 rounded-pill shadow-sm py-2">Crear cuenta</button>   
+
+              </form>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Pie -->
+      <p class="text-center text-light mt-3">
+        ¿Ya tienes cuenta?
+        <a routerLink="/login" class="text-success fw-bold">Inicia sesión</a>
+      </p>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,109 @@
+<div class="container-fluid py-4">
+
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <h2 class="text-light fw-bold">Maceta de Tomate</h2>
+    <p class="text-light mb-0">
+      Información y estado actual de la planta
+    </p>
+  </div>
+
+  <div class="row justify-content-center">
+
+    <!-- COLUMNA IZQUIERDA -->
+    <div class="col-12 col-lg-6 mb-4 mb-lg-0">
+
+      <!-- Imagen -->
+      <div class="mb-4 position-relative">
+        <img
+          src="/images/plantas/tomate.png"
+          alt="Tomate"
+          class="img-fluid rounded shadow-sm w-100"
+          style="max-height: 350px; object-fit: contain;"
+        />
+
+        <!-- INDICADOR DE PROBLEMA -->
+        <span
+          class="position-absolute top-0 end-0 m-2 text-warning"
+          title="Problema detectado"
+        >
+          <i class="fa-solid fa-circle-exclamation fs-5"></i>
+        </span>
+      </div>
+
+      <!-- Descripción -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Descripción</h5>
+          <p class="card-text text-muted mb-0">
+            Planta de tomate cultivada en maceta. Requiere sol directo,
+            riego regular y buen drenaje para un crecimiento óptimo.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COLUMNA DERECHA -->
+    <div class="col-12 col-lg-6">
+
+      <!-- NECESIDADES -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+
+          <h5 class="card-title mb-4">Necesidades de la planta</h5>
+
+          <ul class="list-group list-group-flush">
+
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Tipo de riego</span>
+              <strong>Moderado</strong>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Abono necesario</span>
+              <strong>Cada 15 días</strong>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Tiempo de crecimiento</span>
+              <strong>90 días</strong>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Exposición solar</span>
+              <strong>Pleno sol</strong>
+            </li>
+
+          </ul>
+
+        </div>
+      </div>
+
+      <!-- ACCIONES -->
+      <div
+        class="d-flex justify-content-around align-items-center bg-light py-2 border-top"
+      >
+        <button class="btn action-btn delete" title="Eliminar">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+
+        <button class="btn action-btn edit" title="Editar">
+          <i class="fa-solid fa-pen"></i>
+        </button>
+
+        <a
+          class="btn action-btn view"
+          routerLink="/app/huerto"
+          role="button"
+          title="Ver detalles"
+        >
+          <i class="fa-solid fa-book"></i>
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
