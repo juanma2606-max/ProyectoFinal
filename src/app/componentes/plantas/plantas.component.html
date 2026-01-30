@@ -7,81 +7,27 @@
 
     <div class="btn-group w-100 mb-3 flex-wrap gap-2">
 
-  <!-- TODAS -->
-  <button
-    type="button"
-    class="btn rounded-pill"
-    [ngClass]="{
-      'btn-dark': !tipoActivo,
-      'btn-secondary': tipoActivo
-    }"
-    (click)="seleccionarTipo(null)"
-  >
+        <button type="button" class="btn btn-dark btn-outline-success" (click)="seleccionarTipo(null)">
     Todas
   </button>
 
-  <!-- HORTALIZAS -->
-  <button
-    type="button"
-    class="btn rounded-pill"
-    [ngClass]="{
-      'btn-success': tipoActivo === 'hortaliza',
-      'btn-secondary': tipoActivo !== 'hortaliza'
-    }"
-    (click)="seleccionarTipo('hortaliza')"
-  >
+  <button type="button" class="btn btn-dark btn-outline-success" (click)="seleccionarTipo('hortaliza')">
     Hortalizas
   </button>
 
-  <!-- FRUTAS -->
-  <button
-    type="button"
-    class="btn rounded-pill"
-    [ngClass]="{
-      'btn-success': tipoActivo === 'fruta',
-      'btn-secondary': tipoActivo !== 'fruta'
-    }"
-    (click)="seleccionarTipo('fruta')"
-  >
+  <button type="button" class="btn btn-dark btn-outline-success" (click)="seleccionarTipo('fruta')">
     Frutas
   </button>
 
-  <!-- HIERBAS -->
-  <button
-    type="button"
-    class="btn rounded-pill"
-    [ngClass]="{
-      'btn-success': tipoActivo === 'hierba',
-      'btn-secondary': tipoActivo !== 'hierba'
-    }"
-    (click)="seleccionarTipo('hierba')"
-  >
+  <button type="button" class="btn btn-dark btn-outline-success" (click)="seleccionarTipo('hierba')">
     Hierbas
   </button>
 
-  <!-- FLORES -->
-  <button
-    type="button"
-    class="btn rounded-pill"
-    [ngClass]="{
-      'btn-success': tipoActivo === 'flor',
-      'btn-secondary': tipoActivo !== 'flor'
-    }"
-    (click)="seleccionarTipo('flor')"
-  >
+  <button type="button" class="btn btn-dark btn-outline-success" (click)="seleccionarTipo('flor')">
     Flores
   </button>
 
-  <!-- ÁRBOLES -->
-  <button
-    type="button"
-    class="btn rounded-pill"
-    [ngClass]="{
-      'btn-success': tipoActivo === 'arbol',
-      'btn-secondary': tipoActivo !== 'arbol'
-    }"
-    (click)="seleccionarTipo('arbol')"
-  >
+  <button type="button" class="btn btn-dark btn-outline-success" (click)="seleccionarTipo('arbol')">
     Árboles
   </button>
 
@@ -91,6 +37,17 @@
       [plantas]="plantasFiltradas"
       (plantaSeleccionada)="onPlantaSeleccionada($event)">
     </app-plantas-lista>
+
+        <!-- BOTONES AÑADIR -->
+    <div class="d-grid gap-2 mt-3">
+      <button type="button" class="btn btn-dark btn-outline-success">
+        Añadir Plaga
+      </button>
+
+      <button type="button" class="btn btn-dark btn-outline-success">
+        Añadir Enfermedad
+      </button>
+    </div>
 
   </div>
 

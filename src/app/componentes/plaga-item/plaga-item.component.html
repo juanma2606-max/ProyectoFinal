@@ -6,27 +6,17 @@
     <!-- FILTRO (MISMO ESTILO QUE PLANTAS) -->
     <div class="btn-group w-100 mb-3 flex-wrap gap-2">
 
-      <!-- PLAGAS -->
       <button
         type="button"
-        class="btn rounded-pill"
-        [ngClass]="{
-          'btn-danger': tipoActivo === 'plaga',
-          'btn-secondary': tipoActivo !== 'plaga'
-        }"
+        class="btn btn-dark btn-outline-success"
         (click)="cambiarTipo('plaga')"
       >
         Plagas
       </button>
 
-      <!-- ENFERMEDADES -->
       <button
         type="button"
-        class="btn rounded-pill"
-        [ngClass]="{
-          'btn-warning': tipoActivo === 'enfermedad',
-          'btn-secondary': tipoActivo !== 'enfermedad'
-        }"
+        class="btn btn-dark btn-outline-success"
         (click)="cambiarTipo('enfermedad')"
       >
         Enfermedades
@@ -38,6 +28,17 @@
       [plagas]="plagasFiltradas"
       (plagaSeleccionada)="onPlagaSeleccionada($event)">
     </app-plagas-lista>
+
+    <!-- BOTONES AÑADIR -->
+    <div class="d-grid gap-2 mt-3">
+      <button type="button" class="btn btn-dark btn-outline-success">
+        Añadir Plaga
+      </button>
+
+      <button type="button" class="btn btn-dark btn-outline-success">
+        Añadir Enfermedad
+      </button>
+    </div>
 
   </div>
 
