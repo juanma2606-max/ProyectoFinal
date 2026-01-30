@@ -3,4 +3,5 @@ export interface Planta {
   nombre: string;
   imagen: string;
   descripcion: string;
+  tipo: 'hortaliza' | 'fruta' | 'hierba' | 'flor' | 'arbol';
 }

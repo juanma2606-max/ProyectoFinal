@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 export class SidebarComponent {
 
   isCollapsed = false;
+  sidebarOpen = false;
 
   toggleSidebar(): void {
     this.isCollapsed = !this.isCollapsed;

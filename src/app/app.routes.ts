@@ -8,6 +8,9 @@ import { SidebarComponent } from './componentes/sidebar/sidebar.component';
 import { AjustesComponent } from './componentes/ajustes/ajustes.component';
 import { PlagasListaComponent } from './componentes/plagas-lista/plagas-lista.component';
 import { HuertoComponent } from './componentes/huerto/huerto.component';
+import { PlantasComponent } from './componentes/plantas/plantas.component';
+import { PlagasComponent } from './componentes/plaga-item/plaga-item.component';
+import { MacetaComponent } from './componentes/maceta/maceta.component';
 
 export const routes: Routes = [
 
@@ -19,16 +22,15 @@ export const routes: Routes = [
 
   // Rutas privadas (con sidebar SIEMPRE)
   {
-    path: 'app',
-    component: SidebarComponent,
-    children: [
-      { path: 'home', component: HomeComponent },
-      { path: 'plantas_lista', component: PlantasListaComponent},
-      { path: 'plagas_lista', component: PlagasListaComponent },
-      {path: 'huerto', component:HuertoComponent},
-      { path: '', redirectTo: 'home', pathMatch: 'full' }
-    ]
-  },
-
-  { path: '**', redirectTo: '' }
+  path: 'app',
+  component: SidebarComponent,
+  children: [
+    { path: 'home', component: HomeComponent },
+    { path: 'plantas', component: PlantasComponent },
+    { path: 'plagas', component: PlagasComponent },
+    { path: 'huerto', component: HuertoComponent },
+    { path: 'maceta', component: MacetaComponent },
+    { path: '', redirectTo: 'home', pathMatch: 'full' }
+  ]
+}
 ];

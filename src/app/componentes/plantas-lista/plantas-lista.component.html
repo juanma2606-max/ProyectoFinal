@@ -1,46 +1,18 @@
-<div class="container-fluid h-100 py-4">
-  <div class="row h-100 g-4">
+<div class="list-group">
+  <button
+    *ngFor="let planta of plantas"
+    type="button"
+    class="list-group-item list-group-item-action d-flex align-items-center gap-3"
+    (click)="seleccionar(planta)"
+  >
+    <span class="badge bg-success">{{ planta.id }}</span>
 
-    <!-- COLUMNA IZQUIERDA -->
-    <div class="col-12 col-md-4">
+    <img
+      [src]="planta.imagen"
+      style="width:40px;height:40px;object-fit:cover"
+      class="rounded"
+    />
 
-      <!-- Buscador (visual, sin lógica) -->
-      <div class="mb-3">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Buscar verdura..."
-        />
-      </div>
-
-      <!-- Listado -->
-      <div class="list-group">
-
-        <button
-          *ngFor="let planta of plantas"
-          type="button"
-          class="list-group-item list-group-item-action d-flex align-items-center gap-3"
-          (click)="seleccionar(planta)"
-        >
-          <span class="badge bg-success">
-            {{ planta.id }}
-          </span>
-
-          <img
-            [src]="planta.imagen"
-            style="max-width: 50px;"
-          />
-
-          {{ planta.nombre }}
-        </button>
-
-      </div>
-    </div>
-
-    <!-- COLUMNA DERECHA (VACÍA, la maneja el PADRE) -->
-    <div class="col-12 col-md-8 d-flex align-items-center justify-content-center text-muted">
-      <p>Selecciona una planta</p>
-    </div>
-
-  </div>
+    {{ planta.nombre }}
+  </button>
 </div>
