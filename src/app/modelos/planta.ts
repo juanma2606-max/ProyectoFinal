@@ -1,3 +1,4 @@
+// src/app/modelos/planta.ts
 export interface Planta {
   id: number;
   nombre: string;

@@ -1,0 +1,30 @@
+<div *ngIf="plaga; else empty">
+
+  <div class="card shadow-sm w-100"
+       style="max-width:900px;background:rgba(248,250,245,0.95);border-radius:16px">
+
+    <div class="ratio ratio-16x9 bg-light rounded-top">
+      <img
+        [src]="plaga.imagen"
+        [alt]="plaga.nombre"
+        class="img-fluid p-3"
+        style="object-fit:contain"
+      />
+    </div>
+
+    <div class="card-body">
+      <h5 class="card-title">{{ plaga.nombre }}</h5>
+      <p class="card-text" style="white-space:pre-line">
+        {{ plaga.descripcion }}
+      </p>
+    </div>
+
+  </div>
+
+</div>
+
+<ng-template #empty>
+  <div class="text-muted text-center py-5">
+    Selecciona una amenaza
+  </div>
+</ng-template>

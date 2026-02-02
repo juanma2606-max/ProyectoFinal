@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlagaItemComponent } from './plaga-item.component';
+import { PlantaComponent } from './planta.component';
 
-describe('PlagaItemComponent', () => {
-  let component: PlagaItemComponent;
-  let fixture: ComponentFixture<PlagaItemComponent>;
+describe('PlantaComponent', () => {
+  let component: PlantaComponent;
+  let fixture: ComponentFixture<PlantaComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PlagaItemComponent]
+      imports: [PlantaComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PlagaItemComponent);
+    fixture = TestBed.createComponent(PlantaComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

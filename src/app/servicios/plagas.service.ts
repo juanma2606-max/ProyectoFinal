@@ -1,26 +1,17 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { PlagasListaComponent } from '../plagas-lista/plagas-lista.component';
-import { Plaga } from '../../modelos/plagas';
+import { Injectable } from '@angular/core';
+import { Plaga } from '../modelos/plagas';
 
-@Component({
-  selector: 'app-plagas',
-  standalone: true,
-  imports: [CommonModule, PlagasListaComponent],
-  templateUrl: './plaga-item.component.html'
+@Injectable({
+  providedIn: 'root'
 })
-export class PlagasComponent {
+export class PlagasService {
 
-  tipoActivo: 'plaga' | 'enfermedad' = 'plaga';
-  plagaActiva: Plaga | null = null;
-
-  plagas: Plaga[] = [
+  private _datosCompletos: Plaga[] = [
     {
       id: 1,
       nombre: 'Pulgón',
       imagen: '/images/plagas/pulgon.png',
-      descripcion: 
-        'Descripción:\n' +
+      descripcion: 'Descripción:\n' +
         'El pulgón es un insecto pequeño que se alimenta de la savia de las plantas, debilitándolas y favoreciendo la aparición de otras enfermedades.\n\n' +
         'Síntomas:\n' +
         '- Hojas enrolladas o deformadas.\n' +
@@ -36,8 +27,7 @@ export class PlagasComponent {
       id: 2,
       nombre: 'Mildiu',
       imagen: '/images/enfermedades/mildiu.png',
-      descripcion:
-        'Descripción:\n' +
+      descripcion: 'Descripción:\n' +
         'El mildiu es una enfermedad fúngica que aparece con alta humedad y temperaturas suaves, afectando principalmente a hojas y tallos.\n\n' +
         'Síntomas:\n' +
         '- Manchas amarillas en el haz de las hojas.\n' +
@@ -53,8 +43,7 @@ export class PlagasComponent {
       id: 3,
       nombre: 'Araña Roja',
       imagen: '/images/plagas/araña_roja.png',
-      descripcion:
-        'Descripción:\n' +
+      descripcion: 'Descripción:\n' +
         'La araña roja es un ácaro diminuto que prolifera en ambientes secos y calurosos, causando daños progresivos en las hojas.\n\n' +
         'Síntomas:\n' +
         '- Punteado amarillo en las hojas.\n' +
@@ -70,8 +59,7 @@ export class PlagasComponent {
       id: 4,
       nombre: 'Cochinilla',
       imagen: '/images/plagas/cochinilla.png',
-      descripcion:
-        'Descripción:\n' +
+      descripcion: 'Descripción:\n' +
         'La cochinilla es un insecto que se fija a tallos y hojas para alimentarse de la savia, debilitando la planta de forma progresiva.\n\n' +
         'Síntomas:\n' +
         '- Presencia de bultos blancos o marrones.\n' +
@@ -87,8 +75,7 @@ export class PlagasComponent {
       id: 5,
       nombre: 'Botritis',
       imagen: '/images/enfermedades/botritis.png',
-      descripcion:
-        'Descripción:\n' +
+      descripcion: 'Descripción:\n' +
         'La botritis o moho gris es una enfermedad fúngica que afecta flores, frutos y tallos, especialmente en ambientes húmedos.\n\n' +
         'Síntomas:\n' +
         '- Aparición de moho grisáceo.\n' +
@@ -104,8 +91,7 @@ export class PlagasComponent {
       id: 6,
       nombre: 'Oídio',
       imagen: '/images/enfermedades/oidio.png',
-      descripcion:
-        'Descripción:\n' +
+      descripcion: 'Descripción:\n' +
         'El oídio es una enfermedad fúngica muy común que aparece como un polvo blanco sobre las hojas y tallos.\n\n' +
         'Síntomas:\n' +
         '- Polvo blanco en hojas y tallos.\n' +
@@ -119,16 +105,29 @@ export class PlagasComponent {
     }
   ];
 
-  get plagasFiltradas(): Plaga[] {
-    return this.plagas.filter(p => p.tipo === this.tipoActivo);
+  /**
+   * Obtiene todas las plagas y enfermedades
+   */
+  getTodos(): Plaga[] {
+    return [...this._datosCompletos]; // Retorna copia para evitar mutaciones
   }
 
-  cambiarTipo(tipo: 'plaga' | 'enfermedad'): void {
-    this.tipoActivo = tipo;
-    this.plagaActiva = null;
+  
+  /**
+   * Obtiene una plaga/enfermedad por su ID
+   * @param id El ID de la plaga/enfermedad
+   * @returns La plaga/enfermedad o undefined si no existe
+   */
+  getPorId(id: number): Plaga | undefined {
+    return this._datosCompletos.find(p => p.id === id);
   }
 
-  onPlagaSeleccionada(plaga: Plaga): void {
-    this.plagaActiva = plaga;
+  /**
+   * Obtiene plagas/enfermedades filtradas por tipo
+   * @param tipo 'plaga' o 'enfermedad'
+   * @returns Array filtrado
+   */
+  getPorTipo(tipo: 'plaga' | 'enfermedad'): Plaga[] {
+    return this._datosCompletos.filter(p => p.tipo === tipo);
   }
 }

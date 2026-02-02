@@ -1,0 +1,46 @@
+<div class="contenedor row g-4">
+
+  <!-- COLUMNA IZQUIERDA -->
+  <div class="col-12 col-lg-4">
+
+    <div class="btn-group w-100 mb-3 flex-wrap gap-2">
+      <button class="btn btn-dark btn-outline-success" (click)="seleccionarTipo(null)">Todas</button>
+      <button class="btn btn-dark btn-outline-success" (click)="seleccionarTipo('hortaliza')">Hortalizas</button>
+      <button class="btn btn-dark btn-outline-success" (click)="seleccionarTipo('fruta')">Frutas</button>
+      <button class="btn btn-dark btn-outline-success" (click)="seleccionarTipo('hierba')">Hierbas</button>
+      <button class="btn btn-dark btn-outline-success" (click)="seleccionarTipo('flor')">Flores</button>
+      <button class="btn btn-dark btn-outline-success" (click)="seleccionarTipo('arbol')">Árboles</button>
+    </div>
+
+    <div class="list-group">
+      <a
+        *ngFor="let planta of plantasFiltradas"
+        class="list-group-item list-group-item-action d-flex align-items-center gap-3"
+        [routerLink]="[planta.id]">
+
+        <span class="badge bg-success">{{ planta.id }}</span>
+
+        <img
+          [src]="planta.imagen"
+          class="rounded"
+          style="width:40px;height:40px;object-fit:cover"
+        />
+
+        {{ planta.nombre }}
+      </a>
+    </div>
+
+    <div class="d-grid gap-2 mt-3">
+      <button class="btn btn-dark btn-outline-success">
+        Añadir Planta
+      </button>
+    </div>
+
+  </div>
+
+  <!-- COLUMNA DERECHA -->
+  <div class="col-12 col-lg-8">
+    <router-outlet></router-outlet>
+  </div>
+
+</div>

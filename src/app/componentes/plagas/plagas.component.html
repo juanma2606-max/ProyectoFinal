@@ -1,0 +1,52 @@
+<div class="row g-4">
+
+  <!-- COLUMNA IZQUIERDA -->
+  <div class="col-12 col-lg-4">
+
+    <div class="btn-group w-100 mb-3">
+      <button
+        class="btn btn-dark btn-outline-success"
+        (click)="cambiarTipo('plaga')">
+        Plagas
+      </button>
+
+      <button
+        class="btn btn-dark btn-outline-success"
+        (click)="cambiarTipo('enfermedad')">
+        Enfermedades
+      </button>
+    </div>
+
+    <div class="list-group">
+      <a
+        *ngFor="let plaga of plagasFiltradas"
+        class="list-group-item list-group-item-action d-flex align-items-center gap-3"
+        [routerLink]="[plaga.id]">
+
+        <img
+          [src]="plaga.imagen"
+          class="rounded"
+          style="width:40px;height:40px;object-fit:cover"
+        />
+
+        {{ plaga.nombre }}
+      </a>
+    </div>
+
+    <div class="d-grid gap-2 mt-3">
+      <button class="btn btn-dark btn-outline-success">
+        Añadir Plaga
+      </button>
+      <button class="btn btn-dark btn-outline-success">
+        Añadir Enfermedad
+      </button>
+    </div>
+
+  </div>
+
+  <!-- COLUMNA DERECHA -->
+  <div class="col-12 col-lg-8">
+    <router-outlet></router-outlet>
+  </div>
+
+</div>
