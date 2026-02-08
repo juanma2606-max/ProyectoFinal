@@ -51,7 +51,7 @@ constructor (formBuilder:FormBuilder, private authService:AuthService, private r
           const newPerson = new Person(
             user.user.uid,
             username,
-            password
+            email
           );
           await this.personService.createPerson(newPerson);
         //TODO: Guardar en Firebase Realtime Database los datos del usuario (username, firstname, ...)
