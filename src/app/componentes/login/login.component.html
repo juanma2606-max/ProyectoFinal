@@ -19,13 +19,15 @@
             Completa los campos para registrarte
           </p>
 
-          <form>
+          <form (ngSubmit)="onSubmit()">
             <div class="mb-3">
               <label class="form-label small">Nombre de usuario</label>
               <input
                 type="text"
+                name="email"
+                [(ngModel)]="formLogin.email"
                 class="form-control form-control-sm rounded-pill border border-success shadow-sm"
-                placeholder="username"
+                placeholder="email"
               >
             </div>
 
@@ -33,13 +35,14 @@
               <label class="form-label small">Contraseña</label>
               <input
                 type="password"
+                 name="password"
+                [(ngModel)]="formLogin.password"
                 class="form-control form-control-sm rounded-pill border border-success shadow-sm"
                 placeholder="********"
               >
             </div>
             <button
-              type="button"
-              routerLink="/app"
+              type="submit"
               class="btn btn-success w-100 rounded-pill shadow-sm py-2">Iniciar sesión</button>   
           </form>
 
