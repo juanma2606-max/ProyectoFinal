@@ -1,0 +1,53 @@
+<!-- huerto-resume.component.html -->
+<div class="card huerto-card h-100 border-0 shadow">
+
+  <!-- Imagen según tipo -->
+  <div class="huerto-img">
+    <img
+      [src]="huerto?.tipo === 'parcela' ? '/images/huerto1.jpg' : '/images/maceta.webp'"
+      [alt]="huerto?.tipo === 'parcela' ? 'Huerto' : 'Maceta'"
+      class="img-fluid w-100 h-100"
+    />
+  </div>
+
+  <!-- Título -->
+  <div class="huerto-title text-center">
+    {{ huerto?.nombre || 'Sin nombre' }}
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="d-flex justify-content-around align-items-center bg-light py-2 border-top">
+    
+    <!-- Eliminar -->
+    <button
+      class="btn action-btn delete"
+      type="button"
+      data-bs-toggle="modal"
+      data-bs-target="#exampleModal"
+      (click)="onDelete()"
+    >
+      <i class="fa-solid fa-trash"></i>
+    </button>
+
+    <!-- Editar -->
+    <button 
+      class="btn action-btn edit" 
+      type="button"
+      (click)="onEdit()"
+    >
+      <i class="fa-solid fa-pen"></i>
+    </button>
+
+    <!-- Ver -->
+    <a
+      class="btn action-btn view"
+      [routerLink]="huerto?.tipo === 'parcela' ? '/app/huerto' : '/app/maceta'"
+      [queryParams]="{ id: huerto?.id }"
+      role="button"
+    >
+      <i class="fa-solid fa-book"></i>
+    </a>
+
+  </div>
+
+</div>

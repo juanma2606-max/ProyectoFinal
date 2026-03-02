@@ -1,0 +1,44 @@
+// Animación de entrada para el estado vacío
+.empty-state-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Efecto hover en el icono
+.icon-wrapper {
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+// Mejoras en botones
+.btn {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+}
+
+// Spinner animado
+.spinner-border {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
