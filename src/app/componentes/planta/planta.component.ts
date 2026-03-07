@@ -19,7 +19,7 @@ export class PlantasComponent implements OnInit {
 
   ngOnInit(): void {
     // Cargar todos los datos desde el servicio
-    this.plantas = this.plantasService.getTodos();
+    this.plantasService.getAllPlantasFirebase().subscribe(data => this.plantas = data);
   }
 
   get plantasFiltradas(): Planta[] {

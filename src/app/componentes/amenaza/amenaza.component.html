@@ -1,0 +1,45 @@
+<!-- src/app/componentes/amenazas/amenazas.component.html -->
+<div class="row g-4">
+
+  <!-- COLUMNA IZQUIERDA -->
+  <div class="col-12 col-lg-4">
+
+    <div class="btn-group w-100 mb-3">
+      <button class="btn btn-dark btn-outline-success" (click)="cambiarTipo('plaga')">
+        Plagas
+      </button>
+      <button class="btn btn-dark btn-outline-success" (click)="cambiarTipo('enfermedad')">
+        Enfermedades
+      </button>
+    </div>
+
+    <div class="list-group">
+      <!-- ✅ Usa "amenazasFiltradas" y "amenaza" (coherente con el TS) -->
+      <a
+        *ngFor="let amenaza of amenazasFiltradas"
+        class="list-group-item list-group-item-action d-flex align-items-center gap-3"
+        [routerLink]="[amenaza.id]">
+
+        <img
+          [src]="amenaza.imagen"
+          class="rounded"
+          style="width:40px;height:40px;object-fit:cover"
+        />
+
+        {{ amenaza.nombre }}
+      </a>
+    </div>
+
+    <div class="d-grid gap-2 mt-3">
+      <button class="btn btn-dark btn-outline-success">Añadir Plaga</button>
+      <button class="btn btn-dark btn-outline-success">Añadir Enfermedad</button>
+    </div>
+
+  </div>
+
+  <!-- COLUMNA DERECHA -->
+  <div class="col-12 col-lg-8">
+    <router-outlet></router-outlet>
+  </div>
+
+</div>

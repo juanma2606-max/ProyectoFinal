@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlagaDetalleComponent } from './plaga-detalle.component';
+import { PlagaDetalleComponent } from './amenaza-detalle.component';
 
 describe('PlagaDetalleComponent', () => {
   let component: PlagaDetalleComponent;

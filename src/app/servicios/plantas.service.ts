@@ -1,4 +1,7 @@
+// src/app/servicios/plantas.service.ts
 import { Injectable } from '@angular/core';
+import { Database, get, listVal, push, ref, remove, update } from '@angular/fire/database';
+import { Observable } from 'rxjs';
 import { Planta } from '../modelos/planta';
 
 @Injectable({
@@ -6,114 +9,72 @@ import { Planta } from '../modelos/planta';
 })
 export class PlantasService {
 
-  private _datosCompletos: Planta[] = [
-    {
-      id: 1,
-      nombre: 'Tomate',
-      imagen: '/images/plantas/tomate.png',
-      descripcion: 'Estación:\n' +
-        'Primavera y verano.\n\n' +
-        'Abono recomendado:\n' +
-        'Abono rico en potasio y fósforo, aplicado cada 15 días.\n\n' +
-        'Riego:\n' +
-        'Frecuente y regular, evitando encharcamientos.\n\n' +
-        'Tiempo de crecimiento:\n' +
-        'Entre 90 y 120 días desde la siembra.\n\n' +
-        'Incompatibilidades:\n' +
-        '- Patata.\n' +
-        '- Hinojo.\n\n' +
-        'Plagas y enfermedades comunes:\n' +
-        '- Pulgón.\n' +
-        '- Araña roja.\n' +
-        '- Mildiu.',
-      tipo: 'hortaliza'
-    },
-    {
-      id: 2,
-      nombre: 'Lechuga',
-      imagen: '/images/plantas/lechuga.png',
-      descripcion: 'Estación:\n' +
-        'Primavera y otoño.\n\n' +
-        'Abono recomendado:\n' +
-        'Abono equilibrado con alto contenido en nitrógeno.\n\n' +
-        'Riego:\n' +
-        'Riego frecuente y ligero, manteniendo el suelo húmedo.\n\n' +
-        'Tiempo de crecimiento:\n' +
-        'Entre 30 y 60 días.\n\n' +
-        'Incompatibilidades:\n' +
-        '- Perejil.\n\n' +
-        'Plagas y enfermedades comunes:\n' +
-        '- Babosas.\n' +
-        '- Pulgón.\n' +
-        '- Mildiu.',
-      tipo: 'hortaliza'
-    },
-    {
-      id: 3,
-      nombre: 'Albahaca',
-      imagen: '/images/plantas/albahaca.png',
-      descripcion: 'Estación:\n' +
-        'Primavera y verano.\n\n' +
-        'Abono recomendado:\n' +
-        'Abono orgánico suave, preferiblemente compost.\n\n' +
-        'Riego:\n' +
-        'Moderado, evitando que el suelo se seque completamente.\n\n' +
-        'Tiempo de crecimiento:\n' +
-        'Entre 30 y 45 días.\n\n' +
-        'Incompatibilidades:\n' +
-        '- Ruda.\n\n' +
-        'Plagas y enfermedades comunes:\n' +
-        '- Pulgón.\n' +
-        '- Mosca blanca.\n' +
-        '- Oídio.',
-      tipo: 'hierba'
-    },
-    {
-      id: 4,
-      nombre: 'Manzano',
-      imagen: '/images/plantas/manzano.jpeg',
-      descripcion: 'Estación:\n' +
-        'Crecimiento durante primavera y verano, reposo en invierno.\n\n' +
-        'Abono recomendado:\n' +
-        'Abono orgánico o estiércol bien compostado una vez al año.\n\n' +
-        'Riego:\n' +
-        'Moderado, aumentando en épocas de calor.\n\n' +
-        'Tiempo de crecimiento:\n' +
-        'Producción de frutos a partir del tercer o cuarto año.\n\n' +
-        'Incompatibilidades:\n' +
-        '- Nogal.\n\n' +
-        'Plagas y enfermedades comunes:\n' +
-        '- Carpocapsa.\n' +
-        '- Oídio.\n' +
-        '- Fuego bacteriano.',
-      tipo: 'arbol'
-    }
-  ];
+  constructor(private database: Database) { }
 
   /**
-   * Obtiene todas las plantas
+   * Obtiene todas las plantas como Observable reactivo
+   * Ruta pública: /plantas (cualquier usuario puede leer)
    */
-  getTodos(): Planta[] {
-    return [...this._datosCompletos]; // Retorna copia para evitar mutaciones
+  getAllPlantasFirebase(): Observable<Planta[]> {
+    const plantasRef = ref(this.database, '/plantas');
+    // keyField: 'id' inyecta la clave de Firebase en cada objeto como 'id'
+    return listVal(plantasRef, { keyField: 'id' }) as Observable<Planta[]>;
   }
 
   /**
-   * Obtiene plantas por tipo específico
-   * @param tipo 'hortaliza', 'fruta', 'hierba', 'flor', 'arbol'
-   * @returns Array de plantas filtradas
+   * Obtiene una planta específica por su ID (string)
    */
-  getPorTipo(tipo: Planta['tipo']): Planta[] {
-    return this._datosCompletos.filter(p => p.tipo === tipo);
+  async getPlantaById(plantaId: string): Promise<Planta | null> {
+    const plantaRef = ref(this.database, `/plantas/${plantaId}`);
+    const snapshot = await get(plantaRef);
+
+    if (!snapshot.exists()) return null;
+
+    const raw = snapshot.val();
+    
+    // Construcción del objeto Planta desde los datos crudos de Firebase
+    // Usamos el operador ?? para valores por defecto y manejamos campos opcionales
+    return {
+      id: snapshot.key!,
+      nombre: raw.nombre ?? '',
+      imagen: raw.imagen ?? '',
+      descripcion: raw.descripcion ?? '',
+      tipo: raw.tipo ?? 'hortaliza',
+      // Campos estructurados (opcionales, pueden no existir en datos antiguos)
+      estacion: raw.estacion,
+      abono: raw.abono,
+      riego: raw.riego,
+      tiempoCrecimiento: raw.tiempoCrecimiento,
+      incompatibilidades: raw.incompatibilidades ?? [],
+      plagas: raw.plagas ?? []
+    };
   }
 
   /**
-   * Obtiene una planta por su ID
-   * @param id El ID de la planta
-   * @returns La planta o undefined si no existe
+   * Crea una nueva planta
+   * Firebase genera automáticamente el ID string con push()
    */
-  getPorId(id: number): Planta | undefined {
-    return this._datosCompletos.find(p => p.id === id);
+  createPlanta(planta: Omit<Planta, 'id'>) {
+    const plantasRef = ref(this.database, '/plantas');
+    // push() devuelve una referencia con la nueva clave generada
+    return push(plantasRef, planta);
   }
 
+  /**
+   * Actualiza una planta existente
+   * Excluimos el 'id' del objeto a guardar para no sobrescribir la clave
+   */
+  updatePlanta(planta: Planta) {
+    const plantaRef = ref(this.database, `/plantas/${planta.id}`);
+    const { id, ...dataToSave } = planta; // Eliminamos el id de los datos a actualizar
+    return update(plantaRef, dataToSave);
+  }
 
+  /**
+   * Elimina una planta por su ID
+   */
+  removePlanta(plantaId: string): Promise<void> {
+    const plantaRef = ref(this.database, `/plantas/${plantaId}`);
+    return remove(plantaRef);
+  }
 }

@@ -30,14 +30,14 @@
       <!-- ✅ ESTADO VACÍO - Diseño mejorado -->
       <div class="col-12" *ngIf="huertos.length === 0">
         <div class="d-flex justify-content-center mt-4">
-          <div class="card border-0 shadow-lg bg-dark bg-opacity-75 text-center empty-state-card" 
+          <div class="card border-0 shadow-lg bg-dark text-center empty-state-card" 
                style="max-width: 520px; border-radius: 20px;">
             
             <div class="card-body py-5 px-4">
               
               <!-- Icono animado -->
               <div class="mb-4">
-                <div class="icon-wrapper bg-success bg-opacity-25 rounded-circle d-inline-flex p-4">
+                <div class="icon-wrapper bg-success rounded-circle d-inline-flex p-4">
                   <i class="fa-solid fa-seedling text-success" style="font-size: 3.5rem;"></i>
                 </div>
               </div>
@@ -46,7 +46,7 @@
               <h3 class="text-light fw-bold mb-3 fs-5">¡Tu huerto está vacío!</h3>
               
               <!-- Descripción -->
-              <p class="text-light opacity-75 mb-4 small">
+              <p class="text-light mb-4 small">
                 Aún no has registrado ningún huerto o maceta.
                 <br>¡Comienza a cultivar creando tu primer espacio verde!
               </p>
@@ -61,8 +61,8 @@
               </div>
 
               <!-- Tip adicional -->
-              <div class="mt-4 pt-4 border-top border-secondary border-opacity-25">
-                <small class="text-light opacity-50">
+              <div class="mt-4 pt-4 border-top border-secondary">
+                <small class="text-light">
                   <i class="fa-solid fa-lightbulb text-warning me-2"></i>
                   ¿Sabías que puedes tener tanto parcelas como macetas?
                 </small>
@@ -83,8 +83,8 @@
             <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;">
               <span class="visually-hidden">Cargando...</span>
             </div>
-            <p class="text-light opacity-75">Cargando tus huertos...</p>
-            <small class="text-light opacity-50">Un momento, por favor</small>
+            <p class="text-light">Cargando tus huertos...</p>
+            <small class="text-light">Un momento, por favor</small>
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@
     <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
       
       <div class="modal-header border-0 pb-0">
-        <div class="icon-wrapper bg-danger bg-opacity-25 rounded-circle d-inline-flex p-3 mb-3">
+        <div class="icon-wrapper bg-danger rounded-circle d-inline-flex p-3 mb-3">
           <i class="fa-solid fa-triangle-exclamation text-danger" style="font-size: 2rem;"></i>
         </div>
         <button
@@ -120,10 +120,10 @@
 
       <div class="modal-body text-center pt-0 pb-4">
         <h5 class="text-light fw-bold mb-2">¿Eliminar huerto?</h5>
-        <p class="text-light opacity-75 mb-0">
+        <p class="text-light mb-0">
           ¿Estás seguro de querer eliminar <strong class="text-success">{{ huertoAEliminar?.nombre }}</strong>?
           <br>
-          <small class="text-danger opacity-75">Esta acción no se puede deshacer</small>
+          <small class="text-danger">Esta acción no se puede deshacer</small>
         </p>
       </div>
 
