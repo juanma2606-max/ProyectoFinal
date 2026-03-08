@@ -2,24 +2,24 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { PlantasService } from '../../servicios/plantas.service';
-import { Planta } from '../../modelos/planta';
+import { AmenazasService } from '../../servicios/amenazas.service';
+import { Amenaza } from '../../modelos/amenaza';
 
 @Component({
-  selector: 'app-planta-detalle',
+  selector: 'app-amenaza-detalle',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './planta-detalle.component.html'
+  templateUrl: './amenaza-detalle.component.html'
 })
-export class PlantaDetalleComponent implements OnInit {
+export class AmenazaDetalleComponent implements OnInit {
 
-  planta?: Planta | null;  //Permitir null explícitamente
+  amenaza?: Amenaza | null;  //Permitir null explícitamente
   cargando: boolean = false;  //Estado de carga para UX
   error: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private plantasService: PlantasService
+    private amenazasService: AmenazasService
   ) {}
 
   ngOnInit(): void {
@@ -28,8 +28,8 @@ export class PlantaDetalleComponent implements OnInit {
       
       //Validación 1: El ID existe en la URL
       if (!id) {
-        this.error = 'ID de planta no válido';
-        this.planta = null;
+        this.error = 'ID de amenaza no válido';
+        this.amenaza = null;
         return;
       }
 
@@ -38,14 +38,14 @@ export class PlantaDetalleComponent implements OnInit {
 
       try {
         //Validación 2: Esperar la Promesa antes de asignar
-        this.planta = await this.plantasService.getPlantaById(id);
+        this.amenaza = await this.amenazasService.getAmenazaById(id);
         
-        // Si no se encontró la planta en Firebase
-        if (!this.planta) {
-          this.error = 'Planta no encontrada';
+        // Si no se encontró la amenaza en Firebase
+        if (!this.amenaza) {
+          this.error = 'Amenaza no encontrada';
         }
       } catch (err) {
-        console.error('Error cargando planta:', err);
+        console.error('Error cargando amenaza:', err);
         this.error = 'Error al cargar los datos';
       } finally {
         this.cargando = false;

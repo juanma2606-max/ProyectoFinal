@@ -1,0 +1,149 @@
+<!-- home-list.component.html -->
+<div class="contenedor container-fluid min-vh-100 d-flex flex-column justify-content-center py-4 py-md-5 px-2 px-md-4">
+
+  <!-- HEADER -->
+  <div class="text-center mb-4 mb-md-5">
+    <h2 class="text-light fw-bold fs-4 fs-md-2">Mis Huertos</h2>
+    <p class="text-light mb-0">
+      Gestiona tus huertos y macetas de un vistazo
+    </p>
+  </div>
+
+  <!-- GRID DE HUERTOS -->
+  <div class="row g-3 g-md-4 justify-content-center">
+
+    <ng-container *ngIf="huertos$ | async as huertos; else loading">
+      
+      <!-- Cards de huertos -->
+      <div
+        class="col-12 col-sm-6 col-lg-4 col-xl-3"
+        *ngFor="let huerto of huertos"
+      >
+        <app-home-resume
+          [huerto]="huerto"
+          (edit)="onEditHuerto($event)"
+          (delete)="huertoAEliminar = $event"
+        >
+        </app-home-resume>
+      </div>
+
+      <!-- ✅ ESTADO VACÍO - Diseño mejorado -->
+      <div class="col-12" *ngIf="huertos.length === 0">
+        <div class="d-flex justify-content-center mt-4">
+          <div class="card border-0 shadow-lg bg-dark text-center empty-state-card" 
+               style="max-width: 520px; border-radius: 20px;">
+            
+            <div class="card-body py-5 px-4">
+              
+              <!-- Icono animado -->
+              <div class="mb-4">
+                <div class="icon-wrapper bg-success rounded-circle d-inline-flex p-4">
+                  <i class="fa-solid fa-seedling text-success" style="font-size: 3.5rem;"></i>
+                </div>
+              </div>
+
+              <!-- Título -->
+              <h3 class="text-light fw-bold mb-3 fs-5">¡Tu huerto está vacío!</h3>
+              
+              <!-- Descripción -->
+              <p class="text-light mb-4 small">
+                Aún no has registrado ningún huerto o maceta.
+                <br>¡Comienza a cultivar creando tu primer espacio verde!
+              </p>
+
+              <!-- Botón de acción -->
+              <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <button 
+                  class="btn btn-success btn-lg px-4" 
+                  type="button">
+                  <i class="fa-solid fa-plus me-2"></i>Crear mi primer huerto
+                </button>
+              </div>
+
+              <!-- Tip adicional -->
+              <div class="mt-4 pt-4 border-top border-secondary">
+                <small class="text-light">
+                  <i class="fa-solid fa-lightbulb text-warning me-2"></i>
+                  ¿Sabías que puedes tener tanto parcelas como macetas?
+                </small>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- ✅ LOADING - Diseño mejorado -->
+    <ng-template #loading>
+      <div class="col-12">
+        <div class="d-flex justify-content-center mt-5">
+          <div class="text-center">
+            <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="text-light">Cargando tus huertos...</p>
+            <small class="text-light">Un momento, por favor</small>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+  </div>
+
+</div>
+
+<!-- MODAL ELIMINAR - Diseño mejorado -->
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+  #deleteModal
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+      
+      <div class="modal-header border-0 pb-0">
+        <div class="icon-wrapper bg-danger rounded-circle d-inline-flex p-3 mb-3">
+          <i class="fa-solid fa-triangle-exclamation text-danger" style="font-size: 2rem;"></i>
+        </div>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body text-center pt-0 pb-4">
+        <h5 class="text-light fw-bold mb-2">¿Eliminar huerto?</h5>
+        <p class="text-light mb-0">
+          ¿Estás seguro de querer eliminar <strong class="text-success">{{ huertoAEliminar?.nombre }}</strong>?
+          <br>
+          <small class="text-danger">Esta acción no se puede deshacer</small>
+        </p>
+      </div>
+
+      <div class="modal-footer border-0 justify-content-center pb-4">
+        <button
+          type="button"
+          class="btn btn-outline-light px-4"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-danger px-4"
+          (click)="confirmarEliminacion()"
+        >
+          <i class="fa-solid fa-trash me-2"></i>Eliminar
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>

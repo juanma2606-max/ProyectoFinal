@@ -1,0 +1,52 @@
+<div *ngIf="cargando" class="text-center py-5">
+  <div class="spinner-border text-success"></div>
+  <p class="mt-2">Cargando...</p>
+</div>
+
+<div *ngIf="error" class="alert alert-warning">⚠️ {{ error }}</div>
+
+<div *ngIf="amenaza && !cargando && !error; else empty">
+  <div class="card shadow-sm w-100" style="max-width:900px;border-radius:16px">
+    
+    <!-- Imagen -->
+    <div class="ratio ratio-16x9 bg-light rounded-top">
+      <img [src]="amenaza.imagen" [alt]="amenaza.nombre" 
+           class="img-fluid p-3" style="object-fit:contain"
+           onerror="this.src='images/amenazas/default.png'">
+    </div>
+
+    <div class="card-body">
+      <h5 class="card-title">{{ amenaza.nombre }}</h5>
+      <span class="badge bg-{{ amenaza.tipo === 'plaga' ? 'warning' : 'danger' }} mb-3">
+        {{ amenaza.tipo === 'plaga' ? '🐛 Plaga' : '🦠 Enfermedad' }}
+      </span>
+      
+      <p class="card-text">{{ amenaza.descripcion }}</p>
+      <hr>
+
+      <!-- Síntomas -->
+      <div *ngIf="amenaza.sintomas?.length">
+        <h6>🔍 Síntomas</h6>
+        <ul class="list-unstyled">
+          <li *ngFor="let s of amenaza.sintomas">• {{ s }}</li>
+        </ul>
+      </div>
+
+      <!-- Tratamiento -->
+      <div *ngIf="amenaza.tratamiento">
+        <h6>💊 Tratamiento</h6>
+        <p class="text-success">{{ amenaza.tratamiento }}</p>
+      </div>
+
+      <!-- Prevención -->
+      <div *ngIf="amenaza.prevencion">
+        <h6>🛡️ Prevención</h6>
+        <p class="text-info">{{ amenaza.prevencion }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #empty>
+  <div class="text-muted py-5 text-center">Selecciona una amenaza</div>
+</ng-template>

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlagaDetalleComponent } from './plaga-detalle.component';
+import { HomeResumeComponent } from './home-resume.component';
 
-describe('PlagaDetalleComponent', () => {
-  let component: PlagaDetalleComponent;
-  let fixture: ComponentFixture<PlagaDetalleComponent>;
+describe('HomeResumeComponent', () => {
+  let component: HomeResumeComponent;
+  let fixture: ComponentFixture<HomeResumeComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PlagaDetalleComponent]
+      imports: [HomeResumeComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PlagaDetalleComponent);
+    fixture = TestBed.createComponent(HomeResumeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

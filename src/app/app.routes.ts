@@ -7,10 +7,10 @@ import { SidebarComponent } from './componentes/sidebar/sidebar.component';
 import { AjustesComponent } from './componentes/ajustes/ajustes.component';
 import { HuertoComponent } from './componentes/huerto/huerto.component';
 import { MacetaComponent } from './componentes/maceta/maceta.component';
-import { PlagasComponent } from './componentes/plagas/plagas.component';
-import { PlagaDetalleComponent } from './componentes/plaga-detalle/plaga-detalle.component';
 import { PlantaDetalleComponent } from './componentes/planta-detalle/planta-detalle.component';
 import { PlantasComponent } from './componentes/planta/planta.component';
+import { AmenazasComponent } from './componentes/amenaza/amenaza.component';
+import { AmenazaDetalleComponent } from './componentes/amenaza-detalle/amenaza-detalle.component';
 
 export const routes: Routes = [
 
@@ -35,9 +35,9 @@ export const routes: Routes = [
 },
       {
         path: 'plagas',
-        component: PlagasComponent,
+        component: AmenazasComponent,
         children: [
-          { path: ':id', component: PlagaDetalleComponent }
+          { path: ':id', component: AmenazaDetalleComponent }
         ]
       },
 
