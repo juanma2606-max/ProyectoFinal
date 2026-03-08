@@ -8,5 +8,4 @@ export interface Amenaza {
   // Campos estructurados (opcionales)
   sintomas?: string[];
   tratamiento?: string;
-  prevencion?: string;
 }

@@ -3,7 +3,7 @@
   <p class="mt-2">Cargando...</p>
 </div>
 
-<div *ngIf="error" class="alert alert-warning">⚠️ {{ error }}</div>
+<div *ngIf="error" class="alert alert-warning"> {{ error }}</div>
 
 <div *ngIf="amenaza && !cargando && !error; else empty">
   <div class="card shadow-sm w-100" style="max-width:900px;border-radius:16px">
@@ -38,11 +38,6 @@
         <p class="text-success">{{ amenaza.tratamiento }}</p>
       </div>
 
-      <!-- Prevención -->
-      <div *ngIf="amenaza.prevencion">
-        <h6>🛡️ Prevención</h6>
-        <p class="text-info">{{ amenaza.prevencion }}</p>
-      </div>
     </div>
   </div>
 </div>

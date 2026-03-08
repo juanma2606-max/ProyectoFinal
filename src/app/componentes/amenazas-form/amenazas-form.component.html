@@ -1,0 +1,112 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+      <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+
+
+          <form [formGroup]="amenazaForm" (ngSubmit)="onSubmit()">
+
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-control" formControlName="nombre"
+                placeholder="Ej. Pulgón negro"
+                [ngClass]="{
+                  'is-valid':   amenazaForm.get('nombre')?.valid   && amenazaForm.get('nombre')?.touched,
+                  'is-invalid': amenazaForm.get('nombre')?.invalid && amenazaForm.get('nombre')?.touched
+                }"
+              />
+              <div *ngIf="amenazaForm.get('nombre')?.invalid && amenazaForm.get('nombre')?.touched" class="invalid-feedback">
+                <div *ngIf="amenazaForm.get('nombre')?.errors?.['required']">El nombre es obligatorio.</div>
+                <div *ngIf="amenazaForm.get('nombre')?.errors?.['maxlength']">Máximo 100 caracteres.</div>
+              </div>
+            </div>
+
+            <!-- Tipo -->
+            <div class="mb-3">
+              <label class="form-label">Tipo</label>
+              <select class="form-select" formControlName="tipo"
+                [ngClass]="{
+                  'is-valid':   amenazaForm.get('tipo')?.valid   && amenazaForm.get('tipo')?.touched,
+                  'is-invalid': amenazaForm.get('tipo')?.invalid && amenazaForm.get('tipo')?.touched
+                }"
+              >
+                <option value="">Selecciona un tipo</option>
+                <option value="plaga">Plaga</option>
+                <option value="enfermedad">Enfermedad</option>
+              </select>
+              <div *ngIf="amenazaForm.get('tipo')?.invalid && amenazaForm.get('tipo')?.touched" class="invalid-feedback">
+                El tipo es obligatorio.
+              </div>
+              <!-- Preview de imagen asignada -->
+              <small *ngIf="amenazaForm.get('tipo')?.value" class="text-muted">
+                Imagen asignada: <strong>{{ imagenesPorTipo[amenazaForm.get('tipo')?.value] }}</strong>
+              </small>
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-3">
+              <label class="form-label">Descripción</label>
+              <textarea class="form-control" formControlName="descripcion"
+                placeholder="Descripción general de la amenaza" rows="3"
+                [ngClass]="{
+                  'is-valid':   amenazaForm.get('descripcion')?.valid   && amenazaForm.get('descripcion')?.touched,
+                  'is-invalid': amenazaForm.get('descripcion')?.invalid && amenazaForm.get('descripcion')?.touched
+                }"
+              ></textarea>
+              <div *ngIf="amenazaForm.get('descripcion')?.invalid && amenazaForm.get('descripcion')?.touched" class="invalid-feedback">
+                <div *ngIf="amenazaForm.get('descripcion')?.errors?.['required']">La descripción es obligatoria.</div>
+                <div *ngIf="amenazaForm.get('descripcion')?.errors?.['maxlength']">Máximo 500 caracteres.</div>
+              </div>
+            </div>
+
+            <!-- Síntomas (FormArray) -->
+            <div class="mb-3">
+              <label class="form-label">Síntomas</label>
+              <div formArrayName="sintomas">
+                <div *ngFor="let sintoma of sintomas.controls; let i = index" class="input-group mb-2">
+                  <input type="text" class="form-control" [formControlName]="i"
+                    placeholder="Ej. Hojas amarillas"
+                    [ngClass]="{
+                      'is-invalid': sintoma.invalid && sintoma.touched
+                    }"
+                  />
+                  <button type="button" class="btn btn-outline-danger" (click)="removeSintoma(i)">✕</button>
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline-secondary btn-sm mt-1" (click)="addSintoma()">
+                + Añadir síntoma
+              </button>
+            </div>
+
+            <!-- Tratamiento -->
+            <div class="mb-3">
+              <label class="form-label">Tratamiento <span class="text-muted">(opcional)</span></label>
+              <textarea class="form-control" formControlName="tratamiento"
+                placeholder="Cómo tratar esta amenaza" rows="2"
+                [ngClass]="{
+                  'is-invalid': amenazaForm.get('tratamiento')?.invalid && amenazaForm.get('tratamiento')?.touched
+                }"
+              ></textarea>
+              <div *ngIf="amenazaForm.get('tratamiento')?.errors?.['maxlength']" class="invalid-feedback">
+                Máximo 500 caracteres.
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-end gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="amenazaForm.invalid">
+                Guardar
+              </button>
+              <a routerLink="/amenazas" class="btn btn-outline-secondary">
+                Cancelar
+              </a>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
