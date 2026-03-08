@@ -26,7 +26,6 @@ export class AmenazasService {
       tipo: raw.tipo ?? 'plaga',
       sintomas: raw.sintomas ?? [],
       tratamiento: raw.tratamiento,
-      prevencion: raw.prevencion
     };
   }
 

@@ -11,6 +11,8 @@ import { PlantaDetalleComponent } from './componentes/planta-detalle/planta-deta
 import { PlantasComponent } from './componentes/planta/planta.component';
 import { AmenazasComponent } from './componentes/amenaza/amenaza.component';
 import { AmenazaDetalleComponent } from './componentes/amenaza-detalle/amenaza-detalle.component';
+import { AmenazaformComponent } from './componentes/amenazas-form/amenazas-form.component';
+import { PlantasFormComponent } from './componentes/plantas-form/plantas-form.component';
 
 export const routes: Routes = [
 
@@ -34,13 +36,16 @@ export const routes: Routes = [
     ]
 },
       {
-        path: 'plagas',
+        path: 'amenazas',
         component: AmenazasComponent,
         children: [
           { path: ':id', component: AmenazaDetalleComponent }
         ]
       },
-
+      { path: 'amenazaform', component: AmenazaformComponent },// CREAR
+      { path: 'amenazaform/:id', component: AmenazaformComponent }, // EDITAR
+      { path: 'plantasform',      component: PlantasFormComponent },   // CREAR
+      { path: 'plantasform/:id',  component: PlantasFormComponent },   // EDITAR
       { path: 'huerto', component: HuertoComponent },
       { path: 'maceta', component: MacetaComponent },
       { path: '', redirectTo: 'home', pathMatch: 'full' }
