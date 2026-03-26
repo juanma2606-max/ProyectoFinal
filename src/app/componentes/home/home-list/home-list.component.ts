@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { Huerto } from '../../../modelos/huerto.model';
 import { HuertosService } from '../../../servicios/huertos.service';
 import { HomeResumeComponent } from '../home-resume/home-resume.component';
+import { Modal } from 'bootstrap';
+
 
 @Component({
   selector: 'app-home-list',
@@ -30,22 +32,39 @@ export class HomeListComponent implements OnInit {
     this.huertos$ = this.huertoService.getAllHuertosFirebase();
   }
 
-  onEditHuerto(huerto: Huerto): void {
-    // Redirigir al formulario de edición
-    const ruta = huerto.tipo === 'parcela' ? '/app/huerto/editar' : '/app/maceta/editar';
-    this.router.navigate([ruta], { queryParams: { id: huerto.id } });
-  }
+onEditHuerto(huerto: Huerto): void {
+  this.router.navigate(['/app/huertoform', huerto.id]);
+}
 
-  confirmarEliminacion(): void {
-    if (this.huertoAEliminar) {
-      this.huertoService.removeObject(this.huertoAEliminar.id)
-        .then(() => {
-          console.log('Huerto eliminado correctamente');
-          this.huertoAEliminar = null;
-        })
-        .catch(error => {
-          console.error('Error al eliminar:', error);
-        });
-    }
-  }
+  irACrear(): void {
+  this.router.navigate(['/app/huertoform']);
+}
+onDeleteHuerto(huerto: Huerto): void {
+  this.huertoAEliminar = huerto;
+  const modal = new Modal(this.deleteModal.nativeElement);
+  modal.show();
+}
+
+confirmarEliminacion(): void {
+  if (!this.huertoAEliminar) return;
+
+  const modalInstance = Modal.getInstance(this.deleteModal.nativeElement);
+
+  // 1. Escuchar cuando el modal termine de cerrarse
+  this.deleteModal.nativeElement.addEventListener('hidden.bs.modal', () => {
+    // 2. Limpiar el backdrop manualmente por si acaso
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('padding-right');
+  }, { once: true }); // { once: true } para que solo se ejecute una vez
+
+  // 3. Eliminar y cerrar
+  this.huertoService.removeObject(this.huertoAEliminar.id)
+    .then(() => {
+      this.huertoAEliminar = null;
+      modalInstance?.hide();
+    })
+    .catch(error => console.error('Error al eliminar:', error));
+}
 }

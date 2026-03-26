@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Database, get, listVal, push, ref, remove, update } from '@angular/fire/database';
 import { Observable } from 'rxjs';
-import { Planta } from '../modelos/planta';
+import { Planta } from '../modelos/planta.model';
 
 @Injectable({
   providedIn: 'root'

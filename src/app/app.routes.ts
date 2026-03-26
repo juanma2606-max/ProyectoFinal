@@ -13,6 +13,8 @@ import { AmenazasComponent } from './componentes/amenaza/amenaza.component';
 import { AmenazaDetalleComponent } from './componentes/amenaza-detalle/amenaza-detalle.component';
 import { AmenazaformComponent } from './componentes/amenazas-form/amenazas-form.component';
 import { PlantasFormComponent } from './componentes/plantas-form/plantas-form.component';
+import { HuertoFormComponent } from './componentes/huerto-form/huerto-form.component';
+import { CultivoFormComponent } from './componentes/cultivo-form/cultivo-form.component';
 
 export const routes: Routes = [
 
@@ -27,7 +29,10 @@ export const routes: Routes = [
     path: 'app',
     component: SidebarComponent,
     children: [
+      { path: 'huertoform',     component: HuertoFormComponent },  // CREAR
+      { path: 'huertoform/:id', component: HuertoFormComponent },  // EDITAR
       { path: 'home', component: HomeComponent },
+      { path: 'cultivoform/:huertoId', component: CultivoFormComponent },
       {
     path: 'plantas',
     component: PlantasComponent,
@@ -46,7 +51,7 @@ export const routes: Routes = [
       { path: 'amenazaform/:id', component: AmenazaformComponent }, // EDITAR
       { path: 'plantasform',      component: PlantasFormComponent },   // CREAR
       { path: 'plantasform/:id',  component: PlantasFormComponent },   // EDITAR
-      { path: 'huerto', component: HuertoComponent },
+      { path: 'huerto/:id', component: HuertoComponent },
       { path: 'maceta', component: MacetaComponent },
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]

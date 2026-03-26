@@ -1,0 +1,101 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <i class="fa-solid fa-seedling fa-2x text-success mb-2"></i>
+        <h3 class="text-light fw-bold">Añadir cultivo</h3>
+        <p class="text-light opacity-75">Elige la planta que vas a cultivar</p>
+      </div>
+
+      <div class="card border-0 shadow">
+        <div class="card-body p-4">
+
+          <!-- Selector de planta -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">
+              <i class="fa-solid fa-leaf text-success me-1"></i> Planta
+            </label>
+
+            <ng-container *ngIf="plantas$ | async as plantas; else cargandoPlantas">
+              <div class="row g-3">
+                <div
+                  *ngFor="let planta of plantas"
+                  class="col-6 col-sm-4"
+                  (click)="plantaIdSeleccionada = planta.id"
+                >
+                  <div
+                    class="planta-opcion text-center p-2 rounded border"
+                    [class.seleccionada]="plantaIdSeleccionada === planta.id"
+                  >
+                    <img
+                      [src]="planta.imagen"
+                      [alt]="planta.nombre"
+                      class="img-fluid mb-1"
+                      style="height: 60px; object-fit: contain;"
+                    />
+                    <div class="small fw-semibold">{{ planta.nombre }}</div>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #cargandoPlantas>
+              <div class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                <span class="ms-2 text-muted">Cargando plantas...</span>
+              </div>
+            </ng-template>
+
+            <div *ngIf="error && !plantaIdSeleccionada" class="text-danger small mt-2">
+              {{ error }}
+            </div>
+          </div>
+
+          <!-- Notas -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">
+              <i class="fa-solid fa-note-sticky text-warning me-1"></i> Notas
+              <span class="text-muted fw-normal">(opcional)</span>
+            </label>
+            <textarea
+              class="form-control"
+              rows="3"
+              placeholder="Ej: Sembrado junto a la pared norte, necesita tutores..."
+              [(ngModel)]="notas"
+            ></textarea>
+          </div>
+
+          <!-- Error general -->
+          <div *ngIf="error && plantaIdSeleccionada" class="alert alert-danger py-2">
+            {{ error }}
+          </div>
+
+          <!-- Botones -->
+          <div class="d-flex gap-2 justify-content-end">
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              (click)="cancelar()"
+              [disabled]="guardando"
+            >
+              Cancelar
+            </button>
+            <button
+              class="btn btn-success"
+              type="button"
+              (click)="guardarCultivo()"
+              [disabled]="guardando || !plantaIdSeleccionada"
+            >
+              <span *ngIf="guardando" class="spinner-border spinner-border-sm me-1"></span>
+              {{ guardando ? 'Guardando...' : 'Añadir cultivo' }}
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

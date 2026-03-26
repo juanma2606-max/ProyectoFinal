@@ -1,0 +1,70 @@
+// huerto-form.component.scss
+
+.contenedor-form {
+  background: linear-gradient(135deg, #1a2e1a 0%, #0f1f0f 50%, #162416 100%);
+}
+
+.form-card {
+  background-color: #1c2b1c !important;
+}
+
+// Inputs oscuros coherentes con el tema
+.form-control-dark {
+  background-color: #0f1f0f;
+  border: 1px solid #2d4a2d;
+  color: #e8f5e8;
+  border-radius: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: #6a8c6a;
+  }
+
+  &:focus {
+    background-color: #0f1f0f;
+    border-color: #28a745;
+    color: #e8f5e8;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.2);
+  }
+
+  &.is-invalid {
+    border-color: #dc3545;
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.2);
+    }
+  }
+}
+
+textarea.form-control-dark {
+  resize: vertical;
+  min-height: 80px;
+}
+
+// Selector de tipo (parcela / maceta)
+.tipo-selector {
+  .tipo-btn {
+    background-color: #0f1f0f;
+    border: 2px solid #2d4a2d;
+    color: #6a8c6a;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: #28a745;
+      color: #a8d5a8;
+      background-color: #162816;
+    }
+
+    &.active {
+      border-color: #28a745;
+      background-color: rgba(40, 167, 69, 0.15);
+      color: #5cb85c;
+    }
+  }
+}
+
+// Icon wrapper
+.icon-wrapper {
+  background-color: rgba(40, 167, 69, 0.2) !important;
+}

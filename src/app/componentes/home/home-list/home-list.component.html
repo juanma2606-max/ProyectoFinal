@@ -7,6 +7,9 @@
     <p class="text-light mb-0">
       Gestiona tus huertos y macetas de un vistazo
     </p>
+    <button class="btn btn-success mt-3" type="button" (click)="irACrear()">
+  <i class="fa-solid fa-plus me-2"></i>Nuevo huerto
+</button>
   </div>
 
   <!-- GRID DE HUERTOS -->
@@ -22,12 +25,12 @@
         <app-home-resume
           [huerto]="huerto"
           (edit)="onEditHuerto($event)"
-          (delete)="huertoAEliminar = $event"
+          (delete)="onDeleteHuerto($event)"
         >
         </app-home-resume>
       </div>
 
-      <!-- ✅ ESTADO VACÍO - Diseño mejorado -->
+      <!--ESTADO VACÍO-->
       <div class="col-12" *ngIf="huertos.length === 0">
         <div class="d-flex justify-content-center mt-4">
           <div class="card border-0 shadow-lg bg-dark text-center empty-state-card" 
@@ -53,10 +56,9 @@
 
               <!-- Botón de acción -->
               <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <button 
-                  class="btn btn-success btn-lg px-4" 
-                  type="button">
-                  <i class="fa-solid fa-plus me-2"></i>Crear mi primer huerto
+                <button class="btn btn-success btn-lg px-4" type="button" 
+                  (click)="irACrear()"><i class="fa-solid fa-plus me-2"></i>
+                  Crear mi primer huerto
                 </button>
               </div>
 
@@ -75,7 +77,7 @@
 
     </ng-container>
 
-    <!-- ✅ LOADING - Diseño mejorado -->
+    <!--LOADING - Diseño mejorado -->
     <ng-template #loading>
       <div class="col-12">
         <div class="d-flex justify-content-center mt-5">

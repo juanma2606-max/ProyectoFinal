@@ -9,7 +9,7 @@ import {
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AmenazasService } from '../../servicios/amenazas.service';
-import { Amenaza } from '../../modelos/amenaza';
+import { Amenaza } from '../../modelos/amenaza.model';
 
 @Component({
   selector: 'app-amenazaform',

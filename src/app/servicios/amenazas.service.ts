@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Database, get, listVal, push, ref, remove, update } from '@angular/fire/database';
 import { Observable } from 'rxjs';
-import { Amenaza } from '../modelos/amenaza';
+import { Amenaza } from '../modelos/amenaza.model';
 
 @Injectable({ providedIn: 'root' })
 export class AmenazasService {

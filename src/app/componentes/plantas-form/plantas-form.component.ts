@@ -9,7 +9,7 @@ import {
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PlantasService } from '../../servicios/plantas.service';
-import { Planta } from '../../modelos/planta';
+import { Planta } from '../../modelos/planta.model';
 
 @Component({
   selector: 'app-plantas-form',

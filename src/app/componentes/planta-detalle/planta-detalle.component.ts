@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { PlantasService } from '../../servicios/plantas.service';
-import { Planta } from '../../modelos/planta';
+import { Planta } from '../../modelos/planta.model';
 
 @Component({
   selector: 'app-planta-detalle',
