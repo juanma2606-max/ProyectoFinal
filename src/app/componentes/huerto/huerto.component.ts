@@ -7,7 +7,9 @@ import { Huerto } from '../../modelos/huerto.model';
 import { CultivosService } from '../../servicios/cultivos.service';
 import { PlantasService } from '../../servicios/plantas.service';
 import { HuertosService } from '../../servicios/huertos.service';
-import { Cultivo } from '../../modelos/modelos.model';
+import { Cultivo } from '../../modelos/cultivo.model';
+import { Amenaza } from '../../modelos/amenaza.model';
+import { AmenazasService } from '../../servicios/amenazas.service';
 
 @Component({
   selector: 'app-huerto',
@@ -22,13 +24,16 @@ export class HuertoComponent implements OnInit {
   huerto: Huerto | null = null;
   cultivos$!: Observable<Cultivo[]>;
   plantasMap: Map<string, Planta> = new Map();
+  // Mapa de amenazas
+  amenazasMap: Map<string, Amenaza> = new Map();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private cultivosService: CultivosService,
     private plantasService: PlantasService,
-    private huertosService: HuertosService
+    private huertosService: HuertosService,
+    private amenazasService: AmenazasService
   ) {}
 
   ngOnInit(): void {
@@ -51,11 +56,32 @@ export class HuertoComponent implements OnInit {
         }
       });
     });
+
+    this.cultivos$.subscribe(cultivos => {
+  cultivos.forEach(cultivo => {
+    // Plantas
+    if (!this.plantasMap.has(cultivo.plantaId)) {
+      this.plantasService.getPlantaById(cultivo.plantaId).then(planta => {
+        if (planta) this.plantasMap.set(cultivo.plantaId, planta);
+      });
+    }
+    // Amenazas
+    if (cultivo.amenazaId && !this.amenazasMap.has(cultivo.amenazaId)) {
+      this.amenazasService.getAmenazaById(cultivo.amenazaId).then(amenaza => {
+        if (amenaza) this.amenazasMap.set(cultivo.amenazaId!, amenaza);
+      });
+    }
+  });
+});
   }
 
   getPlanta(plantaId: string): Planta | undefined {
     return this.plantasMap.get(plantaId);
   }
+  getAmenaza(amenazaId: string | undefined): Amenaza | undefined {
+  if (!amenazaId) return undefined;
+  return this.amenazasMap.get(amenazaId);
+}
 
   irACrearCultivo(): void {
     this.router.navigate(['/app/cultivoform', this.huertoId]);
@@ -64,4 +90,7 @@ export class HuertoComponent implements OnInit {
   onEliminarCultivo(cultivoId: string): void {
     this.cultivosService.removeCultivo(this.huertoId, cultivoId);
   }
+  onEditarCultivo(cultivoId: string): void {
+  this.router.navigate(['/app/cultivoform', this.huertoId, cultivoId]);
+}
 }

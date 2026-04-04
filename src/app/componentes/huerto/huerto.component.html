@@ -25,7 +25,8 @@
         <!-- Descripción -->
         <div class="card border-0 shadow-sm">
           <div class="card-body">
-            <h6 class="card-title text-muted text-uppercase fw-semibold mb-2" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+            <h6 class="card-title text-muted text-uppercase fw-semibold mb-2"
+                style="font-size: 0.75rem; letter-spacing: 0.05em;">
               <i class="fa-solid fa-circle-info me-1"></i> Descripción
             </h6>
             <p class="card-text mb-0" style="font-size: 0.95rem;">
@@ -82,7 +83,11 @@
 
         <!-- Card por cada cultivo -->
         <div *ngFor="let cultivo of cultivos"
-             class="card mb-3 border-0 shadow-sm position-relative">
+             class="card mb-3 border-0 shadow-sm position-relative"
+             [ngClass]="{
+               'border-warning border-opacity-75': cultivo.estado === 'enferma',
+               'border-danger  border-opacity-75': cultivo.estado === 'infectada'
+             }">
 
           <div class="row g-0 align-items-stretch">
 
@@ -96,11 +101,15 @@
               />
             </div>
 
-            <!-- Alerta enfermo -->
+            <!-- Badge de alerta (esquina superior derecha) -->
             <span
-              *ngIf="cultivo.estado === 'enfermo'"
-              class="position-absolute top-0 end-0 m-2 text-warning"
-              title="Planta enferma">
+              *ngIf="cultivo.estado !== 'sana'"
+              class="position-absolute top-0 end-0 m-2"
+              [ngClass]="{
+                'text-warning': cultivo.estado === 'enferma',
+                'text-danger':  cultivo.estado === 'infectada'
+              }"
+              [title]="cultivo.estado === 'enferma' ? 'Planta enferma' : 'Planta infectada por plaga'">
               <i class="fa-solid fa-circle-exclamation fs-5"></i>
             </span>
 
@@ -112,14 +121,38 @@
                   <h5 class="card-title mb-1">
                     {{ getPlanta(cultivo.plantaId)?.nombre || 'Cargando...' }}
                   </h5>
+                  <!-- Badge de estado -->
                   <span class="badge"
                     [ngClass]="{
-                      'bg-success':   cultivo.estado === 'creciendo',
-                      'bg-primary':   cultivo.estado === 'cosechado',
-                      'bg-danger':    cultivo.estado === 'enfermo',
-                      'bg-secondary': cultivo.estado === 'muerto'
+                      'bg-success': cultivo.estado === 'sana',
+                      'bg-warning text-dark': cultivo.estado === 'enferma',
+                      'bg-danger':  cultivo.estado === 'infectada'
                     }">
+                    <i class="fa-solid me-1"
+                      [ngClass]="{
+                        'fa-circle-check': cultivo.estado === 'sana',
+                        'fa-virus':        cultivo.estado === 'enferma',
+                        'fa-bug':          cultivo.estado === 'infectada'
+                      }">
+                    </i>
                     {{ cultivo.estado | titlecase }}
+                  </span>
+                </div>
+
+                <!-- Panel de amenaza (solo si no está sana) -->
+                <div *ngIf="cultivo.estado !== 'sana' && cultivo.amenazaId"
+                     class="alert alert-sm py-1 px-2 mt-2 mb-0 d-flex align-items-center gap-2"
+                     [ngClass]="{
+                       'alert-warning': cultivo.estado === 'enferma',
+                       'alert-danger':  cultivo.estado === 'infectada'
+                     }">
+                  <img
+                    [src]="getAmenaza(cultivo.amenazaId)?.imagen || ''"
+                    class="rounded"
+                    style="width: 28px; height: 28px; object-fit: contain;"
+                  />
+                  <span class="small fw-semibold">
+                    {{ getAmenaza(cultivo.amenazaId)?.nombre || 'Cargando...' }}
                   </span>
                 </div>
 
@@ -151,11 +184,19 @@
                   (click)="onEliminarCultivo(cultivo.id)">
                   <i class="fa-solid fa-trash"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-warning" title="Editar">
+                <button class="btn btn-sm btn-outline-warning" title="Editar"
+                  (click)="onEditarCultivo(cultivo.id)">
                   <i class="fa-solid fa-pen"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-primary" title="Ver detalle">
                   <i class="fa-solid fa-book"></i>
+                </button>
+                <!-- Botón Chat IA (solo si no está sana) -->
+                <button
+                  *ngIf="cultivo.estado !== 'sana'"
+                  class="btn btn-sm btn-warning"
+                  title="Consultar a la IA">
+                  <i class="fa-solid fa-robot me-1"></i> Consultar IA
                 </button>
               </div>
 

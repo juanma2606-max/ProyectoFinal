@@ -16,12 +16,12 @@
           </h5>
 
           <p class="text-center text-muted mb-4 small">
-            Completa los campos para registrarte
+            Completa los campos para acceder
           </p>
 
           <form (ngSubmit)="onSubmit()">
             <div class="mb-3">
-              <label class="form-label small">Nombre de usuario</label>
+              <label class="form-label small">Email</label>
               <input
                 type="text"
                 name="email"
@@ -35,16 +35,40 @@
               <label class="form-label small">Contraseña</label>
               <input
                 type="password"
-                 name="password"
+                name="password"
                 [(ngModel)]="formLogin.password"
                 class="form-control form-control-sm rounded-pill border border-success shadow-sm"
                 placeholder="********"
               >
             </div>
+
+            <!-- Error -->
+            <div *ngIf="error" class="alert alert-danger py-2 small text-center rounded-pill">
+              {{ error }}
+            </div>
+
             <button
               type="submit"
-              class="btn btn-success w-100 rounded-pill shadow-sm py-2">Iniciar sesión</button>   
+              class="btn btn-success w-100 rounded-pill shadow-sm py-2">
+              Iniciar sesión
+            </button>
           </form>
+
+          <!-- Separador -->
+          <div class="d-flex align-items-center my-3">
+            <hr class="flex-grow-1">
+            <span class="mx-2 text-muted small">o</span>
+            <hr class="flex-grow-1">
+          </div>
+
+          <!-- Botón Google -->
+          <button
+            type="button"
+            class="btn btn-outline-secondary w-100 rounded-pill shadow-sm py-2 d-flex align-items-center justify-content-center gap-2"
+            (click)="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" height="20">
+            <span>Continuar con Google</span>
+          </button>
 
         </div>
       </div>

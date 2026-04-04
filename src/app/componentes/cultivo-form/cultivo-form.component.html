@@ -5,8 +5,12 @@
       <!-- Header -->
       <div class="text-center mb-4">
         <i class="fa-solid fa-seedling fa-2x text-success mb-2"></i>
-        <h3 class="text-light fw-bold">Añadir cultivo</h3>
-        <p class="text-light opacity-75">Elige la planta que vas a cultivar</p>
+        <h3 class="text-light fw-bold">
+          {{ modoEdicion ? 'Editar cultivo' : 'Añadir cultivo' }}
+        </h3>
+        <p class="text-light opacity-75">
+          {{ modoEdicion ? 'Modifica los datos de tu cultivo' : 'Elige la planta que vas a cultivar' }}
+        </p>
       </div>
 
       <div class="card border-0 shadow">
@@ -17,38 +21,76 @@
             <label class="form-label fw-semibold">
               <i class="fa-solid fa-leaf text-success me-1"></i> Planta
             </label>
-
             <ng-container *ngIf="plantas$ | async as plantas; else cargandoPlantas">
               <div class="row g-3">
-                <div
-                  *ngFor="let planta of plantas"
-                  class="col-6 col-sm-4"
-                  (click)="plantaIdSeleccionada = planta.id"
-                >
-                  <div
-                    class="planta-opcion text-center p-2 rounded border"
-                    [class.seleccionada]="plantaIdSeleccionada === planta.id"
-                  >
-                    <img
-                      [src]="planta.imagen"
-                      [alt]="planta.nombre"
-                      class="img-fluid mb-1"
-                      style="height: 60px; object-fit: contain;"
-                    />
+                <div *ngFor="let planta of plantas" class="col-6 col-sm-4"
+                  (click)="plantaIdSeleccionada = planta.id">
+                  <div class="planta-opcion text-center p-2 rounded border"
+                    [class.seleccionada]="plantaIdSeleccionada === planta.id">
+                    <img [src]="planta.imagen" [alt]="planta.nombre"
+                      class="img-fluid mb-1" style="height: 60px; object-fit: contain;" />
                     <div class="small fw-semibold">{{ planta.nombre }}</div>
                   </div>
                 </div>
               </div>
             </ng-container>
-
             <ng-template #cargandoPlantas>
               <div class="text-center py-3">
                 <div class="spinner-border spinner-border-sm text-success" role="status"></div>
                 <span class="ms-2 text-muted">Cargando plantas...</span>
               </div>
             </ng-template>
-
             <div *ngIf="error && !plantaIdSeleccionada" class="text-danger small mt-2">
+              {{ error }}
+            </div>
+          </div>
+
+          <!-- Estado (solo en modo edición) -->
+          <div *ngIf="modoEdicion" class="mb-3">
+            <label class="form-label fw-semibold">
+              <i class="fa-solid fa-heart-pulse text-danger me-1"></i> Estado de la planta
+            </label>
+            <div class="d-flex gap-2 flex-wrap">
+              <button
+                *ngFor="let e of estados"
+                type="button"
+                class="btn btn-sm"
+                [ngClass]="estado === e.valor ? e.clase : 'btn-outline-secondary'"
+                (click)="onEstadoChange(e.valor)"
+              >
+                <i class="fa-solid me-1" [ngClass]="e.icono"></i>{{ e.etiqueta }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Dashboard amenaza (collapse animado) -->
+          <div *ngIf="modoEdicion && mostrarDashboardAmenaza"
+               class="amenaza-panel mb-4 p-3 rounded border border-warning bg-warning bg-opacity-10">
+
+            <label class="form-label fw-semibold text-warning">
+              <i class="fa-solid me-1" [ngClass]="estado === 'enferma' ? 'fa-virus' : 'fa-bug'"></i>
+              {{ estado === 'enferma' ? 'Selecciona la enfermedad' : 'Selecciona la plaga' }}
+            </label>
+
+            <div *ngIf="amenazasFiltradas.length > 0; else sinAmenazas">
+              <div class="row g-2">
+                <div *ngFor="let amenaza of amenazasFiltradas" class="col-6 col-sm-4"
+                  (click)="amenazaIdSeleccionada = amenaza.id">
+                  <div class="planta-opcion text-center p-2 rounded border"
+                    [class.seleccionada]="amenazaIdSeleccionada === amenaza.id">
+                    <img [src]="amenaza.imagen" [alt]="amenaza.nombre"
+                      class="img-fluid mb-1" style="height: 50px; object-fit: contain;" />
+                    <div class="small fw-semibold">{{ amenaza.nombre }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #sinAmenazas>
+              <p class="text-muted small mb-0">No hay amenazas registradas de este tipo.</p>
+            </ng-template>
+
+            <div *ngIf="error && !amenazaIdSeleccionada" class="text-danger small mt-2">
               {{ error }}
             </div>
           </div>
@@ -59,43 +101,33 @@
               <i class="fa-solid fa-note-sticky text-warning me-1"></i> Notas
               <span class="text-muted fw-normal">(opcional)</span>
             </label>
-            <textarea
-              class="form-control"
-              rows="3"
+            <textarea class="form-control" rows="3"
               placeholder="Ej: Sembrado junto a la pared norte, necesita tutores..."
-              [(ngModel)]="notas"
-            ></textarea>
+              [(ngModel)]="notas"></textarea>
           </div>
 
           <!-- Error general -->
-          <div *ngIf="error && plantaIdSeleccionada" class="alert alert-danger py-2">
+          <div *ngIf="error && plantaIdSeleccionada && (!mostrarDashboardAmenaza || amenazaIdSeleccionada)"
+               class="alert alert-danger py-2">
             {{ error }}
           </div>
 
           <!-- Botones -->
           <div class="d-flex gap-2 justify-content-end">
-            <button
-              class="btn btn-outline-secondary"
-              type="button"
-              (click)="cancelar()"
-              [disabled]="guardando"
-            >
+            <button class="btn btn-outline-secondary" type="button"
+              (click)="cancelar()" [disabled]="guardando">
               Cancelar
             </button>
-            <button
-              class="btn btn-success"
-              type="button"
+            <button class="btn btn-success" type="button"
               (click)="guardarCultivo()"
-              [disabled]="guardando || !plantaIdSeleccionada"
-            >
+              [disabled]="guardando || !plantaIdSeleccionada">
               <span *ngIf="guardando" class="spinner-border spinner-border-sm me-1"></span>
-              {{ guardando ? 'Guardando...' : 'Añadir cultivo' }}
+              {{ guardando ? 'Guardando...' : modoEdicion ? 'Guardar cambios' : 'Añadir cultivo' }}
             </button>
           </div>
 
         </div>
       </div>
-
     </div>
   </div>
 </div>

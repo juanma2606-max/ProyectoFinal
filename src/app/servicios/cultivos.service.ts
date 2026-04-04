@@ -1,9 +1,9 @@
 // src/app/servicios/cultivos.service.ts
-import { Injectable } from '@angular/core';
+import { inject, Injectable, Injector, runInInjectionContext } from '@angular/core';
 import { Database, get, listVal, push, ref, remove, update } from '@angular/fire/database';
 import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
-import { Cultivo } from '../modelos/modelos.model';
+import { Cultivo } from '../modelos/cultivo.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -11,7 +11,8 @@ export class CultivosService {
 
   constructor(
     private database: Database,
-    private auth: Auth
+    private auth: Auth,
+    private injector: Injector
   ) { }
 
   /**
@@ -52,13 +53,14 @@ export class CultivosService {
 
     const raw = snapshot.val();
 
-    return {
-      id: snapshot.key!,
-      plantaId: raw.plantaId ?? '',
-      estado: raw.estado ?? 'creciendo',
-      fechaSiembra: raw.fechaSiembra ?? '',
-      notas: raw.notas ?? ''
-    };
+return {
+  id: snapshot.key!,
+  plantaId:   raw.plantaId   ?? '',
+  estado:     raw.estado     ?? 'sana',
+  fechaSiembra: raw.fechaSiembra ?? '',
+  notas:      raw.notas      ?? '',
+  amenazaId:  raw.amenazaId  ?? null  // nuevo campo opcional
+};
   }
 
   /**
@@ -71,12 +73,12 @@ export class CultivosService {
   /**
    * Actualiza un cultivo existente
    */
-  updateCultivo(huertoId: string, cultivo: Cultivo) {
-    const uid = this.getUserId();
-    const cultivoRef = ref(this.database, `/cultivos/${uid}/${huertoId}/${cultivo.id}`);
-    const { id, ...dataToSave } = cultivo;
-    return update(cultivoRef, dataToSave);
-  }
+updateCultivo(huertoId: string, cultivo: Cultivo) {
+  const uid = this.getUserId();
+  const cultivoRef = ref(this.database, `/cultivos/${uid}/${huertoId}/${cultivo.id}`);
+  const { id, ...dataToSave } = cultivo;
+  return runInInjectionContext(this.injector, () => update(cultivoRef, dataToSave));
+}
 
   /**
    * Elimina un cultivo por su ID

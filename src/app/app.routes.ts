@@ -33,6 +33,7 @@ export const routes: Routes = [
       { path: 'huertoform/:id', component: HuertoFormComponent },  // EDITAR
       { path: 'home', component: HomeComponent },
       { path: 'cultivoform/:huertoId', component: CultivoFormComponent },
+      { path: 'cultivoform/:huertoId/:cultivoId', component: CultivoFormComponent }, // EDITAR
       {
     path: 'plantas',
     component: PlantasComponent,

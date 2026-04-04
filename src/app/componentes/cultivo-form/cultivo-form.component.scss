@@ -14,3 +14,12 @@
     box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.3);
   }
 }
+
+.amenaza-panel {
+  animation: slideDown 0.25s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
