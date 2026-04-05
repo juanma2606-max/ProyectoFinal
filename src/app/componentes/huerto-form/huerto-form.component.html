@@ -1,0 +1,140 @@
+<!-- huerto-form.component.html -->
+<div class="contenedor-form container-fluid min-vh-100 d-flex align-items-center justify-content-center py-4 px-2 px-md-4">
+ 
+  <div class="form-card card border-0 shadow-lg w-100" style="max-width: 560px; border-radius: 20px;">
+ 
+    <!-- HEADER -->
+    <div class="card-header border-0 text-center pt-4 pb-2 bg-transparent">
+      <div class="mb-3">
+        <div class="icon-wrapper bg-success rounded-circle d-inline-flex p-3">
+          <i class="fa-solid fa-seedling text-white" style="font-size: 2rem;"></i>
+        </div>
+      </div>
+      <h3 class="text-light fw-bold mb-1">
+        {{ modoEdicion ? 'Editar huerto' : 'Nuevo huerto' }}
+      </h3>
+      <p class="text-light small mb-0">
+        {{ modoEdicion ? 'Modifica los datos de tu espacio verde' : 'Crea tu nuevo espacio verde' }}
+      </p>
+    </div>
+ 
+    <!-- BODY -->
+    <div class="card-body px-4 py-4">
+ 
+      <form [formGroup]="huertoForm" (ngSubmit)="onSubmit()">
+ 
+        <!-- TIPO (Tabs) -->
+        <div class="mb-4">
+          <label class="form-label text-light fw-semibold mb-2">
+            <i class="fa-solid fa-list me-2 text-success"></i>Tipo de espacio
+          </label>
+          <div class="tipo-selector d-flex gap-2">
+ 
+            <button
+              type="button"
+              class="tipo-btn flex-fill py-3"
+              [class.active]="huertoForm.get('tipo')?.value === 'parcela'"
+              (click)="setTipo('parcela')"
+            >
+              <i class="fa-solid fa-tractor d-block mb-1" style="font-size: 1.4rem;"></i>
+              <span class="small fw-semibold">Parcela</span>
+            </button>
+ 
+            <button
+              type="button"
+              class="tipo-btn flex-fill py-3"
+              [class.active]="huertoForm.get('tipo')?.value === 'maceta'"
+              (click)="setTipo('maceta')"
+            >
+              <i class="fa-solid fa-leaf d-block mb-1" style="font-size: 1.4rem;"></i>
+              <span class="small fw-semibold">Maceta</span>
+            </button>
+ 
+          </div>
+          <div
+            *ngIf="huertoForm.get('tipo')?.invalid && huertoForm.get('tipo')?.touched"
+            class="text-danger small mt-1"
+          >
+            <i class="fa-solid fa-circle-exclamation me-1"></i>Selecciona un tipo
+          </div>
+        </div>
+ 
+        <!-- NOMBRE -->
+        <div class="mb-3">
+          <label for="nombre" class="form-label text-light fw-semibold">
+            <i class="fa-solid fa-tag me-2 text-success"></i>Nombre
+          </label>
+          <input
+            id="nombre"
+            type="text"
+            class="form-control form-control-dark"
+            placeholder="Ej: Mi huerto urbano, Balcón sur..."
+            formControlName="nombre"
+            [class.is-invalid]="huertoForm.get('nombre')?.invalid && huertoForm.get('nombre')?.touched"
+          />
+          <div class="invalid-feedback">
+            <i class="fa-solid fa-circle-exclamation me-1"></i>
+            <span *ngIf="huertoForm.get('nombre')?.errors?.['required']">El nombre es obligatorio</span>
+            <span *ngIf="huertoForm.get('nombre')?.errors?.['minlength']">Mínimo 3 caracteres</span>
+            <span *ngIf="huertoForm.get('nombre')?.errors?.['maxlength']">Máximo 50 caracteres</span>
+          </div>
+        </div>
+ 
+        <!-- DESCRIPCIÓN -->
+        <div class="mb-4">
+          <label for="descripcion" class="form-label text-light fw-semibold">
+            <i class="fa-solid fa-align-left me-2 text-success"></i>Descripción
+            <span class="text-light fw-normal small ms-1">(opcional)</span>
+          </label>
+          <textarea
+            id="descripcion"
+            class="form-control form-control-dark"
+            rows="3"
+            placeholder="Describe tu espacio: ubicación, cultivos, notas..."
+            formControlName="descripcion"
+            [class.is-invalid]="huertoForm.get('descripcion')?.invalid && huertoForm.get('descripcion')?.touched"
+          ></textarea>
+          <div class="d-flex justify-content-between mt-1">
+            <div class="invalid-feedback d-block" *ngIf="huertoForm.get('descripcion')?.errors?.['maxlength'] && huertoForm.get('descripcion')?.touched">
+              <i class="fa-solid fa-circle-exclamation me-1"></i>Máximo 200 caracteres
+            </div>
+            <small class="text-light ms-auto">
+              {{ huertoForm.get('descripcion')?.value?.length || 0 }}/200
+            </small>
+          </div>
+        </div>
+ 
+        <!-- ALERT ERROR -->
+        <div *ngIf="errorMensaje" class="alert alert-danger d-flex align-items-center gap-2 py-2 mb-3" role="alert" style="border-radius: 10px;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <small>{{ errorMensaje }}</small>
+        </div>
+ 
+        <!-- BOTONES -->
+        <div class="d-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-light flex-fill"
+            (click)="onCancelar()"
+            [disabled]="cargando"
+          >
+            Cancelar
+          </button>
+ 
+          <button
+            type="submit"
+            class="btn btn-success flex-fill"
+            [disabled]="huertoForm.invalid || cargando"
+          >
+            <span *ngIf="cargando" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            <i *ngIf="!cargando" class="fa-solid fa-check me-2"></i>
+            {{ cargando ? 'Guardando...' : (modoEdicion ? 'Guardar cambios' : 'Crear huerto') }}
+          </button>
+        </div>
+ 
+      </form>
+ 
+    </div>
+  </div>
+ 
+</div>

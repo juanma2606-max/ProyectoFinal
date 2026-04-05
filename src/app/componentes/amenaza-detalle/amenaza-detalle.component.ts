@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { AmenazasService } from '../../servicios/amenazas.service';
-import { Amenaza } from '../../modelos/amenaza';
+import { Amenaza } from '../../modelos/amenaza.model';
 
 @Component({
   selector: 'app-amenaza-detalle',

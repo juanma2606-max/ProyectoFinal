@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../servicios/auth.service';
 import { UserCredential } from '@angular/fire/auth';
+import { PersonService } from '../../servicios/person.service';
+import { Person } from '../../modelos/person.model';
 
 @Component({
   selector: 'app-login',
@@ -21,8 +23,11 @@ export class LoginComponent {
 
   error: string | null = null;
 
-  constructor(private router: Router, private authService: AuthService) {}
-
+constructor(
+  private router: Router,
+  private authService: AuthService,
+  private personService: PersonService  // ← añadir
+) {}
   onSubmit() {
     if (!this.formLogin.email || !this.formLogin.password) {
       this.error = "Completa todos los campos";
@@ -40,14 +45,29 @@ export class LoginComponent {
       });
   }
 
-  loginWithGoogle() {
-    this.authService.loginWithGoogle()
-      .then(() => {
-        this.router.navigate(['/app']);
-      })
-      .catch((err) => {
-        console.error(err);
-        this.error = "Error al iniciar con Google";
-      });
-  }
+loginWithGoogle() {
+  this.authService.loginWithGoogle()
+    .then(async (credential) => {
+      const user = credential.user;
+
+      // Comprobamos si ya existe en Firebase
+      const personExistente = await this.personService.getPersonById(user.uid);
+
+      if (!personExistente) {
+        // Primera vez que entra con Google → lo guardamos
+        const newPerson = new Person(
+          user.uid,
+          user.displayName || user.email || 'Usuario',
+          user.email || ''
+        );
+        await this.personService.createPerson(newPerson);
+      }
+
+      this.router.navigate(['/app']);
+    })
+    .catch((err) => {
+      console.error(err);
+      this.error = "Error al iniciar con Google";
+    });
+}
 }

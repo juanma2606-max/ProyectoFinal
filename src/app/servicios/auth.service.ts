@@ -34,4 +34,9 @@ export class AuthService {
     return signInWithPopup(this.auth, new GoogleAuthProvider())
   }
 
+  isAdmin(): boolean {
+  const user = this.auth.currentUser;
+  return user?.email === 'admin@huerting.com';
+}
+
 }

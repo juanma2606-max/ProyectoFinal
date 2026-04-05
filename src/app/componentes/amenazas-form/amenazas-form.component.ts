@@ -9,23 +9,20 @@ import {
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AmenazasService } from '../../servicios/amenazas.service';
-import { Amenaza } from '../../modelos/amenaza';
+import { Amenaza } from '../../modelos/amenaza.model';
 
 @Component({
   selector: 'app-amenazaform',
   templateUrl: './amenazas-form.component.html',
   styleUrls: ['./amenazas-form.component.scss'],
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule
-  ]
+  imports: [CommonModule, ReactiveFormsModule, RouterModule]
 })
 export class AmenazaformComponent implements OnInit {
 
+  vieneDeAdmin: boolean = false;
+
   amenazaForm: FormGroup;
 
-  // Imagen asignada automáticamente según el tipo
   readonly imagenesPorTipo: Record<string, string> = {
     plaga:      'images/plagas/pulgon.png',
     enfermedad: 'images/enfermedades/mildiu.png'
@@ -42,12 +39,10 @@ export class AmenazaformComponent implements OnInit {
       descripcion: ['', [Validators.required, Validators.maxLength(500)]],
       tipo:        ['', [Validators.required]],
       tratamiento: ['', Validators.maxLength(500)],
-      prevencion:  ['', Validators.maxLength(500)],
       sintomas:    this.formBuilder.array([])
     });
   }
 
-  // Getter para acceder fácilmente al FormArray de síntomas
   get sintomas(): FormArray {
     return this.amenazaForm.get('sintomas') as FormArray;
   }
@@ -61,6 +56,11 @@ export class AmenazaformComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Leer queryParam de forma reactiva
+    this.route.queryParamMap.subscribe(queryParams => {
+      this.vieneDeAdmin = queryParams.get('from') === 'admin';
+    });
+
     this.route.paramMap.subscribe(async params => {
       const id = params.get('id');
       if (!id) return;
@@ -68,7 +68,6 @@ export class AmenazaformComponent implements OnInit {
       const amenaza = await this.amenazasService.getAmenazaById(id);
       if (!amenaza) return;
 
-      // Rellenar el FormArray de síntomas
       (amenaza.sintomas ?? []).forEach(s => {
         this.sintomas.push(this.formBuilder.control(s, Validators.required));
       });
@@ -89,35 +88,31 @@ export class AmenazaformComponent implements OnInit {
       return;
     }
 
-    const { nombre, descripcion, tipo, tratamiento, prevencion, sintomas } =
-      this.amenazaForm.value;
-
+    const { nombre, descripcion, tipo, tratamiento, sintomas } = this.amenazaForm.value;
     const imagen = this.imagenesPorTipo[tipo];
-
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id) {
-      // EDITAR
       const amenazaEditada: Amenaza = {
         id, nombre, descripcion, tipo, imagen,
         sintomas: sintomas.filter((s: string) => s.trim() !== ''),
         tratamiento: tratamiento || undefined,
       };
-
       this.amenazasService.updateAmenaza(amenazaEditada)
-        .then(() => this.router.navigate(['/app/amenazas']))
+        .then(() => this.vieneDeAdmin
+          ? this.router.navigate(['/app/admin'])
+          : this.router.navigate(['/app/amenazas']))
         .catch(error => alert(error.message));
-
     } else {
-      // CREAR
       const nuevaAmenaza: Omit<Amenaza, 'id'> = {
         nombre, descripcion, tipo, imagen,
         sintomas: sintomas.filter((s: string) => s.trim() !== ''),
         tratamiento: tratamiento || undefined,
       };
-
       this.amenazasService.createAmenaza(nuevaAmenaza)
-        .then(() => this.router.navigate(['/app/amenazas']))
+        .then(() => this.vieneDeAdmin
+          ? this.router.navigate(['/app/admin'])
+          : this.router.navigate(['/app/amenazas']))
         .catch(error => alert(error.message));
     }
   }

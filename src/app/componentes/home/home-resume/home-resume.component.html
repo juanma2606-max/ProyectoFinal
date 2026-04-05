@@ -40,12 +40,11 @@
 
     <!-- Ver -->
     <a
-      class="btn action-btn view"
-      [routerLink]="huerto?.tipo === 'parcela' ? '/app/huerto' : '/app/maceta'"
-      [queryParams]="{ id: huerto?.id }"
-      role="button"
-    >
-      <i class="fa-solid fa-book"></i>
+       class="btn action-btn view"
+  [routerLink]="huerto?.tipo === 'parcela' ? '/app/huerto/' + huerto?.id : '/app/maceta/' + huerto?.id"
+  role="button"
+>
+  <i class="fa-solid fa-book"></i>
     </a>
 
   </div>

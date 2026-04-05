@@ -28,6 +28,11 @@ export class HuertosService {
   return listVal(huertosRef, { keyField: 'id' }) as Observable<Huerto[]>;
 }
 
+getHuertosByUid(uid: string): Observable<Huerto[]> {
+  const huertosRef = ref(this.database, `/huertos/${uid}`);
+  return listVal(huertosRef, { keyField: 'id' }) as Observable<Huerto[]>;
+}
+
 async getHuertoById(huertoId:string):Promise<Huerto|null>{
 
   const user = this.getUserAuth();
@@ -97,5 +102,25 @@ createHuerto(huerto: Huerto) {
 
       return remove(objectRef)
   }
+
+  async getHuertoByUidAndId(uid: string, huertoId: string): Promise<Huerto | null> {
+  const huertoRef = ref(this.database, `/huertos/${uid}/${huertoId}`);
+  const data = await get(huertoRef);
+  if (!data.exists()) return null;
+  const raw = data.val();
+  return new Huerto(
+    data.key!,
+    raw.nombre,
+    raw.descripcion,
+    raw.fechaInicio ? new Date(raw.fechaInicio) : new Date(),
+    raw.tipo
+  );
+}
+
+updateObjectByUid(uid: string, huerto: Huerto) {
+  const objectRef = ref(this.database, `/huertos/${uid}/${huerto.id}`);
+  const { id, fecha_creacion, ...dataToSave } = huerto;
+  return update(objectRef, dataToSave);
+}
 
 }

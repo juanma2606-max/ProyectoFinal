@@ -1,348 +1,225 @@
 <div class="container-fluid py-4">
 
-     <!-- Header -->
-  <div class="text-center mb-5">
-    <h2 class="text-light fw-bold">Nombre del huerto</h2>
-    <p class="text-light mb-0">Gestiona y comprueba la información de tus plantaciones</p>
+  <!-- Header -->
+  <div class="text-center mb-4">
+    <h2 class="text-light fw-bold">{{ huerto?.nombre || 'Mi Huerto' }}</h2>
+    <p class="text-light opacity-75 mb-0">Gestiona y comprueba la información de tus plantaciones</p>
   </div>
 
-  <div class="row min-vh-100">
+<div *ngIf="esVistaAdmin" class="mb-3">
+  <button class="btn btn-outline-light btn-sm" (click)="volver()">
+    <i class="fa-solid fa-arrow-left me-1"></i> Volver al usuario
+  </button>
+</div>
 
-    <!-- LADO IZQUIERDO: INFO DEL HUERTO -->
-    <div class="col-12 col-lg-6 d-flex justify-content-center align-items-start">
+  <div class="row g-5">
 
-      <div class="w-100 px-4">
+    <!-- COLUMNA IZQUIERDA: info del huerto -->
+    <div class="col-12 col-lg-4">
+      <div class="sticky-top" style="top: 1rem;">
 
-        <!-- Imagen del huerto -->
-        <div class="mb-4">
+        <!-- Imagen -->
+        <div class="mb-3">
           <img
-            src="/images/huerto1.jpg"
-            alt="Imagen del huerto"
-            class="img-fluid rounded shadow-sm w-100"
-            style="max-height: 350px; object-fit: cover;"
+            [src]="huerto?.tipo === 'parcela' ? '/images/huerto1.jpg' : '/images/maceta.webp'"
+            [alt]="huerto?.nombre"
+            class="img-fluid rounded shadow w-100"
+            style="max-height: 280px; object-fit: cover;"
           />
         </div>
 
         <!-- Descripción -->
-        <div class="card shadow-sm border-0">
+        <div class="card border-0 shadow-sm">
           <div class="card-body">
-            <h5 class="card-title mb-3">Descripción del huerto</h5>
-            <p class="card-text text-muted mb-0">
-              Aquí se mostrará la descripción que el usuario haya introducido
-              sobre su huerto. Puede incluir el tipo de plantas, cuidados,
-              observaciones o cualquier otra información relevante.
+            <h6 class="card-title text-muted text-uppercase fw-semibold mb-2"
+                style="font-size: 0.75rem; letter-spacing: 0.05em;">
+              <i class="fa-solid fa-circle-info me-1"></i> Descripción
+            </h6>
+            <p class="card-text mb-0" style="font-size: 0.95rem;">
+              {{ huerto?.descripcion || 'Sin descripción.' }}
             </p>
+          </div>
+        </div>
+
+        <!-- Meta info -->
+        <div class="card border-0 shadow-sm mt-3">
+          <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small">Tipo</span>
+              <span class="badge"
+                [ngClass]="huerto?.tipo === 'parcela' ? 'bg-success' : 'bg-warning text-dark'">
+                {{ huerto?.tipo | titlecase }}
+              </span>
+            </div>
+            <hr class="my-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small">Creado el</span>
+              <span class="small fw-semibold">{{ huerto?.fecha_creacion | date:'dd/MM/yyyy' }}</span>
+            </div>
           </div>
         </div>
 
       </div>
     </div>
 
-    <!-- COLUMNA DERECHA -->
-  <div class="col-12 col-lg-6 justify-content-center align-items-start mt-4 mt-lg-0">
+    <!-- COLUMNA DERECHA: cultivos -->
+    <div class="col-12 col-lg-8">
 
-        <!--Card Tomate-->
-    <div class="card mb-3 w-100 mw-100 border-0 shadow-sm">
-  <div class="row g-0 align-items-stretch">
-
-    <!-- Imagen -->
-    <div class="col-md-4 d-flex align-items-center justify-content-center p-2">
-      <img
-        src="/images/plantas/tomate.png"
-        class="img-fluid"
-        alt="Tomate"
-        style="max-height: 110px; object-fit: contain;"
-      />
-    </div>
-
-    <span
-  class="position-absolute top-0 end-0 m-2 text-warning"
-  title="Problema detectado"
->
-  <i class="fa-solid fa-circle-exclamation fs-5"></i>
-</span>
-
-    <!-- Contenido -->
-    <div class="col-md-8 d-flex flex-column">
-
-      <div class="card-body">
-
-          <h5 class="card-title mb-4">Necesidades de la planta</h5>
-
-          <ul class="list-group list-group-flush">
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tipo de riego</span>
-              <strong>Moderado</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Abono necesario</span>
-              <strong>Cada 15 días</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tiempo de crecimiento</span>
-              <strong>90 días</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Exposición solar</span>
-              <strong>Pleno sol</strong>
-            </li>
-
-          </ul>
-
-        </div>
-
-      <!-- SUBMENÚ / ACCIONES -->
-      <div
-        class="d-flex justify-content-around align-items-center bg-light py-2 border-top"
-      >
-        <button class="btn action-btn delete" title="Eliminar">
-          <i class="fa-solid fa-trash"></i>
+      <!-- Cabecera de cultivos -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-light fw-semibold mb-0">
+          <i class="fa-solid fa-seedling text-success me-2"></i>Cultivos
+        </h5>
+        <button class="btn btn-success btn-sm" (click)="irACrearCultivo()">
+          <i class="fa-solid fa-plus me-1"></i> Añadir cultivo
         </button>
-
-        <button class="btn action-btn edit" title="Editar">
-          <i class="fa-solid fa-pen"></i>
-        </button>
-
-        <a
-          class="btn action-btn view"
-          routerLink="/app/huerto"
-          role="button"
-          title="Ver detalles"
-        >
-          <i class="fa-solid fa-book"></i>
-        </a>
       </div>
 
-    </div>
+      <ng-container *ngIf="cultivos$ | async as cultivos; else cargando">
 
-  </div>
-</div>
-
-    <!--Card Lechuga-->
-    <div class="card mb-3 w-100 mw-100 border-0 shadow-sm">
-  <div class="row g-0 align-items-stretch">
-
-    <!-- Imagen -->
-    <div class="col-md-4 d-flex align-items-center justify-content-center p-2">
-      <img
-        src="/images/plantas/lechuga.png"
-        class="img-fluid"
-        alt="Patata"
-        style="max-height: 110px; object-fit: contain;"
-      />
-    </div>
-
-    <!-- Contenido -->
-    <div class="col-md-8 d-flex flex-column">
-
-      <div class="card-body">
-
-          <h5 class="card-title mb-4">Necesidades de la planta</h5>
-
-          <ul class="list-group list-group-flush">
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tipo de riego</span>
-              <strong>Moderado</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Abono necesario</span>
-              <strong>Cada 15 días</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tiempo de crecimiento</span>
-              <strong>90 días</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Exposición solar</span>
-              <strong>Pleno sol</strong>
-            </li>
-
-          </ul>
-
+        <!-- Sin cultivos -->
+        <div *ngIf="cultivos.length === 0"
+             class="text-center text-light py-5 bg-dark bg-opacity-25 rounded">
+          <i class="fa-solid fa-seedling fs-1 text-success opacity-50 mb-3"></i>
+          <p class="mb-0">Aún no tienes cultivos en este huerto.</p>
+          <button class="btn btn-outline-success btn-sm mt-3" (click)="irACrearCultivo()">
+            <i class="fa-solid fa-plus me-1"></i> Añadir el primero
+          </button>
         </div>
 
-      <!-- SUBMENÚ / ACCIONES -->
-      <div
-        class="d-flex justify-content-around align-items-center bg-light py-2 border-top"
-      >
-        <button class="btn action-btn delete" title="Eliminar">
-          <i class="fa-solid fa-trash"></i>
-        </button>
+        <!-- Card por cada cultivo -->
+        <div *ngFor="let cultivo of cultivos"
+             class="card mb-3 border-0 shadow-sm position-relative"
+             [ngClass]="{
+               'border-warning border-opacity-75': cultivo.estado === 'enferma',
+               'border-danger  border-opacity-75': cultivo.estado === 'infectada'
+             }">
 
-        <button class="btn action-btn edit" title="Editar">
-          <i class="fa-solid fa-pen"></i>
-        </button>
+          <div class="row g-0 align-items-stretch">
 
-        <a
-          class="btn action-btn view"
-          routerLink="/app/huerto"
-          role="button"
-          title="Ver detalles"
-        >
-          <i class="fa-solid fa-book"></i>
-        </a>
-      </div>
+            <!-- Imagen de la planta -->
+            <div class="col-md-3 d-flex align-items-center justify-content-center p-3 bg-light rounded-start">
+              <img
+                [src]="getPlanta(cultivo.plantaId)?.imagen || '/images/placeholder.png'"
+                [alt]="getPlanta(cultivo.plantaId)?.nombre"
+                class="img-fluid"
+                style="max-height: 90px; object-fit: contain;"
+              />
+            </div>
 
-    </div>
+            <!-- Badge de alerta (esquina superior derecha) -->
+            <span
+              *ngIf="cultivo.estado !== 'sana'"
+              class="position-absolute top-0 end-0 m-2"
+              [ngClass]="{
+                'text-warning': cultivo.estado === 'enferma',
+                'text-danger':  cultivo.estado === 'infectada'
+              }"
+              [title]="cultivo.estado === 'enferma' ? 'Planta enferma' : 'Planta infectada por plaga'">
+              <i class="fa-solid fa-circle-exclamation fs-5"></i>
+            </span>
 
-  </div>
-</div>
+            <!-- Contenido -->
+            <div class="col-md-9 d-flex flex-column">
+              <div class="card-body pb-2">
 
-    <!--Card Zanahoria-->
-    <div class="card mb-3 w-100 mw-100 border-0 shadow-sm">
-  <div class="row g-0 align-items-stretch">
+                <div class="d-flex justify-content-between align-items-start">
+                  <h5 class="card-title mb-1">
+                    {{ getPlanta(cultivo.plantaId)?.nombre || 'Cargando...' }}
+                  </h5>
+                  <!-- Badge de estado -->
+                  <span class="badge"
+                    [ngClass]="{
+                      'bg-success': cultivo.estado === 'sana',
+                      'bg-warning text-dark': cultivo.estado === 'enferma',
+                      'bg-danger':  cultivo.estado === 'infectada'
+                    }">
+                    <i class="fa-solid me-1"
+                      [ngClass]="{
+                        'fa-circle-check': cultivo.estado === 'sana',
+                        'fa-virus':        cultivo.estado === 'enferma',
+                        'fa-bug':          cultivo.estado === 'infectada'
+                      }">
+                    </i>
+                    {{ cultivo.estado | titlecase }}
+                  </span>
+                </div>
 
-    <!-- Imagen -->
-    <div class="col-md-4 d-flex align-items-center justify-content-center p-2">
-      <img
-        src="/images/zanahoria.png"
-        class="img-fluid"
-        alt="Patata"
-        style="max-height: 110px; object-fit: contain;"
-      />
-    </div>
+                <!-- Panel de amenaza (solo si no está sana) -->
+                <div *ngIf="cultivo.estado !== 'sana' && cultivo.amenazaId"
+                     class="alert alert-sm py-1 px-2 mt-2 mb-0 d-flex align-items-center gap-2"
+                     [ngClass]="{
+                       'alert-warning': cultivo.estado === 'enferma',
+                       'alert-danger':  cultivo.estado === 'infectada'
+                     }">
+                  <img
+                    [src]="getAmenaza(cultivo.amenazaId)?.imagen || ''"
+                    class="rounded"
+                    style="width: 28px; height: 28px; object-fit: contain;"
+                  />
+                  <span class="small fw-semibold">
+                    {{ getAmenaza(cultivo.amenazaId)?.nombre || 'Cargando...' }}
+                  </span>
+                </div>
 
-    <!-- Contenido -->
-    <div class="col-md-8 d-flex flex-column">
+                <ul class="list-group list-group-flush mt-2">
+                  <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span class="text-muted small">Fecha de siembra</span>
+                    <strong class="small">{{ cultivo.fechaSiembra | date:'dd/MM/yyyy' }}</strong>
+                  </li>
+                  <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span class="text-muted small">Riego</span>
+                    <strong class="small">{{ getPlanta(cultivo.plantaId)?.riego || '—' }}</strong>
+                  </li>
+                  <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span class="text-muted small">Abono</span>
+                    <strong class="small">{{ getPlanta(cultivo.plantaId)?.abono || '—' }}</strong>
+                  </li>
+                  <li *ngIf="cultivo.notas" class="list-group-item px-0">
+                    <span class="text-muted fst-italic small">
+                      <i class="fa-solid fa-note-sticky me-1"></i>{{ cultivo.notas }}
+                    </span>
+                  </li>
+                </ul>
 
-      <div class="card-body">
+              </div>
 
-          <h5 class="card-title mb-4">Necesidades de la planta</h5>
+              <!-- Acciones -->
+              <div class="d-flex justify-content-end gap-2 px-3 py-2 border-top">
+                <button class="btn btn-sm btn-outline-danger" title="Eliminar"
+                  (click)="onEliminarCultivo(cultivo.id)">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-warning" title="Editar"
+                  (click)="onEditarCultivo(cultivo.id)">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                  <i class="fa-solid fa-book"></i>
+                </button>
+                <!-- Botón Chat IA (solo si no está sana) -->
+                <button
+                  *ngIf="cultivo.estado !== 'sana'"
+                  class="btn btn-sm btn-warning"
+                  title="Consultar a la IA">
+                  <i class="fa-solid fa-robot me-1"></i> Consultar IA
+                </button>
+              </div>
 
-          <ul class="list-group list-group-flush">
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tipo de riego</span>
-              <strong>Moderado</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Abono necesario</span>
-              <strong>Cada 15 días</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tiempo de crecimiento</span>
-              <strong>90 días</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Exposición solar</span>
-              <strong>Pleno sol</strong>
-            </li>
-
-          </ul>
-
+            </div>
+          </div>
         </div>
 
-      <!-- SUBMENÚ / ACCIONES -->
-      <div
-        class="d-flex justify-content-around align-items-center bg-light py-2 border-top"
-      >
-        <button class="btn action-btn delete" title="Eliminar">
-          <i class="fa-solid fa-trash"></i>
-        </button>
+      </ng-container>
 
-        <button class="btn action-btn edit" title="Editar">
-          <i class="fa-solid fa-pen"></i>
-        </button>
-
-        <a
-          class="btn action-btn view"
-          routerLink="/app/huerto"
-          role="button"
-          title="Ver detalles"
-        >
-          <i class="fa-solid fa-book"></i>
-        </a>
-      </div>
-
-    </div>
-
-  </div>
-</div>
-
-    
-
-    <div class="card mb-3 w-100 border-0 shadow-sm">
-  <div class="row g-0 align-items-stretch">
-
-    <!-- Imagen -->
-    <div class="col-md-4 d-flex align-items-center justify-content-center p-2">
-      <img
-        src="/images/plantas/patatas.png"
-        class="img-fluid"
-        alt="Patata"
-        style="max-height: 110px; object-fit: contain;"
-      />
-    </div>
-
-    <!-- Contenido -->
-    <div class="col-md-8 d-flex flex-column">
-
-      <div class="card-body">
-
-          <h5 class="card-title mb-4">Necesidades de la planta</h5>
-
-          <ul class="list-group list-group-flush">
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tipo de riego</span>
-              <strong>Moderado</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Abono necesario</span>
-              <strong>Cada 15 días</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Tiempo de crecimiento</span>
-              <strong>90 días</strong>
-            </li>
-
-            <li class="list-group-item d-flex justify-content-between">
-              <span>Exposición solar</span>
-              <strong>Pleno sol</strong>
-            </li>
-
-          </ul>
-
+      <!-- Cargando -->
+      <ng-template #cargando>
+        <div class="text-center text-light py-5">
+          <div class="spinner-border text-success" role="status"></div>
+          <p class="mt-2">Cargando cultivos...</p>
         </div>
-
-      <!-- SUBMENÚ / ACCIONES -->
-      <div
-        class="d-flex justify-content-around align-items-center bg-light py-2 border-top"
-      >
-        <button class="btn action-btn delete" title="Eliminar">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-
-        <button class="btn action-btn edit" title="Editar">
-          <i class="fa-solid fa-pen"></i>
-        </button>
-
-        <a
-          class="btn action-btn view"
-          routerLink="/app/huerto"
-          role="button"
-          title="Ver detalles"
-        >
-          <i class="fa-solid fa-book"></i>
-        </a>
-      </div>
+      </ng-template>
 
     </div>
-
   </div>
-</div>
-</div>
 </div>
