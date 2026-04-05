@@ -88,4 +88,40 @@ updateCultivo(huertoId: string, cultivo: Cultivo) {
     const cultivoRef = ref(this.database, `/cultivos/${uid}/${huertoId}/${cultivoId}`);
     return remove(cultivoRef);
   }
+
+  getCultivosByUidAndHuerto(uid: string, huertoId: string): Observable<Cultivo[]> {
+  const cultivosRef = ref(this.database, `/cultivos/${uid}/${huertoId}`);
+  return listVal(cultivosRef, { keyField: 'id' }) as Observable<Cultivo[]>;
+}
+
+async getCultivoByUidAndId(uid: string, huertoId: string, cultivoId: string): Promise<Cultivo | null> {
+  const cultivoRef = ref(this.database, `/cultivos/${uid}/${huertoId}/${cultivoId}`);
+  const snapshot = await get(cultivoRef);
+  if (!snapshot.exists()) return null;
+  const raw = snapshot.val();
+  return {
+    id:           snapshot.key!,
+    plantaId:     raw.plantaId     ?? '',
+    estado:       raw.estado       ?? 'sana',
+    fechaSiembra: raw.fechaSiembra ?? '',
+    notas:        raw.notas        ?? '',
+    amenazaId:    raw.amenazaId    ?? null
+  };
+}
+
+removeCultivoByUid(uid: string, huertoId: string, cultivoId: string): Promise<void> {
+  const cultivoRef = ref(this.database, `/cultivos/${uid}/${huertoId}/${cultivoId}`);
+  return remove(cultivoRef);
+}
+
+createCultivoByUid(uid: string, huertoId: string, cultivo: Omit<Cultivo, 'id'>) {
+  const cultivosRef = ref(this.database, `/cultivos/${uid}/${huertoId}`);
+  return push(cultivosRef, cultivo);
+}
+
+updateCultivoByUid(uid: string, huertoId: string, cultivo: Cultivo) {
+  const cultivoRef = ref(this.database, `/cultivos/${uid}/${huertoId}/${cultivo.id}`);
+  const { id, ...dataToSave } = cultivo;
+  return update(cultivoRef, dataToSave);
+}
 }

@@ -12,10 +12,10 @@ export class PersonService {
 
   constructor(private database: Database,private auth: Auth) { }
 
-  getAllPersons() {
-    const personsRef = ref(this.database, '/users');
-    return listVal(personsRef) as Observable<Person[]>;
-  }
+getAllPersons(): Observable<Person[]> {
+  const personsRef = ref(this.database, '/users');
+  return listVal(personsRef, { keyField: 'uid' }) as Observable<Person[]>;
+}
 
   async getPersonById(id: string): Promise<Person | null> {
     const objectRef = ref(this.database, `/users/${id}`);

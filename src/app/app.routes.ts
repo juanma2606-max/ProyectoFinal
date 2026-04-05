@@ -15,6 +15,9 @@ import { AmenazaformComponent } from './componentes/amenazas-form/amenazas-form.
 import { PlantasFormComponent } from './componentes/plantas-form/plantas-form.component';
 import { HuertoFormComponent } from './componentes/huerto-form/huerto-form.component';
 import { CultivoFormComponent } from './componentes/cultivo-form/cultivo-form.component';
+import { adminGuard } from './guards/admin.guard';
+import { AdminPanelComponent } from './componentes/admin-panel/admin-panel.component';
+import { AdminUsuarioComponent } from './componentes/admin-usuario/admin-usuario.component';
 
 export const routes: Routes = [
 
@@ -29,18 +32,31 @@ export const routes: Routes = [
     path: 'app',
     component: SidebarComponent,
     children: [
-      { path: 'huertoform',     component: HuertoFormComponent },  // CREAR
-      { path: 'huertoform/:id', component: HuertoFormComponent },  // EDITAR
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: HomeComponent },
+
+      // Huertos
+      { path: 'huerto/:id', component: HuertoComponent },
+      { path: 'maceta/:id', component: MacetaComponent },
+      { path: 'huertoform', component: HuertoFormComponent },
+      { path: 'huertoform/:id', component: HuertoFormComponent },
+
+      // Cultivos
       { path: 'cultivoform/:huertoId', component: CultivoFormComponent },
-      { path: 'cultivoform/:huertoId/:cultivoId', component: CultivoFormComponent }, // EDITAR
+      { path: 'cultivoform/:huertoId/:cultivoId', component: CultivoFormComponent },
+
+      // Plantas
       {
-    path: 'plantas',
-    component: PlantasComponent,
-    children: [
-      { path: ':id', component: PlantaDetalleComponent }
-    ]
-},
+        path: 'plantas',
+        component: PlantasComponent,
+        children: [
+          { path: ':id', component: PlantaDetalleComponent }
+        ]
+      },
+      { path: 'plantasform', component: PlantasFormComponent },
+      { path: 'plantasform/:id', component: PlantasFormComponent },
+
+      // Amenazas
       {
         path: 'amenazas',
         component: AmenazasComponent,
@@ -48,13 +64,20 @@ export const routes: Routes = [
           { path: ':id', component: AmenazaDetalleComponent }
         ]
       },
-      { path: 'amenazaform', component: AmenazaformComponent },// CREAR
-      { path: 'amenazaform/:id', component: AmenazaformComponent }, // EDITAR
-      { path: 'plantasform',      component: PlantasFormComponent },   // CREAR
-      { path: 'plantasform/:id',  component: PlantasFormComponent },   // EDITAR
-      { path: 'huerto/:id', component: HuertoComponent },
-      { path: 'maceta', component: MacetaComponent },
-      { path: '', redirectTo: 'home', pathMatch: 'full' }
+      { path: 'amenazaform', component: AmenazaformComponent },
+      { path: 'amenazaform/:id', component: AmenazaformComponent },
+
+      // Admin
+      { path: 'admin', component: AdminPanelComponent, canActivate: [adminGuard] },
+      { path: 'admin/usuario/:uid', component: AdminUsuarioComponent, canActivate: [adminGuard] },
+      { path: 'admin/usuario/:uid/huerto/:huertoId', component: HuertoComponent, canActivate: [adminGuard] },
+      { path: 'admin/usuario/:uid/huertoform/:id', component: HuertoFormComponent, canActivate: [adminGuard] },
+      { path: 'admin/usuario/:uid/cultivoform/:huertoId', component: CultivoFormComponent, canActivate: [adminGuard] },
+{ path: 'admin/usuario/:uid/cultivoform/:huertoId/:cultivoId', component: CultivoFormComponent, canActivate: [adminGuard] },
+
+
+      // Ajustes
+      { path: 'ajustes', component: AjustesComponent },
     ]
   }
 ];
