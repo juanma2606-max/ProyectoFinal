@@ -18,6 +18,7 @@ import { CultivoFormComponent } from './componentes/cultivo-form/cultivo-form.co
 import { adminGuard } from './guards/admin.guard';
 import { AdminPanelComponent } from './componentes/admin-panel/admin-panel.component';
 import { AdminUsuarioComponent } from './componentes/admin-usuario/admin-usuario.component';
+import { ChatIaComponent } from './componentes/chat-ia/chat-ia.component';
 
 export const routes: Routes = [
 
@@ -78,6 +79,9 @@ export const routes: Routes = [
 
       // Ajustes
       { path: 'ajustes', component: AjustesComponent },
+
+      //Chat IA
+      { path: 'chat-ia', component: ChatIaComponent },
     ]
   }
 ];

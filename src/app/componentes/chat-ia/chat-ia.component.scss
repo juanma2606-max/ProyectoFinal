@@ -1,0 +1,77 @@
+.chat-wrapper {
+  background: transparent;
+}
+
+.chat-header {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.avatar-ia {
+  width: 44px;
+  height: 44px;
+  background: rgba(25, 135, 84, 0.15);
+  border-radius: 50%;
+  border: 2px solid rgba(25, 135, 84, 0.4);
+}
+
+.avatar-small {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+}
+
+.mensajes-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+
+.burbuja {
+  max-width: 75%;
+  word-wrap: break-word;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.burbuja-ia {
+  background: rgba(255, 255, 255, 0.95);
+  color: #1a1a1a;
+  border-radius: 4px 12px 12px 12px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.burbuja-usuario {
+  background: #198754;
+  color: white;
+  border-radius: 12px 4px 12px 12px !important;
+  box-shadow: 0 2px 8px rgba(25, 135, 84, 0.3);
+}
+
+.chat-input-area {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+// Animacion de escritura
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  height: 20px;
+
+  span {
+    width: 8px;
+    height: 8px;
+    background: #198754;
+    border-radius: 50%;
+    animation: typing 1.2s infinite;
+
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+  }
+}
+
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
