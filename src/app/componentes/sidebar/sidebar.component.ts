@@ -12,18 +12,18 @@ import { AuthService } from '../../servicios/auth.service';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent{
+
+  
   sidebarOpen = false;
   esAdmin = false;
 
-  constructor(private auth: Auth, private router: Router, private authService: AuthService) {}
-
-  ngOnInit(): void {
-    // Escuchamos el estado de autenticación reactivamente
+  constructor(private auth: Auth, private router: Router, private authService: AuthService) {
     authState(this.auth).subscribe(user => {
       this.esAdmin = user?.email === 'admin@huerting.com';
     });
   }
+
 
   cerrarSesion(): void {
     signOut(this.auth).then(() => {

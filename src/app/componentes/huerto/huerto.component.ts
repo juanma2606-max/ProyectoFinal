@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
+import { Auth, authState } from '@angular/fire/auth';
 import { Planta } from '../../modelos/planta.model';
 import { Huerto } from '../../modelos/huerto.model';
 import { CultivosService } from '../../servicios/cultivos.service';
@@ -21,8 +22,8 @@ import { AmenazasService } from '../../servicios/amenazas.service';
 export class HuertoComponent implements OnInit {
 
   huertoId!: string;
-  uid: string | null = null;       // uid del usuario visto por el admin
-  esVistaAdmin: boolean = false;   // true si viene desde la ruta del admin
+  uid: string | null = null;
+  esVistaAdmin: boolean = false;
   huerto: Huerto | null = null;
   cultivos$!: Observable<Cultivo[]>;
   plantasMap: Map<string, Planta> = new Map();
@@ -34,31 +35,37 @@ export class HuertoComponent implements OnInit {
     private cultivosService: CultivosService,
     private plantasService: PlantasService,
     private huertosService: HuertosService,
-    private amenazasService: AmenazasService
+    private amenazasService: AmenazasService,
+    private auth: Auth
   ) {}
 
   ngOnInit(): void {
     this.huertoId = this.route.snapshot.paramMap.get('huertoId')
                  ?? this.route.snapshot.paramMap.get('id')!;
-
-    // Detectamos si viene desde la ruta del admin
     this.uid = this.route.snapshot.paramMap.get('uid');
     this.esVistaAdmin = !!this.uid;
 
-    // Cargamos el huerto según si es admin o usuario normal
-    if (this.esVistaAdmin && this.uid) {
-      this.huertosService.getHuertoByUidAndId(this.uid, this.huertoId).then(huerto => {
-        this.huerto = huerto;
-      });
-      this.cultivos$ = this.cultivosService.getCultivosByUidAndHuerto(this.uid, this.huertoId);
-    } else {
-      this.huertosService.getHuertoById(this.huertoId).then(huerto => {
-        this.huerto = huerto;
-      });
-      this.cultivos$ = this.cultivosService.getCultivosByHuerto(this.huertoId);
-    }
+    this.cultivos$ = authState(this.auth).pipe(
+      switchMap(user => {
+        if (!user) return [];
 
-    // Cargamos plantas y amenazas
+        const uidToUse = this.esVistaAdmin && this.uid ? this.uid : user.uid;
+
+        // Cargamos el huerto
+        if (this.esVistaAdmin && this.uid) {
+          this.huertosService.getHuertoByUidAndId(this.uid, this.huertoId).then(huerto => {
+            this.huerto = huerto;
+          });
+        } else {
+          this.huertosService.getHuertoById(this.huertoId).then(huerto => {
+            this.huerto = huerto;
+          });
+        }
+
+        return this.cultivosService.getCultivosByHuerto(uidToUse, this.huertoId);
+      })
+    );
+
     this.cultivos$.subscribe(cultivos => {
       cultivos.forEach(cultivo => {
         if (!this.plantasMap.has(cultivo.plantaId)) {
@@ -84,29 +91,26 @@ export class HuertoComponent implements OnInit {
     return this.amenazasMap.get(amenazaId);
   }
 
-irACrearCultivo(): void {
-  if (this.esVistaAdmin && this.uid) {
-    this.router.navigate(['/app/admin/usuario', this.uid, 'cultivoform', this.huertoId]);
-  } else {
-    this.router.navigate(['/app/cultivoform', this.huertoId]);
+  irACrearCultivo(): void {
+    if (this.esVistaAdmin && this.uid) {
+      this.router.navigate(['/app/admin/usuario', this.uid, 'cultivoform', this.huertoId]);
+    } else {
+      this.router.navigate(['/app/cultivoform', this.huertoId]);
+    }
   }
-}
 
-onEliminarCultivo(cultivoId: string): void {
-  if (this.esVistaAdmin && this.uid) {
-    this.cultivosService.removeCultivoByUid(this.uid, this.huertoId, cultivoId);
-  } else {
-    this.cultivosService.removeCultivo(this.huertoId, cultivoId);
+  onEliminarCultivo(cultivoId: string): void {
+    const uidToUse = this.esVistaAdmin && this.uid ? this.uid : this.auth.currentUser!.uid;
+    this.cultivosService.removeCultivo(uidToUse, this.huertoId, cultivoId);
   }
-}
 
-onEditarCultivo(cultivoId: string): void {
-  if (this.esVistaAdmin && this.uid) {
-    this.router.navigate(['/app/admin/usuario', this.uid, 'cultivoform', this.huertoId, cultivoId]);
-  } else {
-    this.router.navigate(['/app/cultivoform', this.huertoId, cultivoId]);
+  onEditarCultivo(cultivoId: string): void {
+    if (this.esVistaAdmin && this.uid) {
+      this.router.navigate(['/app/admin/usuario', this.uid, 'cultivoform', this.huertoId, cultivoId]);
+    } else {
+      this.router.navigate(['/app/cultivoform', this.huertoId, cultivoId]);
+    }
   }
-}
 
   volver(): void {
     if (this.esVistaAdmin && this.uid) {

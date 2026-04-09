@@ -11,7 +11,7 @@ export interface Mensaje {
 })
 export class ChatService {
 
-  private readonly API_URL = 'https://api.anthropic.com/v1/messages';
+  private readonly API_URL = '/anthropic-api/v1/messages';
   private readonly MODEL = 'claude-opus-4-5-20251101';
   private readonly SYSTEM_PROMPT = `Eres un asistente experto en agricultura, 
   huertos y jardineria llamado HuertingIA. Ayudas a los usuarios con preguntas 

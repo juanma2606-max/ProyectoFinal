@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { Auth } from '@angular/fire/auth';
 import { Planta } from '../../modelos/planta.model';
 import { PlantasService } from '../../servicios/plantas.service';
 import { CultivosService } from '../../servicios/cultivos.service';
@@ -49,8 +50,14 @@ export class CultivoFormComponent implements OnInit {
     private router: Router,
     private plantasService: PlantasService,
     private cultivosService: CultivosService,
-    private amenazasService: AmenazasService
+    private amenazasService: AmenazasService,
+    private auth: Auth
   ) {}
+
+  private getUidToUse(): string {
+    if (this.esVistaAdmin && this.uid) return this.uid;
+    return this.auth.currentUser!.uid;
+  }
 
   ngOnInit(): void {
     this.huertoId  = this.route.snapshot.paramMap.get('huertoId')!;
@@ -67,20 +74,16 @@ export class CultivoFormComponent implements OnInit {
     });
 
     if (this.modoEdicion && this.cultivoId) {
-      // Si es admin usamos el uid del usuario, si no el del autenticado
-      const getCultivo = this.esVistaAdmin && this.uid
-        ? this.cultivosService.getCultivoByUidAndId(this.uid, this.huertoId, this.cultivoId)
-        : this.cultivosService.getCultivoById(this.huertoId, this.cultivoId);
-
-      getCultivo.then(cultivo => {
-        if (!cultivo) { this.error = 'No se encontró el cultivo.'; return; }
-        this.plantaIdSeleccionada  = cultivo.plantaId;
-        this.notas                 = cultivo.notas;
-        this.estado                = cultivo.estado;
-        this.fechaSiembra          = cultivo.fechaSiembra;
-        this.amenazaIdSeleccionada = cultivo.amenazaId ?? '';
-        this.filtrarAmenazas();
-      });
+      this.cultivosService.getCultivoById(this.getUidToUse(), this.huertoId, this.cultivoId)
+        .then((cultivo: Cultivo | null) => {
+          if (!cultivo) { this.error = 'No se encontró el cultivo.'; return; }
+          this.plantaIdSeleccionada  = cultivo.plantaId;
+          this.notas                 = cultivo.notas;
+          this.estado                = cultivo.estado;
+          this.fechaSiembra          = cultivo.fechaSiembra;
+          this.amenazaIdSeleccionada = cultivo.amenazaId ?? '';
+          this.filtrarAmenazas();
+        });
     }
   }
 
@@ -116,6 +119,7 @@ export class CultivoFormComponent implements OnInit {
 
     this.guardando = true;
     this.error = '';
+    const uid = this.getUidToUse();
 
     try {
       if (this.modoEdicion && this.cultivoId) {
@@ -127,25 +131,17 @@ export class CultivoFormComponent implements OnInit {
           notas:        this.notas.trim(),
           amenazaId:    this.estado === 'sana' ? null : this.amenazaIdSeleccionada
         };
-
-        if (this.esVistaAdmin && this.uid) {
-          await this.cultivosService.updateCultivoByUid(this.uid, this.huertoId, cultivoActualizado);
-        } else {
-          await this.cultivosService.updateCultivo(this.huertoId, cultivoActualizado);
-        }
+        await this.cultivosService.updateCultivo(uid, this.huertoId, cultivoActualizado);
       } else {
-        const nuevoCultivo: Omit<Cultivo, 'id'> = {
+        const nuevoCultivo: Cultivo = {
+          id:           '',
           plantaId:     this.plantaIdSeleccionada,
           estado:       'sana',
           fechaSiembra: new Date().toISOString(),
-          notas:        this.notas.trim()
+          notas:        this.notas.trim(),
+          amenazaId:    null
         };
-
-        if (this.esVistaAdmin && this.uid) {
-          await this.cultivosService.createCultivoByUid(this.uid, this.huertoId, nuevoCultivo);
-        } else {
-          await this.cultivosService.createCultivo(this.huertoId, nuevoCultivo);
-        }
+        await this.cultivosService.createCultivo(uid, this.huertoId, nuevoCultivo);
       }
 
       this.navegarDeVuelta();
