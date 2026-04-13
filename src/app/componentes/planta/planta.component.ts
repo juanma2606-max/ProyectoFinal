@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PlantasService } from '../../servicios/plantas.service';
+import { AuthService } from '../../servicios/auth.service';
 import { Planta } from '../../modelos/planta.model';
 
 @Component({
@@ -15,7 +16,10 @@ export class PlantasComponent implements OnInit {
   tipoActivo: Planta['tipo'] | null = null;
   plantas: Planta[] = [];
 
-  constructor(private plantasService: PlantasService) {}
+  constructor(
+    private plantasService: PlantasService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     // Cargar todos los datos desde el servicio
@@ -30,5 +34,9 @@ export class PlantasComponent implements OnInit {
 
   seleccionarTipo(tipo: Planta['tipo'] | null): void {
     this.tipoActivo = tipo;
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
   }
 }

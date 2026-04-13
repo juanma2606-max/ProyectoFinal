@@ -1,11 +1,11 @@
-// src/app/modelos/amenaza.ts
-export interface Amenaza {
-  id: string;
-  nombre: string;
-  imagen: string;  // Ruta relativa: "images/amenazas/pulgon.png"
-  descripcion: string;
-  tipo: 'plaga' | 'enfermedad';
-  // Campos estructurados (opcionales)
-  sintomas?: string[];
-  tratamiento?: string;
+export class Amenaza {
+  constructor(
+    public nombre: string,
+    public descripcion: string,
+    public tipo: 'plaga' | 'enfermedad' | 'hongo',
+    public imagen: string,
+    public sintomas: string[] = [],
+    public tratamiento: string = '',
+    public id?: string
+  ) {}
 }

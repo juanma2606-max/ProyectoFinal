@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Auth } from '@angular/fire/auth';
-import { Planta } from '../../modelos/planta.model';
 import { PlantasService } from '../../servicios/plantas.service';
 import { CultivosService } from '../../servicios/cultivos.service';
 import { AmenazasService } from '../../servicios/amenazas.service';
+import { Planta } from '../../modelos/planta.model';
 import { Amenaza } from '../../modelos/amenaza.model';
 import { Cultivo } from '../../modelos/cultivo.model';
 
@@ -30,19 +30,28 @@ export class CultivoFormComponent implements OnInit {
   amenazas: Amenaza[] = [];
   amenazasFiltradas: Amenaza[] = [];
 
+  nombre: string = '';
   plantaIdSeleccionada: string = '';
   notas: string = '';
-  estado: 'sana' | 'enferma' | 'infectada' = 'sana';
+  cantidad: number = 1;
+  estado: 'plantado' | 'creciendo' | 'maduro' | 'cosechado' | 'enfermo' = 'plantado';
   amenazaIdSeleccionada: string = '';
-  fechaSiembra: string = '';
+  fecha_siembra: string = '';
 
   guardando: boolean = false;
   error: string = '';
 
-  readonly estados: { valor: 'sana' | 'enferma' | 'infectada', etiqueta: string, icono: string, clase: string }[] = [
-    { valor: 'sana',      etiqueta: 'Sana',                icono: 'fa-circle-check', clase: 'btn-success' },
-    { valor: 'enferma',   etiqueta: 'Enferma',             icono: 'fa-virus',        clase: 'btn-warning' },
-    { valor: 'infectada', etiqueta: 'Infectada por plaga', icono: 'fa-bug',          clase: 'btn-danger'  },
+  readonly estados: { 
+    valor: 'plantado' | 'creciendo' | 'maduro' | 'cosechado' | 'enfermo', 
+    etiqueta: string, 
+    icono: string, 
+    clase: string 
+  }[] = [
+    { valor: 'plantado',  etiqueta: 'Plantado',  icono: 'fa-seedling',      clase: 'btn-secondary' },
+    { valor: 'creciendo', etiqueta: 'Creciendo', icono: 'fa-leaf',          clase: 'btn-info' },
+    { valor: 'maduro',    etiqueta: 'Maduro',    icono: 'fa-check-circle',  clase: 'btn-success' },
+    { valor: 'cosechado', etiqueta: 'Cosechado', icono: 'fa-box',           clase: 'btn-dark' },
+    { valor: 'enfermo',   etiqueta: 'Enfermo',   icono: 'fa-virus',         clase: 'btn-warning' },
   ];
 
   constructor(
@@ -76,35 +85,44 @@ export class CultivoFormComponent implements OnInit {
     if (this.modoEdicion && this.cultivoId) {
       this.cultivosService.getCultivoById(this.getUidToUse(), this.huertoId, this.cultivoId)
         .then((cultivo: Cultivo | null) => {
-          if (!cultivo) { this.error = 'No se encontró el cultivo.'; return; }
+          if (!cultivo) { 
+            this.error = 'No se encontró el cultivo.'; 
+            return; 
+          }
+          this.nombre                = cultivo.nombre;
           this.plantaIdSeleccionada  = cultivo.plantaId;
           this.notas                 = cultivo.notas;
+          this.cantidad              = cultivo.cantidad;
           this.estado                = cultivo.estado;
-          this.fechaSiembra          = cultivo.fechaSiembra;
+          this.fecha_siembra         = cultivo.fecha_siembra;
           this.amenazaIdSeleccionada = cultivo.amenazaId ?? '';
           this.filtrarAmenazas();
         });
     }
   }
 
-  onEstadoChange(nuevoEstado: 'sana' | 'enferma' | 'infectada'): void {
+  onEstadoChange(nuevoEstado: 'plantado' | 'creciendo' | 'maduro' | 'cosechado' | 'enfermo'): void {
     this.estado = nuevoEstado;
-    this.amenazaIdSeleccionada = '';
+    
+    // Si cambia a un estado que NO es enfermo, limpiar amenaza
+    if (nuevoEstado !== 'enfermo') {
+      this.amenazaIdSeleccionada = '';
+    }
+    
     this.filtrarAmenazas();
   }
 
   private filtrarAmenazas(): void {
-    if (this.estado === 'enferma') {
-      this.amenazasFiltradas = this.amenazas.filter(a => a.tipo === 'enfermedad');
-    } else if (this.estado === 'infectada') {
-      this.amenazasFiltradas = this.amenazas.filter(a => a.tipo === 'plaga');
+    // Solo mostrar amenazas cuando el estado es 'enfermo'
+    if (this.estado === 'enfermo') {
+      this.amenazasFiltradas = this.amenazas;
     } else {
       this.amenazasFiltradas = [];
     }
   }
 
   get mostrarDashboardAmenaza(): boolean {
-    return this.estado === 'enferma' || this.estado === 'infectada';
+    return this.estado === 'enfermo';
   }
 
   async guardarCultivo(): Promise<void> {
@@ -112,8 +130,14 @@ export class CultivoFormComponent implements OnInit {
       this.error = 'Debes seleccionar una planta.';
       return;
     }
+    
     if (this.mostrarDashboardAmenaza && !this.amenazaIdSeleccionada) {
-      this.error = 'Debes seleccionar la enfermedad o plaga que afecta a la planta.';
+      this.error = 'Debes seleccionar la amenaza que afecta a la planta.';
+      return;
+    }
+
+    if (this.cantidad < 1) {
+      this.error = 'La cantidad debe ser al menos 1.';
       return;
     }
 
@@ -123,29 +147,41 @@ export class CultivoFormComponent implements OnInit {
 
     try {
       if (this.modoEdicion && this.cultivoId) {
-        const cultivoActualizado: Cultivo = {
-          id:           this.cultivoId,
-          plantaId:     this.plantaIdSeleccionada,
-          estado:       this.estado,
-          fechaSiembra: this.fechaSiembra,
-          notas:        this.notas.trim(),
-          amenazaId:    this.estado === 'sana' ? null : this.amenazaIdSeleccionada
-        };
+        // Actualizar cultivo existente
+        // Constructor: nombre, plantaId, fecha_siembra, estado, cantidad, notas, amenazaId, id
+        const cultivoActualizado = new Cultivo(
+          this.nombre.trim() || 'Cultivo sin nombre',
+          this.plantaIdSeleccionada,
+          this.fecha_siembra,
+          this.estado,
+          this.cantidad,
+          this.notas.trim(),
+          this.estado === 'enfermo' ? this.amenazaIdSeleccionada : null,
+          this.cultivoId
+        );
+        
         await this.cultivosService.updateCultivo(uid, this.huertoId, cultivoActualizado);
       } else {
-        const nuevoCultivo: Cultivo = {
-          id:           '',
-          plantaId:     this.plantaIdSeleccionada,
-          estado:       'sana',
-          fechaSiembra: new Date().toISOString(),
-          notas:        this.notas.trim(),
-          amenazaId:    null
-        };
+        // Crear nuevo cultivo
+        // Generar nombre automático si no se proporciona
+        const nombreCultivo = this.nombre.trim() || `Cultivo ${new Date().getTime()}`;
+        
+        const nuevoCultivo = new Cultivo(
+          nombreCultivo,
+          this.plantaIdSeleccionada,
+          new Date().toISOString(),
+          this.estado, // Usar el estado seleccionado por el usuario
+          this.cantidad,
+          this.notas.trim(),
+          this.estado === 'enfermo' ? this.amenazaIdSeleccionada : null // Amenaza si está enfermo
+        );
+        
         await this.cultivosService.createCultivo(uid, this.huertoId, nuevoCultivo);
       }
 
       this.navegarDeVuelta();
     } catch (e) {
+      console.error('Error al guardar cultivo:', e);
       this.error = 'Error al guardar el cultivo. Inténtalo de nuevo.';
       this.guardando = false;
     }

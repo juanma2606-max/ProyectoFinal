@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, switchMap, of } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Auth, authState } from '@angular/fire/auth';
-import { Huerto } from '../../../modelos/huerto.model';
 import { HuertosService } from '../../../servicios/huertos.service';
 import { HomeResumeComponent } from '../home-resume/home-resume.component';
 import { Modal } from 'bootstrap';
+import { Huerto } from '../../../modelos/huerto.model';
 
 @Component({
   selector: 'app-home-list',
@@ -25,14 +25,14 @@ export class HomeListComponent implements OnInit {
   constructor(
     private huertoService: HuertosService,
     private router: Router,
-    private auth: Auth  // ← añadir
+    private auth: Auth
   ) {}
 
   ngOnInit(): void {
     // Esperamos a que Firebase confirme el usuario antes de cargar huertos
     this.huertos$ = authState(this.auth).pipe(
       switchMap(user => {
-        if (!user) return [];
+        if (!user) return of([]);
         return this.huertoService.getAllHuertosFirebase();
       })
     );
@@ -53,7 +53,7 @@ export class HomeListComponent implements OnInit {
   }
 
   confirmarEliminacion(): void {
-    if (!this.huertoAEliminar) return;
+    if (!this.huertoAEliminar || !this.huertoAEliminar.id) return;
 
     const modalInstance = Modal.getInstance(this.deleteModal.nativeElement);
 

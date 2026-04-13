@@ -1,7 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Auth, authState } from '@angular/fire/auth';
+import { Component } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { signOut } from '@angular/fire/auth';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../servicios/auth.service';
 
@@ -12,22 +10,21 @@ import { AuthService } from '../../servicios/auth.service';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
-export class SidebarComponent{
+export class SidebarComponent {
 
-  
   sidebarOpen = false;
   esAdmin = false;
 
-  constructor(private auth: Auth, private router: Router, private authService: AuthService) {
-    authState(this.auth).subscribe(user => {
-      this.esAdmin = user?.email === 'admin@huerting.com';
-    });
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {
+    // Verificar si es admin al cargar el componente
+    this.esAdmin = this.authService.isAdmin();
   }
 
-
   cerrarSesion(): void {
-    signOut(this.auth).then(() => {
-      this.router.navigate(['/login']);
-    });
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

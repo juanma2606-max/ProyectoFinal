@@ -24,7 +24,7 @@
             <ng-container *ngIf="plantas$ | async as plantas; else cargandoPlantas">
               <div class="row g-3">
                 <div *ngFor="let planta of plantas" class="col-6 col-sm-4"
-                  (click)="plantaIdSeleccionada = planta.id">
+                  (click)="plantaIdSeleccionada = planta.id!">
                   <div class="planta-opcion text-center p-2 rounded border"
                     [class.seleccionada]="plantaIdSeleccionada === planta.id">
                     <img [src]="planta.imagen" [alt]="planta.nombre"
@@ -45,8 +45,38 @@
             </div>
           </div>
 
-          <!-- Estado (solo en modo edición) -->
-          <div *ngIf="modoEdicion" class="mb-3">
+          <!-- Nombre del cultivo (opcional) -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">
+              <i class="fa-solid fa-signature text-primary me-1"></i> Nombre del cultivo
+              <span class="text-muted fw-normal">(opcional)</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="nombre"
+              placeholder="Ej: Tomates del balcón, Lechugas de verano..."
+            />
+            <small class="text-muted">Dale un nombre personalizado para identificarlo fácilmente</small>
+          </div>
+
+          <!-- Cantidad de plantas -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">
+              <i class="fa-solid fa-hashtag text-info me-1"></i> Cantidad de plantas
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              min="1" 
+              [(ngModel)]="cantidad"
+              placeholder="¿Cuántas plantas vas a sembrar?"
+            />
+            <small class="text-muted">Ejemplo: 5 plantas de tomate</small>
+          </div>
+
+          <!-- Estado de la planta -->
+          <div class="mb-3">
             <label class="form-label fw-semibold">
               <i class="fa-solid fa-heart-pulse text-danger me-1"></i> Estado de la planta
             </label>
@@ -61,33 +91,37 @@
                 <i class="fa-solid me-1" [ngClass]="e.icono"></i>{{ e.etiqueta }}
               </button>
             </div>
+            <small class="text-muted">
+              {{ modoEdicion ? 'Actualiza el estado según la evolución de tu cultivo' : 'Selecciona el estado inicial (por defecto: Plantado)' }}
+            </small>
           </div>
 
-          <!-- Dashboard amenaza (collapse animado) -->
-          <div *ngIf="modoEdicion && mostrarDashboardAmenaza"
+          <!-- Dashboard amenaza (si está enfermo) -->
+          <div *ngIf="mostrarDashboardAmenaza"
                class="amenaza-panel mb-4 p-3 rounded border border-warning bg-warning bg-opacity-10">
 
             <label class="form-label fw-semibold text-warning">
-              <i class="fa-solid me-1" [ngClass]="estado === 'enferma' ? 'fa-virus' : 'fa-bug'"></i>
-              {{ estado === 'enferma' ? 'Selecciona la enfermedad' : 'Selecciona la plaga' }}
+              <i class="fa-solid fa-bug me-1"></i>
+              Selecciona la amenaza (plaga o enfermedad)
             </label>
 
             <div *ngIf="amenazasFiltradas.length > 0; else sinAmenazas">
               <div class="row g-2">
                 <div *ngFor="let amenaza of amenazasFiltradas" class="col-6 col-sm-4"
-                  (click)="amenazaIdSeleccionada = amenaza.id">
+                  (click)="amenazaIdSeleccionada = amenaza.id!">
                   <div class="planta-opcion text-center p-2 rounded border"
                     [class.seleccionada]="amenazaIdSeleccionada === amenaza.id">
                     <img [src]="amenaza.imagen" [alt]="amenaza.nombre"
                       class="img-fluid mb-1" style="height: 50px; object-fit: contain;" />
                     <div class="small fw-semibold">{{ amenaza.nombre }}</div>
+                    <div class="small text-muted">{{ amenaza.tipo | titlecase }}</div>
                   </div>
                 </div>
               </div>
             </div>
 
             <ng-template #sinAmenazas>
-              <p class="text-muted small mb-0">No hay amenazas registradas de este tipo.</p>
+              <p class="text-muted small mb-0">No hay amenazas registradas.</p>
             </ng-template>
 
             <div *ngIf="error && !amenazaIdSeleccionada" class="text-danger small mt-2">

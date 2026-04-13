@@ -1,0 +1,16 @@
+// planta-detalle.component.scss
+// Solo animaciones y transiciones que Bootstrap no tiene
+
+.card {
+  transition: all 0.3s ease;
+}
+
+// Hover en mini-cards de características
+.card-body .card {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
+  }
+}

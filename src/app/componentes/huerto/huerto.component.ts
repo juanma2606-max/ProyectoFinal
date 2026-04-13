@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, switchMap, of } from 'rxjs';
 import { Auth, authState } from '@angular/fire/auth';
-import { Planta } from '../../modelos/planta.model';
-import { Huerto } from '../../modelos/huerto.model';
 import { CultivosService } from '../../servicios/cultivos.service';
 import { PlantasService } from '../../servicios/plantas.service';
 import { HuertosService } from '../../servicios/huertos.service';
-import { Cultivo } from '../../modelos/cultivo.model';
-import { Amenaza } from '../../modelos/amenaza.model';
 import { AmenazasService } from '../../servicios/amenazas.service';
+import { Cultivo } from '../../modelos/cultivo.model';
+import { Planta } from '../../modelos/planta.model';
+import { Huerto } from '../../modelos/huerto.model';
+import { Amenaza } from '../../modelos/amenaza.model';
 
 @Component({
   selector: 'app-huerto',
@@ -47,7 +47,7 @@ export class HuertoComponent implements OnInit {
 
     this.cultivos$ = authState(this.auth).pipe(
       switchMap(user => {
-        if (!user) return [];
+        if (!user) return of([]);
 
         const uidToUse = this.esVistaAdmin && this.uid ? this.uid : user.uid;
 
@@ -99,12 +99,16 @@ export class HuertoComponent implements OnInit {
     }
   }
 
-  onEliminarCultivo(cultivoId: string): void {
+  onEliminarCultivo(cultivoId: string | undefined): void {
+    if (!cultivoId) return;
+    
     const uidToUse = this.esVistaAdmin && this.uid ? this.uid : this.auth.currentUser!.uid;
     this.cultivosService.removeCultivo(uidToUse, this.huertoId, cultivoId);
   }
 
-  onEditarCultivo(cultivoId: string): void {
+  onEditarCultivo(cultivoId: string | undefined): void {
+    if (!cultivoId) return;
+    
     if (this.esVistaAdmin && this.uid) {
       this.router.navigate(['/app/admin/usuario', this.uid, 'cultivoform', this.huertoId, cultivoId]);
     } else {

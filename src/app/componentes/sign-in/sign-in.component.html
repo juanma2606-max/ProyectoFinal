@@ -66,6 +66,7 @@
                     type="password"
                     formControlName="password"
                     class="form-control rounded-pill border border-success shadow-sm"
+                    placeholder="Mínimo 6 caracteres"
                   />
                 </div>
 
@@ -83,6 +84,11 @@
                   </small>
                 </div>
 
+                <!-- Mensaje de error -->
+                <div *ngIf="error" class="alert alert-danger py-2 small text-center rounded-pill mb-3">
+                  {{ error }}
+                </div>
+
                 <!-- Botón -->
                 <button
                   type="submit"
@@ -90,8 +96,6 @@
                   [disabled]="registerForm.invalid">
                   Crear cuenta
                 </button>
-                <pre>{{ registerForm.status }}</pre>
-<pre>{{ registerForm.value | json }}</pre>
 
               </form>
 

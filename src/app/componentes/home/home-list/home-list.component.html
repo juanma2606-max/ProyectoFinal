@@ -7,9 +7,14 @@
     <p class="text-light mb-0">
       Gestiona tus huertos y macetas de un vistazo
     </p>
-    <button class="btn btn-success mt-3" type="button" (click)="irACrear()">
-  <i class="fa-solid fa-plus me-2"></i>Nuevo huerto
-</button>
+    <!-- Botón superior: solo mostrar si HAY huertos -->
+    <button 
+      *ngIf="(huertos$ | async)?.length ?? 0 > 0"
+      class="btn btn-success mt-3" 
+      type="button" 
+      (click)="irACrear()">
+      <i class="fa-solid fa-plus me-2"></i>Nuevo huerto
+    </button>
   </div>
 
   <!-- GRID DE HUERTOS -->
@@ -66,7 +71,7 @@
               <div class="mt-4 pt-4 border-top border-secondary">
                 <small class="text-light">
                   <i class="fa-solid fa-lightbulb text-warning me-2"></i>
-                  ¿Sabías que puedes tener tanto parcelas como macetas?
+                  Empieza creando tu primer huerto y gestiona todos tus cultivos
                 </small>
               </div>
 
