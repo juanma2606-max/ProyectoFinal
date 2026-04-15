@@ -1,0 +1,92 @@
+<!-- src/app/componentes/amenazas/amenazas-detalles/amenazas-detalles.component.html -->
+<div class="amenaza-detalle h-100">
+  
+  <!-- Loading -->
+  <div *ngIf="cargando" class="card bg-dark bg-opacity-75 border-danger border-opacity-25 shadow h-100">
+    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+      <div class="spinner-border text-danger mb-3" role="status"></div>
+      <p class="text-light opacity-75 mb-0">Cargando amenaza...</p>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !cargando" class="card bg-dark bg-opacity-75 border-danger shadow h-100">
+    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+      <i class="fa-solid fa-triangle-exclamation text-danger fs-1 mb-3"></i>
+      <h5 class="text-light mb-2">Error</h5>
+      <p class="text-light opacity-75 mb-0">{{ error }}</p>
+    </div>
+  </div>
+
+  <!-- Amenaza cargada -->
+  <div *ngIf="amenaza && !cargando && !error" class="card bg-dark bg-opacity-75 border-danger border-opacity-25 shadow h-100">
+    
+    <!-- Header -->
+    <div class="card-header bg-danger bg-opacity-25 border-bottom border-danger border-opacity-25">
+      <div class="d-flex align-items-center gap-3">
+        <img 
+          [src]="amenaza.imagen" 
+          [alt]="amenaza.nombre"
+          class="rounded-circle border border-3"
+          [class.border-danger]="amenaza.tipo === 'plaga'"
+          [class.border-warning]="amenaza.tipo === 'enfermedad'"
+          style="width: 70px; height: 70px; object-fit: cover;">
+        <div class="flex-grow-1">
+          <h4 class="text-light fw-bold mb-1">{{ amenaza.nombre }}</h4>
+          <span class="badge text-capitalize"
+                [class.bg-danger]="amenaza.tipo === 'plaga'"
+                [class.bg-warning]="amenaza.tipo === 'enfermedad'">
+            <i class="fa-solid me-1"
+               [class.fa-bug]="amenaza.tipo === 'plaga'"
+               [class.fa-virus]="amenaza.tipo === 'enfermedad'"></i>
+            {{ amenaza.tipo }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body overflow-auto">
+      
+      <!-- Descripción -->
+      <div class="mb-4">
+        <h5 class="text-light fw-semibold mb-3">
+          <i class="fa-solid fa-file-lines me-2 text-danger"></i>Descripción
+        </h5>
+        <p class="text-light opacity-75">{{ amenaza.descripcion }}</p>
+      </div>
+
+      <!-- Síntomas -->
+      <div class="mb-4" *ngIf="amenaza.sintomas && amenaza.sintomas.length > 0">
+        <h5 class="text-light fw-semibold mb-3">
+          <i class="fa-solid fa-stethoscope me-2 text-danger"></i>Síntomas
+        </h5>
+        <ul class="list-unstyled">
+          <li *ngFor="let sintoma of amenaza.sintomas" class="text-light opacity-75 mb-2">
+            <i class="fa-solid fa-circle-check text-danger me-2"></i>{{ sintoma }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Tratamiento -->
+      <div class="mb-4" *ngIf="amenaza.tratamiento">
+        <h5 class="text-light fw-semibold mb-3">
+          <i class="fa-solid fa-notes-medical me-2 text-danger"></i>Tratamiento
+        </h5>
+        <p class="text-light opacity-75">{{ amenaza.tratamiento }}</p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Estado inicial (sin amenaza seleccionada) -->
+  <div *ngIf="!amenaza && !cargando && !error" class="card bg-dark bg-opacity-75 border-danger border-opacity-25 shadow h-100">
+    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+      <i class="fa-solid fa-hand-pointer text-danger fs-1 mb-3 opacity-50"></i>
+      <h5 class="text-light mb-2">Selecciona una amenaza</h5>
+      <p class="text-light opacity-75 mb-0">Elige una plaga o enfermedad de la lista para ver sus detalles</p>
+    </div>
+  </div>
+
+</div>

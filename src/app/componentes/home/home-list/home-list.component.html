@@ -111,16 +111,16 @@
   #deleteModal
 >
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+    <div class="modal-content bg-dark border-danger border-opacity-50 shadow-lg" style="border-radius: 15px;">
       
-      <div class="modal-header border-0 pb-0">
-        <div class="icon-wrapper bg-danger rounded-circle d-inline-flex p-3 mb-3">
+      <div class="modal-header bg-danger bg-opacity-10 border-0 pb-0">
+        <div class="icon-wrapper bg-danger bg-opacity-25 rounded-circle d-inline-flex p-3 mb-3">
           <i class="fa-solid fa-triangle-exclamation text-danger" style="font-size: 2rem;"></i>
         </div>
         <button
           type="button"
           class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
+          (click)="cerrarModal()"
           aria-label="Close"
         ></button>
       </div>
@@ -130,15 +130,15 @@
         <p class="text-light mb-0">
           ¿Estás seguro de querer eliminar <strong class="text-success">{{ huertoAEliminar?.nombre }}</strong>?
           <br>
-          <small class="text-danger">Esta acción no se puede deshacer</small>
+          <small class="text-danger fw-semibold">Esta acción no se puede deshacer</small>
         </p>
       </div>
 
-      <div class="modal-footer border-0 justify-content-center pb-4">
+      <div class="modal-footer bg-dark bg-opacity-50 border-0 justify-content-center pb-4">
         <button
           type="button"
           class="btn btn-outline-light px-4"
-          data-bs-dismiss="modal"
+          (click)="cerrarModal()"
         >
           Cancelar
         </button>

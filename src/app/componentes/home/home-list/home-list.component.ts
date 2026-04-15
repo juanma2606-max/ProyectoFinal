@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { Observable, switchMap, of } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -15,10 +15,11 @@ import { Huerto } from '../../../modelos/huerto.model';
   templateUrl: './home-list.component.html',
   styleUrl: './home-list.component.scss'
 })
-export class HomeListComponent implements OnInit {
+export class HomeListComponent implements OnInit, OnDestroy {
 
   huertos$!: Observable<Huerto[]>;
   huertoAEliminar: Huerto | null = null;
+  private modalInstance: Modal | null = null;
 
   @ViewChild('deleteModal') deleteModal!: ElementRef;
 
@@ -48,27 +49,65 @@ export class HomeListComponent implements OnInit {
 
   onDeleteHuerto(huerto: Huerto): void {
     this.huertoAEliminar = huerto;
-    const modal = new Modal(this.deleteModal.nativeElement);
-    modal.show();
+    
+    // UGH! Destruir modal viejo si existir
+    if (this.modalInstance) {
+      this.modalInstance.dispose();
+      this.modalInstance = null;
+    }
+    
+    // UGH! Crear nuevo modal
+    this.modalInstance = new Modal(this.deleteModal.nativeElement);
+    this.modalInstance.show();
   }
 
   confirmarEliminacion(): void {
-    if (!this.huertoAEliminar || !this.huertoAEliminar.id) return;
+    if (!this.huertoAEliminar || !this.huertoAEliminar.id) {
+      this.cerrarModal();
+      return;
+    }
 
-    const modalInstance = Modal.getInstance(this.deleteModal.nativeElement);
+    // UGH! Primero cerrar modal
+    this.cerrarModal();
 
-    this.deleteModal.nativeElement.addEventListener('hidden.bs.modal', () => {
-      document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    // UGH! DESPUÉS eliminar huerto
+    this.huertoService.removeObject(this.huertoAEliminar.id)
+      .then(() => {
+        console.log('✅ Huerto eliminado correctamente');
+        this.huertoAEliminar = null;
+      })
+      .catch(error => {
+        console.error('❌ Error al eliminar huerto:', error);
+      });
+  }
+
+  cerrarModal(): void {
+    // UGH! Cerrar modal si existir
+    if (this.modalInstance) {
+      this.modalInstance.hide();
+      this.modalInstance.dispose(); // ← Destruir completamente
+      this.modalInstance = null;
+    }
+
+    // UGH! Limpiar TODO backdrop y estilos
+    setTimeout(() => {
+      // Eliminar TODOS los backdrops (puede haber varios)
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      backdrops.forEach(backdrop => {
+        backdrop.remove();
+      });
+      
+      // Restaurar body a estado normal
       document.body.classList.remove('modal-open');
       document.body.style.removeProperty('overflow');
       document.body.style.removeProperty('padding-right');
-    }, { once: true });
+      
+      console.log('🧹 Modal limpiado completamente');
+    }, 150); // UGH! Más tiempo para asegurar limpieza
+  }
 
-    this.huertoService.removeObject(this.huertoAEliminar.id)
-      .then(() => {
-        this.huertoAEliminar = null;
-        modalInstance?.hide();
-      })
-      .catch(error => console.error('Error al eliminar:', error));
+  ngOnDestroy(): void {
+    // Limpiar al destruir el componente
+    this.cerrarModal();
   }
 }

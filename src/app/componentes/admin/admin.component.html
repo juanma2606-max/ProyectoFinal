@@ -1,0 +1,198 @@
+<div class="container-fluid py-4 admin-bg min-vh-100">
+
+  <!-- Header -->
+  <div class="text-center mb-4">
+    <h2 class="text-light fw-bold">
+      <i class="fa-solid fa-shield-halved text-success me-2"></i>Panel de Administración
+    </h2>
+    <p class="text-light opacity-75 mb-0">Gestiona usuarios, plantas y amenazas</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="d-flex justify-content-center mb-4">
+    <div class="btn-group shadow">
+      <button class="btn" 
+        [ngClass]="tabActiva === 'usuarios' ? 'btn-success' : 'btn-outline-success'"
+        (click)="cambiarTab('usuarios')">
+        <i class="fa-solid fa-users me-2"></i>Usuarios
+        <span class="badge bg-light text-dark ms-2">{{ usuariosFiltrados.length }}</span>
+      </button>
+      <button class="btn" 
+        [ngClass]="tabActiva === 'plantas' ? 'btn-success' : 'btn-outline-success'"
+        (click)="cambiarTab('plantas')">
+        <i class="fa-solid fa-leaf me-2"></i>Plantas
+        <span class="badge bg-light text-dark ms-2">{{ plantas.length }}</span>
+      </button>
+      <button class="btn" 
+        [ngClass]="tabActiva === 'amenazas' ? 'btn-success' : 'btn-outline-success'"
+        (click)="cambiarTab('amenazas')">
+        <i class="fa-solid fa-bug me-2"></i>Amenazas
+        <span class="badge bg-light text-dark ms-2">{{ amenazas.length }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== USUARIOS ==================== -->
+  <div *ngIf="tabActiva === 'usuarios'">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10">
+
+        <div class="input-group mb-3 shadow-sm">
+          <span class="input-group-text bg-dark text-light border-success border-opacity-25">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+          <input type="text" class="form-control bg-dark text-light border-success border-opacity-25"
+            placeholder="Buscar por nombre o email..."
+            [(ngModel)]="busquedaUsuario">
+        </div>
+
+        <div class="card bg-dark bg-opacity-75 border-success border-opacity-25 shadow">
+          <div class="list-group list-group-flush">
+            <div *ngIf="usuariosFiltrados.length === 0" class="text-center text-light opacity-75 py-4">
+              <i class="fa-solid fa-user-slash fs-1 mb-2"></i>
+              <p class="mb-0">No se encontraron usuarios</p>
+            </div>
+            <div *ngFor="let usuario of usuariosFiltrados"
+                 class="list-group-item bg-dark bg-opacity-50 border-secondary d-flex align-items-center gap-3 py-3">
+              <div class="avatar-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center"
+                   style="width: 45px; height: 45px; border-radius: 50%;">
+                {{ (usuario.username || '?').charAt(0).toUpperCase() }}
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-semibold text-light">{{ usuario.username }}</div>
+                <div class="text-light opacity-75 small">{{ usuario.email }}</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-info" title="Ver huertos"
+                  (click)="verUsuario(usuario.uid)">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" title="Banear usuario"
+                  (click)="eliminarUsuario(usuario.uid)">
+                  <i class="fa-solid fa-ban"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PLANTAS ==================== -->
+  <div *ngIf="tabActiva === 'plantas'">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10">
+
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+          <div class="input-group shadow-sm" style="max-width: 400px;">
+            <span class="input-group-text bg-dark text-light border-success border-opacity-25">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <input type="text" class="form-control bg-dark text-light border-success border-opacity-25"
+              placeholder="Buscar planta..."
+              [(ngModel)]="busquedaPlanta">
+          </div>
+          <button class="btn btn-success shadow-sm" (click)="nuevaPlanta()">
+            <i class="fa-solid fa-plus me-1"></i> Nueva planta
+          </button>
+        </div>
+
+        <div class="row g-3">
+          <div *ngIf="plantasFiltradas.length === 0" class="col-12 text-center text-light opacity-75 py-5">
+            <i class="fa-solid fa-seedling fs-1 mb-2"></i>
+            <p class="mb-0">No se encontraron plantas</p>
+          </div>
+          <div *ngFor="let planta of plantasFiltradas" class="col-12 col-md-6 col-lg-4">
+            <div class="card bg-dark bg-opacity-75 border-success border-opacity-25 shadow-sm h-100">
+              <div class="row g-0 align-items-center">
+                <div class="col-3 d-flex align-items-center justify-content-center p-2">
+                  <img [src]="planta.imagen" [alt]="planta.nombre"
+                    class="img-fluid" style="max-height: 60px; object-fit: contain;">
+                </div>
+                <div class="col-9">
+                  <div class="card-body py-2 px-3">
+                    <div class="fw-semibold text-light">{{ planta.nombre }}</div>
+                    <span class="badge bg-success small text-capitalize">{{ planta.tipo }}</span>
+                  </div>
+                  <div class="d-flex gap-2 px-3 pb-2">
+                    <button class="btn btn-sm btn-outline-warning" (click)="editarPlanta(planta.id)">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="eliminarPlanta(planta.id)">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== AMENAZAS ==================== -->
+  <div *ngIf="tabActiva === 'amenazas'">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10">
+
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+          <div class="input-group shadow-sm" style="max-width: 400px;">
+            <span class="input-group-text bg-dark text-light border-danger border-opacity-25">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <input type="text" class="form-control bg-dark text-light border-danger border-opacity-25"
+              placeholder="Buscar amenaza..."
+              [(ngModel)]="busquedaAmenaza">
+          </div>
+          <button class="btn btn-danger shadow-sm" (click)="nuevaAmenaza()">
+            <i class="fa-solid fa-plus me-1"></i> Nueva amenaza
+          </button>
+        </div>
+
+        <div class="row g-3">
+          <div *ngIf="amenazasFiltradas.length === 0" class="col-12 text-center text-light opacity-75 py-5">
+            <i class="fa-solid fa-shield-virus fs-1 mb-2"></i>
+            <p class="mb-0">No se encontraron amenazas</p>
+          </div>
+          <div *ngFor="let amenaza of amenazasFiltradas" class="col-12 col-md-6 col-lg-4">
+            <div class="card bg-dark bg-opacity-75 border-danger border-opacity-25 shadow-sm h-100">
+              <div class="row g-0 align-items-center">
+                <div class="col-3 d-flex align-items-center justify-content-center p-2">
+                  <img [src]="amenaza.imagen" [alt]="amenaza.nombre"
+                    class="img-fluid" style="max-height: 60px; object-fit: contain;">
+                </div>
+                <div class="col-9">
+                  <div class="card-body py-2 px-3">
+                    <div class="fw-semibold text-light">{{ amenaza.nombre }}</div>
+                    <span class="badge small text-capitalize"
+                      [ngClass]="{
+                        'bg-danger': amenaza.tipo === 'plaga',
+                        'bg-warning text-dark': amenaza.tipo === 'enfermedad',
+                        'bg-info text-dark': amenaza.tipo === 'hongo'
+                      }">
+                      {{ amenaza.tipo }}
+                    </span>
+                  </div>
+                  <div class="d-flex gap-2 px-3 pb-2">
+                    <button class="btn btn-sm btn-outline-warning" (click)="editarAmenaza(amenaza.id)">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="eliminarAmenaza(amenaza.id)">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

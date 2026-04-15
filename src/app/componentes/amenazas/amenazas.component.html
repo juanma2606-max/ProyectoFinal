@@ -1,0 +1,86 @@
+<div class="container-fluid min-vh-100 py-4 amenazas-bg">
+  <div class="row g-4">
+
+    <!-- COLUMNA IZQUIERDA: Filtros y Lista -->
+    <div class="col-12 col-lg-4">
+      
+      <!-- Título -->
+      <div class="text-center mb-4">
+        <h3 class="text-light fw-bold">
+          <i class="fa-solid fa-bug text-danger me-2"></i>Plagas y Enfermedades
+        </h3>
+        <p class="text-light opacity-75 small mb-0">Identifica y prevén amenazas en tu huerto</p>
+      </div>
+
+      <!-- Filtros -->
+      <div class="card bg-dark bg-opacity-50 border-danger border-opacity-25 shadow-sm mb-4">
+        <div class="card-body p-3">
+          <h6 class="text-light small mb-3 text-uppercase fw-semibold">
+            <i class="fa-solid fa-filter me-1"></i>Filtrar por tipo
+          </h6>
+          <div class="d-flex gap-2">
+            <button 
+              class="btn btn-sm btn-outline-danger flex-fill"
+              [class.active]="tipoActivo === 'plaga'"
+              (click)="cambiarTipo('plaga')">
+              <i class="fa-solid fa-bug me-1"></i>Plagas
+            </button>
+            <button 
+              class="btn btn-sm btn-outline-warning flex-fill"
+              [class.active]="tipoActivo === 'enfermedad'"
+              (click)="cambiarTipo('enfermedad')">
+              <i class="fa-solid fa-virus me-1"></i>Enfermedades
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de amenazas -->
+      <div class="list-group mb-3 amenazas-scroll">
+        <a 
+          *ngFor="let amenaza of amenazasFiltradas"
+          class="list-group-item list-group-item-action bg-dark bg-opacity-75 border-secondary d-flex align-items-center gap-3"
+          [routerLink]="[amenaza.id]"
+          routerLinkActive="active">
+          
+          <img
+            [src]="amenaza.imagen"
+            [alt]="amenaza.nombre"
+            class="rounded-circle border border-2"
+            [class.border-danger]="amenaza.tipo === 'plaga'"
+            [class.border-warning]="amenaza.tipo === 'enfermedad'"
+            style="width:50px; height:50px; object-fit:cover;"
+          />
+          <div class="flex-grow-1">
+            <h6 class="mb-0 text-light fw-semibold">{{ amenaza.nombre }}</h6>
+            <small 
+              class="text-capitalize"
+              [class.text-danger]="amenaza.tipo === 'plaga'"
+              [class.text-warning]="amenaza.tipo === 'enfermedad'">
+              <i class="fa-solid me-1"
+                 [class.fa-bug]="amenaza.tipo === 'plaga'"
+                 [class.fa-virus]="amenaza.tipo === 'enfermedad'"></i>
+              {{ amenaza.tipo }}
+            </small>
+          </div>
+          <i class="fa-solid fa-chevron-right"
+             [class.text-danger]="amenaza.tipo === 'plaga'"
+             [class.text-warning]="amenaza.tipo === 'enfermedad'"></i>
+        </a>
+
+        <!-- Estado vacío -->
+        <div *ngIf="amenazasFiltradas.length === 0" class="text-center py-5">
+          <i class="fa-solid fa-shield-virus text-danger fs-1 mb-3 opacity-50"></i>
+          <p class="text-light opacity-75">No hay {{ tipoActivo }}s registradas</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COLUMNA DERECHA: Detalle -->
+    <div class="col-12 col-lg-8">
+      <router-outlet></router-outlet>
+    </div>
+
+  </div>
+</div>

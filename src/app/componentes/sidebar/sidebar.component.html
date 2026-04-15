@@ -90,7 +90,7 @@
         routerLinkActive="active"
         class="sidebar-link text-decoration-none p-3"
         (click)="sidebarOpen = false"
-        *ngIf="esAdmin">
+        *ngIf="esAdmin$ | async">
         <i class="fas fa-shield-halved me-3"></i>
   <span class="hide-on-collapse">Panel Admin</span>
       </a>
