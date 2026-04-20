@@ -1,0 +1,86 @@
+<div class="chat-wrapper d-flex flex-column" style="height: calc(100vh - 60px);">
+
+  <!-- Header -->
+  <div class="chat-header d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+    <div class="d-flex align-items-center gap-3">
+      <div class="avatar-ia d-flex align-items-center justify-content-center">
+        <i class="fa-solid fa-seedling text-success fs-4"></i>
+      </div>
+      <div>
+        <h5 class="mb-0 text-light fw-bold">HuertingIA</h5>
+        <small class="text-success">
+          <i class="fa-solid fa-circle me-1" style="font-size: 0.5rem;"></i>En línea
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensajes -->
+  <div class="mensajes-container flex-grow-1 overflow-auto px-4 py-3" #mensajesContainer>
+
+    <div *ngFor="let mensaje of mensajes" class="mensaje-wrapper mb-3"
+         [class.mensaje-usuario]="mensaje.role === 'user'"
+         [class.mensaje-ia]="mensaje.role === 'assistant'">
+
+      <!-- Avatar IA -->
+      <div *ngIf="mensaje.role === 'assistant'" class="d-flex align-items-start gap-2">
+        <div class="avatar-small bg-success d-flex align-items-center justify-content-center rounded-circle flex-shrink-0">
+          <i class="fa-solid fa-seedling text-white" style="font-size: 0.75rem;"></i>
+        </div>
+        <div class="burbuja burbuja-ia p-3 rounded-3">
+          <p class="mb-0" style="white-space: pre-wrap;">{{ mensaje.content }}</p>
+        </div>
+      </div>
+
+      <!-- Mensaje usuario -->
+      <div *ngIf="mensaje.role === 'user'" class="d-flex justify-content-end">
+        <div class="burbuja burbuja-usuario p-3 rounded-3">
+          <p class="mb-0" style="white-space: pre-wrap;">{{ mensaje.content }}</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Indicador de carga -->
+    <div *ngIf="cargando" class="d-flex align-items-start gap-2 mb-3">
+      <div class="avatar-small bg-success d-flex align-items-center justify-content-center rounded-circle flex-shrink-0">
+        <i class="fa-solid fa-seedling text-white" style="font-size: 0.75rem;"></i>
+      </div>
+      <div class="burbuja burbuja-ia p-3 rounded-3">
+        <div class="typing-indicator">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="alert alert-danger mx-2">{{ error }}</div>
+
+  </div>
+
+  <!-- Input -->
+  <div class="chat-input-area px-4 py-3 border-top">
+    <div class="input-group">
+      <textarea
+        class="form-control"
+        rows="1"
+        placeholder="Escribe tu pregunta sobre plantas, huertos, plagas..."
+        [(ngModel)]="inputUsuario"
+        (keydown)="onKeyDown($event)"
+        [disabled]="cargando"
+        style="resize: none; border-radius: 12px 0 0 12px;"
+      ></textarea>
+      <button
+        class="btn btn-success"
+        (click)="enviarMensaje()"
+        [disabled]="cargando || !inputUsuario.trim()"
+        style="border-radius: 0 12px 12px 0;"
+      >
+        <i class="fa-solid fa-paper-plane" *ngIf="!cargando"></i>
+        <span class="spinner-border spinner-border-sm" *ngIf="cargando"></span>
+      </button>
+    </div>
+    <small class="text-muted mt-1 d-block">Pulsa Enter para enviar, Shift+Enter para nueva línea</small>
+  </div>
+
+</div>

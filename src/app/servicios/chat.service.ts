@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
 
 export interface Mensaje {
   role: 'user' | 'assistant';
@@ -11,38 +10,43 @@ export interface Mensaje {
 })
 export class ChatService {
 
-  private readonly API_URL = '/anthropic-api/v1/messages';
-  private readonly MODEL = 'claude-opus-4-5-20251101';
-  private readonly SYSTEM_PROMPT = `Eres un asistente experto en agricultura, 
-  huertos y jardineria llamado HuertingIA. Ayudas a los usuarios con preguntas 
-  sobre sus plantas, cultivos, plagas, enfermedades y cuidados generales. 
-  Responde siempre en español, de forma clara y concisa.`;
-
   async enviarMensaje(mensajes: Mensaje[]): Promise<string> {
-    const response = await fetch(this.API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': environment.anthropicApiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-allow-browser': 'true'
-      },
-      body: JSON.stringify({
-        model: this.MODEL,
-        max_tokens: 1024,
-        system: this.SYSTEM_PROMPT,
-        messages: mensajes.map(m => ({
-          role: m.role,
-          content: m.content
-        }))
-      })
-    });
+    console.log('🔵 ChatService: Iniciando envío...');
+    console.log('🔵 Mensajes a enviar:', mensajes);
+    
+    const payload = {
+      messages: mensajes.map(m => ({
+        role: m.role,
+        content: m.content
+      }))
+    };
+    
+    console.log('🔵 Payload:', JSON.stringify(payload, null, 2));
+    console.log('🔵 URL:', 'http://localhost:3000/api/chat');
+    
+    try {
+      const response = await fetch('http://localhost:3000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-    if (!response.ok) {
-      throw new Error(`Error en la API: ${response.status}`);
+      console.log('🔵 Response status:', response.status);
+      console.log('🔵 Response ok:', response.ok);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Error response:', errorText);
+        throw new Error('Error al comunicarse con la IA');
+      }
+
+      const data = await response.json();
+      console.log('✅ Respuesta recibida:', data);
+      return data.content;
+      
+    } catch (error) {
+      console.error('❌ Error en fetch:', error);
+      throw error;
     }
-
-    const data = await response.json();
-    return data.content[0].text;
   }
 }
