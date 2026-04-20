@@ -48,29 +48,102 @@
 
         <div class="card bg-dark bg-opacity-75 border-success border-opacity-25 shadow">
           <div class="list-group list-group-flush">
+            
+            <!-- Estado vacío -->
             <div *ngIf="usuariosFiltrados.length === 0" class="text-center text-light opacity-75 py-4">
               <i class="fa-solid fa-user-slash fs-1 mb-2"></i>
               <p class="mb-0">No se encontraron usuarios</p>
             </div>
+
+            <!-- Lista de usuarios -->
             <div *ngFor="let usuario of usuariosFiltrados"
-                 class="list-group-item bg-dark bg-opacity-50 border-secondary d-flex align-items-center gap-3 py-3">
-              <div class="avatar-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center"
-                   style="width: 45px; height: 45px; border-radius: 50%;">
-                {{ (usuario.username || '?').charAt(0).toUpperCase() }}
+                 class="list-group-item bg-dark bg-opacity-50 border-secondary">
+              
+              <!-- Fila principal del usuario -->
+              <div class="d-flex align-items-center gap-3 py-2"
+                   (click)="toggleUsuario(usuario.uid)"
+                   style="cursor: pointer;">
+                <div class="avatar-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center"
+                     style="width: 45px; height: 45px; border-radius: 50%;">
+                  {{ (usuario.username || '?').charAt(0).toUpperCase() }}
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold text-light">{{ usuario.username }}</div>
+                  <div class="text-light opacity-75 small">{{ usuario.email }}</div>
+                </div>
+                <div class="d-flex gap-2" (click)="$event.stopPropagation()">
+                  <button class="btn btn-sm btn-outline-danger" title="Banear usuario"
+                    (click)="eliminarUsuario(usuario.uid)">
+                    <i class="fa-solid fa-ban"></i>
+                  </button>
+                </div>
+                <i class="fa-solid text-light" 
+                   [class.fa-chevron-down]="usuarioExpandido !== usuario.uid"
+                   [class.fa-chevron-up]="usuarioExpandido === usuario.uid"></i>
               </div>
-              <div class="flex-grow-1">
-                <div class="fw-semibold text-light">{{ usuario.username }}</div>
-                <div class="text-light opacity-75 small">{{ usuario.email }}</div>
-              </div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-info" title="Ver huertos"
-                  (click)="verUsuario(usuario.uid)">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" title="Banear usuario"
-                  (click)="eliminarUsuario(usuario.uid)">
-                  <i class="fa-solid fa-ban"></i>
-                </button>
+
+              <!-- Desplegable de huertos -->
+              <div *ngIf="usuarioExpandido === usuario.uid" 
+                   class="border-top border-secondary mt-2 pt-3 px-2">
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="text-light mb-0">
+                    <i class="fa-solid fa-seedling text-success me-2"></i>Huertos
+                  </h6>
+                  <button class="btn btn-sm btn-success" 
+                          (click)="nuevoHuerto(usuario.uid)">
+                    <i class="fa-solid fa-plus me-1"></i>Nuevo
+                  </button>
+                </div>
+
+                <!-- Cargando huertos -->
+                <div *ngIf="cargandoHuertos[usuario.uid]" class="text-center py-3">
+                  <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                  <p class="text-light opacity-75 small mb-0 mt-2">Cargando huertos...</p>
+                </div>
+
+                <!-- Lista de huertos -->
+<div *ngIf="!cargandoHuertos[usuario.uid] && huertosUsuario[usuario.uid] && huertosUsuario[usuario.uid].length > 0"
+                     class="list-group list-group-flush mb-2">
+                  <div *ngFor="let huerto of huertosUsuario[usuario.uid]"
+                       class="list-group-item bg-dark bg-opacity-25 border-success border-opacity-10 d-flex align-items-center gap-2 py-2 mb-2 rounded">
+                    <i class="fa-solid fa-leaf text-success"></i>
+                    <div class="flex-grow-1">
+                      <div class="text-light small fw-semibold">{{ huerto.nombre }}</div>
+                      <div class="text-light opacity-50" style="font-size: 0.75rem;">
+  <i class="fa-solid fa-calendar me-1"></i>
+  {{ huerto.ubicacion || 'Sin ubicación' }}
+</div>
+                    </div>
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-info" 
+                              title="Ver huerto"
+                              (click)="verHuerto(usuario.uid, huerto.id!)">
+                        <i class="fa-solid fa-eye"></i>
+                      </button>
+                      <button class="btn btn-outline-warning" 
+                              title="Editar huerto"
+                              (click)="editarHuerto(usuario.uid, huerto.id!)">
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
+                      <button class="btn btn-outline-danger" 
+                              title="Eliminar huerto"
+                              (click)="eliminarHuerto(usuario.uid, huerto.id!)">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Estado vacío -->
+                <div *ngIf="!cargandoHuertos[usuario.uid] && (!huertosUsuario[usuario.uid] || huertosUsuario[usuario.uid].length === 0)"
+                     class="text-center py-4">
+                  <i class="fa-solid fa-seedling text-success opacity-25 fs-1 mb-2"></i>
+                  <p class="text-light opacity-50 small mb-0">
+                    Este usuario no tiene huertos
+                  </p>
+                </div>
+
               </div>
             </div>
           </div>
@@ -82,6 +155,7 @@
 
   <!-- ==================== PLANTAS ==================== -->
   <div *ngIf="tabActiva === 'plantas'">
+    <!-- Tu código actual de plantas (sin cambios) -->
     <div class="row justify-content-center">
       <div class="col-12 col-lg-10">
 
@@ -136,6 +210,7 @@
 
   <!-- ==================== AMENAZAS ==================== -->
   <div *ngIf="tabActiva === 'amenazas'">
+    <!-- Tu código actual de amenazas (sin cambios) -->
     <div class="row justify-content-center">
       <div class="col-12 col-lg-10">
 

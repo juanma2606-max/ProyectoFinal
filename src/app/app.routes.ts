@@ -13,6 +13,7 @@ import { AmenazasComponent } from './componentes/amenazas/amenazas.component';
 import { AmenazaDetalleComponent } from './componentes/amenazas/amenazas-detalles/amenazas-detalles.component';
 import { AdminComponent } from './componentes/admin/admin.component';
 import { adminGuard } from './guards/admin.guard';
+import { authGuard } from './guards/auth.guard';
 import { AmenazaformComponent } from './componentes/amenazas/amenazas-form/amenazas-form.component';
 
 // ❌ PENDIENTES (comentados hasta actualizar):
@@ -36,6 +37,7 @@ export const routes: Routes = [
   {
     path: 'app',
     component: SidebarComponent,
+    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       
@@ -90,24 +92,24 @@ export const routes: Routes = [
       { 
         path: 'admin', 
         component: AdminComponent, 
-        //canActivate: [adminGuard] 
+        canActivate: [adminGuard] 
       },
       // ❌ PENDIENTE: descomentar cuando admin-usuario esté actualizado
-      // { 
-      //   path: 'admin/usuario/:uid', 
-      //   component: AdminUsuarioComponent, 
-      //   canActivate: [adminGuard] 
-      // },
-      // { 
-      //   path: 'admin/usuario/:uid/huerto/:huertoId', 
-      //   component: HuertoComponent, 
-      //   canActivate: [adminGuard] 
-      // },
-      // { 
-      //   path: 'admin/usuario/:uid/huertoform/:id', 
-      //   component: HuertoFormComponent, 
-      //   canActivate: [adminGuard] 
-      // },
+       { 
+         path: 'admin/usuario/:uid', 
+         component: AdminComponent, 
+         canActivate: [adminGuard] 
+       },
+       { 
+         path: 'admin/usuario/:uid/huerto/:huertoId', 
+         component: HuertoComponent, 
+         canActivate: [adminGuard] 
+       },
+       { 
+         path: 'admin/usuario/:uid/huertoform/:id', 
+         component: HuertoFormComponent, 
+         canActivate: [adminGuard] 
+       },
       // { 
       //   path: 'admin/usuario/:uid/cultivoform/:huertoId', 
       //   component: CultivoFormComponent, 

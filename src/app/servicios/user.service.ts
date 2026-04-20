@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Database, get, listVal, ref, remove, update } from '@angular/fire/database';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Auth, User as FirebaseUser } from '@angular/fire/auth';
 import { User } from '../modelos/user.model';
 @Injectable({
@@ -13,10 +13,20 @@ export class UserService {
   /**
    * Obtener todos los usuarios (para admin)
    */
-  getAllPersons(): Observable<User[]> {
-    const usersRef = ref(this.database, 'users');
-    return listVal(usersRef, { keyField: 'uid' }) as Observable<User[]>;
-  }
+getAllPersons(): Observable<User[]> {
+  const usersRef = ref(this.database, 'users');
+  
+  return listVal(usersRef, { keyField: 'uid' }).pipe(
+    map((usersData: any[]) => 
+      usersData.map(u => new User(
+        u.uid,
+        u.profile.username,
+        u.profile.email,
+        u.profile.fecha_registro
+      ))
+    )
+  );
+}
 
   /**
    * Obtener perfil de un usuario por ID

@@ -2,12 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { User } from '../../modelos/user.model';
 import { Planta } from '../../modelos/planta.model';
 import { Amenaza } from '../../modelos/amenaza.model';
+import { Huerto } from '../../modelos/huerto.model';
 import { UserService } from '../../servicios/user.service';
 import { PlantasService } from '../../servicios/plantas.service';
 import { AmenazasService } from '../../servicios/amenazas.service';
+import { HuertosService } from '../../servicios/huertos.service';
+import { AuthService } from '../../servicios/auth.service';
 
 type Tab = 'usuarios' | 'plantas' | 'amenazas';
 
@@ -22,35 +26,40 @@ export class AdminComponent implements OnInit {
 
   tabActiva: Tab = 'usuarios';
 
-  // UGH! Datos
   usuarios: User[] = [];
   plantas: Planta[] = [];
   amenazas: Amenaza[] = [];
 
-  // UGH! Búsqueda
   busquedaUsuario: string = '';
   busquedaPlanta: string = '';
   busquedaAmenaza: string = '';
+
+  usuarioExpandido: string | null = null;
+  huertosUsuario: { [uid: string]: Huerto[] } = {};
+  cargandoHuertos: { [uid: string]: boolean } = {};
+
+  isAdmin$: Observable<boolean>;
 
   constructor(
     private userService: UserService,
     private plantasService: PlantasService,
     private amenazasService: AmenazasService,
+    private huertosService: HuertosService,
+    private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    this.isAdmin$ = this.authService.isAdmin$();
+  }
 
   ngOnInit(): void {
-    // UGH! Cargar usuarios
     this.userService.getAllPersons().subscribe(usuarios => {
       this.usuarios = usuarios;
     });
 
-    // UGH! Cargar plantas
     this.plantasService.getAllPlantasFirebase().subscribe(plantas => {
       this.plantas = plantas;
     });
 
-    // UGH! Cargar amenazas
     this.amenazasService.getAllAmenazasFirebase().subscribe(amenazas => {
       this.amenazas = amenazas;
     });
@@ -60,11 +69,10 @@ export class AdminComponent implements OnInit {
     this.tabActiva = tab;
   }
 
-  // UGH! Filtros de búsqueda
   get usuariosFiltrados(): User[] {
     const q = this.busquedaUsuario.toLowerCase();
     return this.usuarios
-      .filter(u => u.email !== 'admin@huerting.com') // Excluir admin
+      .filter(u => u.email !== 'admin@huerting.com')
       .filter(u =>
         u.username?.toLowerCase().includes(q) ||
         u.email?.toLowerCase().includes(q)
@@ -81,9 +89,52 @@ export class AdminComponent implements OnInit {
     return this.amenazas.filter(a => a.nombre?.toLowerCase().includes(q));
   }
 
-  // UGH! Navegación usuarios
-  verUsuario(uid: string): void {
-    this.router.navigate(['/app/admin/usuario', uid]);
+  toggleUsuario(uid: string): void {
+    if (this.usuarioExpandido === uid) {
+      this.usuarioExpandido = null;
+    } else {
+      this.usuarioExpandido = uid;
+      this.cargarHuertosUsuario(uid);
+    }
+  }
+
+  cargarHuertosUsuario(uid: string): void {
+    if (!this.huertosUsuario[uid]) {
+      this.cargandoHuertos[uid] = true;
+      this.huertosService.getHuertosByUid(uid).subscribe({
+        next: (huertos) => {
+          this.huertosUsuario[uid] = huertos;
+          this.cargandoHuertos[uid] = false;
+        },
+        error: (err) => {
+          console.error('Error cargando huertos:', err);
+          this.cargandoHuertos[uid] = false;
+        }
+      });
+    }
+  }
+
+  verHuerto(uid: string, huertoId: string): void {
+    this.router.navigate(['/app/admin/usuario', uid, 'huerto', huertoId]);
+  }
+
+  editarHuerto(uid: string, huertoId: string): void {
+    this.router.navigate(['/app/admin/usuario', uid, 'huertoform', huertoId]);
+  }
+
+  nuevoHuerto(uid: string): void {
+    this.router.navigate(['/app/admin/usuario', uid, 'huertoform']);
+  }
+
+  eliminarHuerto(uid: string, huertoId: string): void {
+    if (confirm('¿Eliminar este huerto y todos sus cultivos?')) {
+      this.huertosService.removeObject(huertoId)
+        .then(() => {
+          console.log('✅ Huerto eliminado');
+          this.huertosUsuario[uid] = this.huertosUsuario[uid].filter(h => h.id !== huertoId);
+        })
+        .catch(err => console.error('❌ Error:', err));
+    }
   }
 
   eliminarUsuario(uid: string): void {
@@ -94,7 +145,6 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  // UGH! Navegación plantas
   nuevaPlanta(): void {
     this.router.navigate(['/app/plantasform'], { queryParams: { from: 'admin' } });
   }
@@ -113,7 +163,6 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  // UGH! Navegación amenazas
   nuevaAmenaza(): void {
     this.router.navigate(['/app/amenazasform'], { queryParams: { from: 'admin' } });
   }
