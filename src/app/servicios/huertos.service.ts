@@ -21,7 +21,6 @@ export class HuertosService {
    */
   getAllHuertosFirebase(): Observable<Huerto[]> {
     const user = this.getUserAuth();
-    // Si no hay usuario autenticado, devolvemos un array vacío
     if (!user) {
       return of([]);
     }
@@ -65,7 +64,8 @@ export class HuertosService {
       raw.tiene_riego,
       raw.fecha_creacion,
       data.key!,
-      raw.notas
+      raw.notas,
+      raw.foto  // ← AGREGAR ESTO
     );
   }
 
@@ -89,7 +89,8 @@ export class HuertosService {
       horas_sol: huerto.horas_sol,
       tiene_riego: huerto.tiene_riego,
       fecha_creacion: huerto.fecha_creacion,
-      notas: huerto.notas || ''
+      notas: huerto.notas || '',
+      foto: huerto.foto || '/images/huerto1.jpg'  // ← AGREGAR ESTO
     };
 
     return push(huertoRef, datatosave);
@@ -105,11 +106,9 @@ export class HuertosService {
     }
 
     const uid = user.uid;
-
-    // Ruta correcta: users/${uid}/huertos/${huerto.id}
     const objectRef = ref(this.database, `users/${uid}/huertos/${huerto.id}`);
 
-    // Limpiamos el objeto: le quitamos el ID para no guardarlo en Firebase
+    // Incluir el campo foto al guardar
     const { id, ...dataToSave } = huerto;
     return update(objectRef, dataToSave);
   }
@@ -150,7 +149,8 @@ export class HuertosService {
       raw.tiene_riego,
       raw.fecha_creacion,
       data.key!,
-      raw.notas
+      raw.notas,
+      raw.foto  // ← AGREGAR ESTO
     );
   }
 

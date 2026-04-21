@@ -68,3 +68,17 @@ textarea.form-control-dark {
 .icon-wrapper {
   background-color: rgba(40, 167, 69, 0.2) !important;
 }
+
+.foto-option {
+  border: 3px solid transparent;
+  
+  &:hover {
+    border-color: #198754;
+    transform: scale(1.05);
+  }
+  
+  &.selected {
+    border-color: #ffc107;
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+  }
+}

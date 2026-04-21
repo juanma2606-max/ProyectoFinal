@@ -7,6 +7,7 @@ import { CultivosService } from '../../servicios/cultivos.service';
 import { PlantasService } from '../../servicios/plantas.service';
 import { HuertosService } from '../../servicios/huertos.service';
 import { AmenazasService } from '../../servicios/amenazas.service';
+import { HuertoAnalisisService } from '../../servicios/huerto-analisis.service';
 import { Cultivo } from '../../modelos/cultivo.model';
 import { Planta } from '../../modelos/planta.model';
 import { Huerto } from '../../modelos/huerto.model';
@@ -29,6 +30,12 @@ export class HuertoComponent implements OnInit {
   plantasMap: Map<string, Planta> = new Map();
   amenazasMap: Map<string, Amenaza> = new Map();
 
+  // Estado del análisis IA
+  analizandoHuerto: boolean = false;
+  analisisResultado: string | null = null;
+  analisisError: string | null = null;
+  mostrarModalAnalisis: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -36,6 +43,7 @@ export class HuertoComponent implements OnInit {
     private plantasService: PlantasService,
     private huertosService: HuertosService,
     private amenazasService: AmenazasService,
+    private analisisService: HuertoAnalisisService,
     private auth: Auth
   ) {}
 
@@ -122,5 +130,82 @@ export class HuertoComponent implements OnInit {
     } else {
       this.router.navigate(['/app/home']);
     }
+  }
+
+  /**
+   * Analizar el huerto completo con IA
+   */
+  async analizarHuertoConIA(): Promise<void> {
+    this.analizandoHuerto = true;
+    this.analisisError = null;
+    this.analisisResultado = null;
+    this.mostrarModalAnalisis = true;
+
+    try {
+      const uidToUse = this.esVistaAdmin && this.uid ? this.uid : this.auth.currentUser!.uid;
+      
+      const resultado = await this.analisisService.analizarHuerto(uidToUse, this.huertoId);
+      
+      this.analisisResultado = resultado;
+      
+    } catch (error: any) {
+      console.error('Error al analizar huerto:', error);
+      this.analisisError = error.message || 'Error al analizar el huerto. Intenta de nuevo.';
+    } finally {
+      this.analizandoHuerto = false;
+    }
+  }
+
+/**
+ * Cerrar el modal de análisis
+ */
+cerrarModalAnalisis(): void {
+  this.mostrarModalAnalisis = false;
+  this.analisisResultado = null;
+  this.analisisError = null;
+}
+
+/**
+ * Ir al chat con el análisis como contexto
+ */
+continuarEnChat(): void {
+  if (!this.analisisResultado) return;
+  
+  // Crear un resumen del contexto para el chat
+  const contexto = `He analizado mi huerto "${this.huerto?.nombre}" y obtuve estas recomendaciones:
+
+${this.analisisResultado}
+
+Tengo algunas preguntas adicionales sobre esto.`;
+  
+  this.router.navigate(['/app/chat-ia'], {
+    queryParams: { mensaje: contexto }
+  });
+}
+  /**
+   * Navegar al chat IA con contexto del cultivo enfermo
+   */
+  consultarIACultivoEnfermo(cultivo: Cultivo): void {
+    const planta = this.getPlanta(cultivo.plantaId);
+    const amenaza = this.getAmenaza(cultivo.amenazaId ?? '');
+    
+    let mensaje = `Tengo un problema con mi cultivo "${cultivo.nombre}".`;
+    
+    if (planta) {
+      mensaje += ` Es una planta de ${planta.nombre}.`;
+    }
+    
+    if (amenaza) {
+      mensaje += ` Está afectado por ${amenaza.nombre} (${amenaza.tipo}).`;
+      if (amenaza.sintomas && amenaza.sintomas.length > 0) {
+        mensaje += ` Los síntomas son: ${amenaza.sintomas.join(', ')}.`;
+      }
+    }
+    
+    mensaje += ` ¿Qué puedo hacer para solucionarlo?`;
+    
+    this.router.navigate(['/app/chat-ia'], {
+      queryParams: { mensaje }
+    });
   }
 }

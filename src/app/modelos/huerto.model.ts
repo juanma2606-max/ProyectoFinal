@@ -9,6 +9,7 @@ export class Huerto {
     public tiene_riego: boolean,
     public fecha_creacion: string = new Date().toISOString(),
     public id?: string,
-    public notas?: string
+    public notas?: string,
+    public foto?: string  // Nueva: ruta de la imagen (ej: '/images/huerto1.jpg')
   ) {}
 }

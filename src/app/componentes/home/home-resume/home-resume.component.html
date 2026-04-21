@@ -8,10 +8,11 @@
   <!-- Imagen -->
   <div class="huerto-img">
     <img
-      src="/images/huerto1.jpg"
-      alt="Huerto"
-      class="img-fluid w-100 h-100"
-    />
+  [src]="huerto?.foto || '/images/huerto1.jpg'"
+  [alt]="huerto?.nombre"
+  class="img-fluid rounded shadow w-100"
+  style="max-height: 280px; object-fit: cover;"
+/>
   </div>
 
   <!-- Título -->

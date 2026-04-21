@@ -17,11 +17,20 @@ export class HuertoFormComponent implements OnInit {
   huertoForm!: FormGroup;
   modoEdicion = false;
   huertoId: string | null = null;
-  uid: string | null = null;       // uid del usuario que se está editando (admin)
+  uid: string | null = null;
   esVistaAdmin = false;
   cargando = false;
   errorMensaje = '';
   estacionActual: string = '';
+
+  // Fotos disponibles para el huerto
+  fotosDisponibles: string[] = [
+    '/images/huerto1.jpg',
+    '/images/huerto2.webp',
+    '/images/huerto3.webp',
+  ];
+
+  fotoSeleccionada: string = this.fotosDisponibles[0];
 
   constructor(
     private fb: FormBuilder,
@@ -32,7 +41,7 @@ export class HuertoFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    this.calcularEstacion(); // Calcular estación al cargar
+    this.calcularEstacion();
 
     this.route.paramMap.subscribe(async params => {
       const id = params.get('id');
@@ -56,14 +65,12 @@ export class HuertoFormComponent implements OnInit {
       tipo_suelo: ['franco', Validators.required],
       horas_sol: [6, [Validators.required, Validators.min(0), Validators.max(24)]],
       tiene_riego: [false],
-      fecha_creacion: [this.getFechaActual(), Validators.required], // Fecha por defecto hoy
-      notas: ['', [Validators.maxLength(500)]]
+      fecha_creacion: [this.getFechaActual(), Validators.required],
+      notas: ['', [Validators.maxLength(500)]],
+      foto: [this.fotosDisponibles[0], Validators.required]
     });
   }
 
-  /**
-   * Obtiene la fecha actual en formato YYYY-MM-DD para el input date
-   */
   private getFechaActual(): string {
     const hoy = new Date();
     const año = hoy.getFullYear();
@@ -72,12 +79,8 @@ export class HuertoFormComponent implements OnInit {
     return `${año}-${mes}-${dia}`;
   }
 
-  /**
-   * Calcula la estación del año según el mes actual
-   * Hemisferio Norte (España)
-   */
   private calcularEstacion(): void {
-    const mes = new Date().getMonth() + 1; // 1-12
+    const mes = new Date().getMonth() + 1;
     
     if (mes >= 3 && mes <= 5) {
       this.estacionActual = 'Primavera';
@@ -101,6 +104,8 @@ export class HuertoFormComponent implements OnInit {
       }
 
       if (huerto) {
+        this.fotoSeleccionada = huerto.foto || this.fotosDisponibles[0];
+        
         this.huertoForm.patchValue({
           nombre: huerto.nombre,
           descripcion: huerto.descripcion || '',
@@ -110,13 +115,26 @@ export class HuertoFormComponent implements OnInit {
           horas_sol: huerto.horas_sol,
           tiene_riego: huerto.tiene_riego,
           fecha_creacion: huerto.fecha_creacion ? huerto.fecha_creacion.split('T')[0] : this.getFechaActual(),
-          notas: huerto.notas || ''
+          notas: huerto.notas || '',
+          foto: huerto.foto || this.fotosDisponibles[0]
         });
       }
     } catch (error) {
       this.errorMensaje = 'No se pudo cargar el huerto.';
     }
   }
+
+  /**
+   * Seleccionar una foto
+   */
+/**
+ * Seleccionar una foto
+ */
+seleccionarFoto(foto: string): void {
+  this.fotoSeleccionada = foto;
+  this.huertoForm.patchValue({ foto });
+  console.log('Foto seleccionada:', foto); // Para debug
+}
 
   async onSubmit(): Promise<void> {
     if (this.huertoForm.invalid) {
@@ -131,7 +149,6 @@ export class HuertoFormComponent implements OnInit {
 
     try {
       if (this.modoEdicion && this.huertoId) {
-        // Actualizar huerto existente
         const huertoActualizado = new Huerto(
           formValue.nombre,
           formValue.descripcion,
@@ -140,9 +157,10 @@ export class HuertoFormComponent implements OnInit {
           formValue.tipo_suelo,
           formValue.horas_sol,
           formValue.tiene_riego,
-          new Date(formValue.fecha_creacion).toISOString(), // Convertir fecha del input
+          new Date(formValue.fecha_creacion).toISOString(),
           this.huertoId,
-          formValue.notas
+          formValue.notas,
+          formValue.foto
         );
 
         if (this.esVistaAdmin && this.uid) {
@@ -152,7 +170,6 @@ export class HuertoFormComponent implements OnInit {
         }
 
       } else {
-        // Crear nuevo huerto
         const nuevoHuerto = new Huerto(
           formValue.nombre,
           formValue.descripcion,
@@ -161,15 +178,15 @@ export class HuertoFormComponent implements OnInit {
           formValue.tipo_suelo,
           formValue.horas_sol,
           formValue.tiene_riego,
-          new Date(formValue.fecha_creacion).toISOString(), // Convertir fecha del input
+          new Date(formValue.fecha_creacion).toISOString(),
           undefined,
-          formValue.notas
+          formValue.notas,
+          formValue.foto
         );
         
         await this.huertoService.createHuerto(nuevoHuerto);
       }
 
-      // Redirigir según contexto
       if (this.esVistaAdmin && this.uid) {
         this.router.navigate(['/app/admin/usuario', this.uid]);
       } else {
