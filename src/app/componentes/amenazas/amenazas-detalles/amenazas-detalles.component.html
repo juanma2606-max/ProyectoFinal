@@ -2,7 +2,7 @@
 <div class="amenaza-detalle h-100">
   
   <!-- Loading -->
-  <div *ngIf="cargando" class="card bg-dark bg-opacity-75 border-danger border-opacity-25 shadow h-100">
+  <div *ngIf="cargando" class="card bg-dark border-danger border-opacity-25 shadow h-100">
     <div class="card-body d-flex flex-column justify-content-center align-items-center">
       <div class="spinner-border text-danger mb-3" role="status"></div>
       <p class="text-light opacity-75 mb-0">Cargando amenaza...</p>
@@ -10,7 +10,7 @@
   </div>
 
   <!-- Error -->
-  <div *ngIf="error && !cargando" class="card bg-dark bg-opacity-75 border-danger shadow h-100">
+  <div *ngIf="error && !cargando" class="card bg-dark border-danger shadow h-100">
     <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
       <i class="fa-solid fa-triangle-exclamation text-danger fs-1 mb-3"></i>
       <h5 class="text-light mb-2">Error</h5>
@@ -19,7 +19,7 @@
   </div>
 
   <!-- Amenaza cargada -->
-  <div *ngIf="amenaza && !cargando && !error" class="card bg-dark bg-opacity-75 border-danger border-opacity-25 shadow h-100">
+  <div *ngIf="amenaza && !cargando && !error" class="card bg-dark border-danger border-opacity-25 shadow h-100">
     
     <!-- Header -->
     <div class="card-header bg-danger bg-opacity-25 border-bottom border-danger border-opacity-25">

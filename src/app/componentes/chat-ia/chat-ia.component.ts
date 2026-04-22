@@ -14,6 +14,7 @@ import { ChatService, Mensaje } from '../../servicios/chat.service';
 export class ChatIaComponent implements OnInit, AfterViewChecked {
 
   @ViewChild('mensajesContainer') mensajesContainer!: ElementRef;
+  @ViewChild('textareaInput') textareaInput!: ElementRef<HTMLTextAreaElement>;
 
   mensajes: Mensaje[] = [];
   inputUsuario: string = '';
@@ -28,26 +29,21 @@ export class ChatIaComponent implements OnInit, AfterViewChecked {
   ) {}
 
   ngOnInit(): void {
-    // Mensaje de bienvenida
     this.mensajes.push({
       role: 'assistant',
       content: '¡Hola! Soy HuertingIA 🌱 Tu asistente experto en huertos y plantas. ¿En qué puedo ayudarte hoy?'
     });
 
-    // Si viene con contexto de un análisis o cultivo enfermo
     this.route.queryParamMap.subscribe(params => {
       const mensaje = params.get('mensaje');
       if (mensaje) {
-        // Decodificar el mensaje (por si tiene caracteres especiales)
         const mensajeDecodificado = decodeURIComponent(mensaje);
         
-        // Agregar el mensaje del usuario al historial
         this.mensajes.push({
           role: 'user',
           content: mensajeDecodificado
         });
         
-        // Enviar automáticamente
         this.enviarMensajeInicial();
       }
     });
@@ -60,9 +56,14 @@ export class ChatIaComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  /**
-   * Enviar el mensaje inicial automáticamente (cuando viene de otra pantalla)
-   */
+  ajustarAlturaTextarea(): void {
+    if (this.textareaInput) {
+      const textarea = this.textareaInput.nativeElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }
+
   async enviarMensajeInicial(): Promise<void> {
     this.cargando = true;
     this.error = '';
@@ -75,7 +76,6 @@ export class ChatIaComponent implements OnInit, AfterViewChecked {
     } catch (e: any) {
       this.error = 'Error al conectar con la IA. Inténtalo de nuevo.';
       console.error(e);
-      // Remover el mensaje del usuario si falló
       this.mensajes.pop();
     } finally {
       this.cargando = false;
@@ -89,7 +89,8 @@ export class ChatIaComponent implements OnInit, AfterViewChecked {
     this.inputUsuario = '';
     this.error = '';
 
-    // Añadir mensaje del usuario
+    this.resetearAlturaTextarea();
+
     this.mensajes.push({ role: 'user', content: texto });
     this.cargando = true;
     this.debeHacerScroll = true;
@@ -101,7 +102,6 @@ export class ChatIaComponent implements OnInit, AfterViewChecked {
     } catch (e: any) {
       this.error = 'Error al conectar con la IA';
       console.error(e);
-      // Remover el mensaje del usuario si falló
       this.mensajes.pop();
     } finally {
       this.cargando = false;
@@ -112,6 +112,13 @@ export class ChatIaComponent implements OnInit, AfterViewChecked {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.enviarMensaje();
+    }
+  }
+
+  private resetearAlturaTextarea(): void {
+    if (this.textareaInput) {
+      const textarea = this.textareaInput.nativeElement;
+      textarea.style.height = 'auto';
     }
   }
 

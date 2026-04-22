@@ -135,7 +135,7 @@
 
         <!-- Sin cultivos -->
         <div *ngIf="cultivos.length === 0"
-             class="text-center text-light py-5 bg-dark bg-opacity-25 rounded">
+             class="text-center text-light py-5 bg-dark rounded">
           <i class="fa-solid fa-seedling fs-1 text-success opacity-50 mb-3"></i>
           <p class="mb-0">Aún no tienes cultivos en este huerto.</p>
           <button class="btn btn-outline-success btn-sm mt-3" (click)="irACrearCultivo()">
@@ -175,9 +175,16 @@
               <div class="card-body pb-2">
 
                 <div class="d-flex justify-content-between align-items-start">
-                  <h5 class="card-title mb-1">
-                    {{ getPlanta(cultivo.plantaId)?.nombre || 'Cargando...' }}
-                  </h5>
+                  <div>
+  <h5 class="card-title mb-0">
+    {{ cultivo.nombre || 'Cultivo sin nombre' }}
+  </h5>
+  <small class="text-muted">
+    <i class="fa-solid fa-leaf me-1"></i>
+    {{ getPlanta(cultivo.plantaId)?.nombre || 'Cargando...' }}
+  </small>
+</div>
+
                   <!-- Badge de estado -->
                   <span class="badge"
                     [ngClass]="{
@@ -250,13 +257,7 @@
                   <i class="fa-solid fa-pen"></i>
                 </button>
                 <!-- Botón Chat IA (solo si está enfermo) -->
-                <button
-  *ngIf="cultivo.estado === 'enfermo'"
-  class="btn btn-sm btn-warning"
-  (click)="consultarIACultivoEnfermo(cultivo)"
-  title="Consultar a la IA sobre este cultivo">
-  <i class="fa-solid fa-robot me-1"></i> Consultar IA
-</button>
+                
               </div>
 
             </div>

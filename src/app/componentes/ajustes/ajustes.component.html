@@ -130,6 +130,7 @@
         <div class="card-body">
 
           <!-- Cambiar contraseña (SOLO si tiene password) -->
+           
           <div class="mb-3" *ngIf="tienePassword">
             <button 
               *ngIf="!mostrarCambiarPassword"
@@ -140,55 +141,61 @@
             </button>
 
             <div *ngIf="mostrarCambiarPassword" class="border rounded p-3 bg-light">
-              <h6 class="mb-3">Cambiar contraseña</h6>
-              
-              <div class="mb-3">
-                <label class="form-label small">Contraseña actual</label>
-                <input 
-                  type="password" 
-                  class="form-control"
-                  [(ngModel)]="passwordActual"
-                  placeholder="Ingresa tu contraseña actual"
-                />
-              </div>
+  <h6 class="mb-3">Cambiar contraseña</h6>
+  
+  <!-- AGREGAR ESTA ALERTA DE ERROR -->
+  <div *ngIf="error && mostrarCambiarPassword" class="alert alert-danger alert-sm py-2 mb-3">
+    <i class="fa-solid fa-circle-exclamation me-2"></i>
+    {{ error }}
+  </div>
+  
+  <div class="mb-3">
+    <label class="form-label small">Contraseña actual</label>
+    <input 
+      type="password" 
+      class="form-control"
+      [(ngModel)]="passwordActual"
+      placeholder="Ingresa tu contraseña actual"
+    />
+  </div>
 
-              <div class="mb-3">
-                <label class="form-label small">Nueva contraseña</label>
-                <input 
-                  type="password" 
-                  class="form-control"
-                  [(ngModel)]="passwordNueva"
-                  placeholder="Mínimo 6 caracteres"
-                />
-              </div>
+  <div class="mb-3">
+    <label class="form-label small">Nueva contraseña</label>
+    <input 
+      type="password" 
+      class="form-control"
+      [(ngModel)]="passwordNueva"
+      placeholder="Mínimo 6 caracteres"
+    />
+  </div>
 
-              <div class="mb-3">
-                <label class="form-label small">Confirmar nueva contraseña</label>
-                <input 
-                  type="password" 
-                  class="form-control"
-                  [(ngModel)]="passwordConfirmar"
-                  placeholder="Repite la nueva contraseña"
-                />
-              </div>
+  <div class="mb-3">
+    <label class="form-label small">Confirmar nueva contraseña</label>
+    <input 
+      type="password" 
+      class="form-control"
+      [(ngModel)]="passwordConfirmar"
+      placeholder="Repite la nueva contraseña"
+    />
+  </div>
 
-              <div class="d-flex gap-2">
-                <button 
-                  class="btn btn-warning btn-sm flex-fill"
-                  (click)="cambiarPassword()"
-                  [disabled]="guardando">
-                  <span *ngIf="guardando" class="spinner-border spinner-border-sm me-1"></span>
-                  <i *ngIf="!guardando" class="fa-solid fa-check me-1"></i>
-                  Cambiar
-                </button>
-                <button 
-                  class="btn btn-outline-secondary btn-sm flex-fill"
-                  (click)="cancelarCambioPassword()"
-                  [disabled]="guardando">
-                  Cancelar
-                </button>
-              </div>
-            </div>
+  <div class="d-flex gap-2">
+    <button 
+      class="btn btn-warning btn-sm flex-fill"
+      (click)="cambiarPassword()"
+      [disabled]="guardando">
+      <span *ngIf="guardando" class="spinner-border spinner-border-sm me-1"></span>
+      <i *ngIf="!guardando" class="fa-solid fa-check me-1"></i>
+      Cambiar
+    </button>
+    <button 
+      class="btn btn-outline-secondary btn-sm flex-fill"
+      (click)="cancelarCambioPassword()"
+      [disabled]="guardando">
+      Cancelar
+    </button>
+  </div>
+</div>
           </div>
 
           <!-- Mensaje informativo si NO tiene password -->

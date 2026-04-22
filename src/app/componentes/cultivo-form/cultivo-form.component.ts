@@ -125,67 +125,66 @@ export class CultivoFormComponent implements OnInit {
     return this.estado === 'enfermo';
   }
 
-  async guardarCultivo(): Promise<void> {
-    if (!this.plantaIdSeleccionada) {
-      this.error = 'Debes seleccionar una planta.';
-      return;
-    }
-    
-    if (this.mostrarDashboardAmenaza && !this.amenazaIdSeleccionada) {
-      this.error = 'Debes seleccionar la amenaza que afecta a la planta.';
-      return;
-    }
-
-    if (this.cantidad < 1) {
-      this.error = 'La cantidad debe ser al menos 1.';
-      return;
-    }
-
-    this.guardando = true;
-    this.error = '';
-    const uid = this.getUidToUse();
-
-    try {
-      if (this.modoEdicion && this.cultivoId) {
-        // Actualizar cultivo existente
-        // Constructor: nombre, plantaId, fecha_siembra, estado, cantidad, notas, amenazaId, id
-        const cultivoActualizado = new Cultivo(
-          this.nombre.trim() || 'Cultivo sin nombre',
-          this.plantaIdSeleccionada,
-          this.fecha_siembra,
-          this.estado,
-          this.cantidad,
-          this.notas.trim(),
-          this.estado === 'enfermo' ? this.amenazaIdSeleccionada : null,
-          this.cultivoId
-        );
-        
-        await this.cultivosService.updateCultivo(uid, this.huertoId, cultivoActualizado);
-      } else {
-        // Crear nuevo cultivo
-        // Generar nombre automático si no se proporciona
-        const nombreCultivo = this.nombre.trim() || `Cultivo ${new Date().getTime()}`;
-        
-        const nuevoCultivo = new Cultivo(
-          nombreCultivo,
-          this.plantaIdSeleccionada,
-          new Date().toISOString(),
-          this.estado, // Usar el estado seleccionado por el usuario
-          this.cantidad,
-          this.notas.trim(),
-          this.estado === 'enfermo' ? this.amenazaIdSeleccionada : null // Amenaza si está enfermo
-        );
-        
-        await this.cultivosService.createCultivo(uid, this.huertoId, nuevoCultivo);
-      }
-
-      this.navegarDeVuelta();
-    } catch (e) {
-      console.error('Error al guardar cultivo:', e);
-      this.error = 'Error al guardar el cultivo. Inténtalo de nuevo.';
-      this.guardando = false;
-    }
+async guardarCultivo(): Promise<void> {
+  if (!this.plantaIdSeleccionada) {
+    this.error = 'Debes seleccionar una planta.';
+    return;
   }
+  
+  if (this.mostrarDashboardAmenaza && !this.amenazaIdSeleccionada) {
+    this.error = 'Debes seleccionar la amenaza que afecta a la planta.';
+    return;
+  }
+
+  if (this.cantidad < 1) {
+    this.error = 'La cantidad debe ser al menos 1.';
+    return;
+  }
+
+  this.guardando = true;
+  this.error = '';
+  const uid = this.getUidToUse();
+
+  try {
+    if (this.modoEdicion && this.cultivoId) {
+      // Actualizar cultivo existente
+      const cultivoActualizado = new Cultivo(
+        this.nombre.trim() || 'Cultivo sin nombre',
+        this.plantaIdSeleccionada,
+        this.fecha_siembra,
+        this.estado,
+        this.cantidad,
+        this.notas.trim(),
+        this.estado === 'enfermo' ? this.amenazaIdSeleccionada : null,
+        this.cultivoId
+      );
+      
+      await this.cultivosService.updateCultivo(uid, this.huertoId, cultivoActualizado);
+    } else {
+      // Crear nuevo cultivo
+      const fechaActual = new Date().toISOString();
+      const nombreCultivo = this.nombre.trim() || 'Cultivo sin nombre';
+      
+      const nuevoCultivo = new Cultivo(
+        nombreCultivo,
+        this.plantaIdSeleccionada,
+        fechaActual,
+        this.estado,
+        this.cantidad,
+        this.notas.trim(),
+        this.estado === 'enfermo' ? this.amenazaIdSeleccionada : null
+      );
+      
+      await this.cultivosService.createCultivo(uid, this.huertoId, nuevoCultivo);
+    }
+
+    this.navegarDeVuelta();
+  } catch (e) {
+    console.error('Error al guardar cultivo:', e);
+    this.error = 'Error al guardar el cultivo. Inténtalo de nuevo.';
+    this.guardando = false;
+  }
+}
 
   cancelar(): void {
     this.navegarDeVuelta();

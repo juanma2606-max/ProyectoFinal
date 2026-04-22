@@ -182,30 +182,4 @@ Tengo algunas preguntas adicionales sobre esto.`;
     queryParams: { mensaje: contexto }
   });
 }
-  /**
-   * Navegar al chat IA con contexto del cultivo enfermo
-   */
-  consultarIACultivoEnfermo(cultivo: Cultivo): void {
-    const planta = this.getPlanta(cultivo.plantaId);
-    const amenaza = this.getAmenaza(cultivo.amenazaId ?? '');
-    
-    let mensaje = `Tengo un problema con mi cultivo "${cultivo.nombre}".`;
-    
-    if (planta) {
-      mensaje += ` Es una planta de ${planta.nombre}.`;
-    }
-    
-    if (amenaza) {
-      mensaje += ` Está afectado por ${amenaza.nombre} (${amenaza.tipo}).`;
-      if (amenaza.sintomas && amenaza.sintomas.length > 0) {
-        mensaje += ` Los síntomas son: ${amenaza.sintomas.join(', ')}.`;
-      }
-    }
-    
-    mensaje += ` ¿Qué puedo hacer para solucionarlo?`;
-    
-    this.router.navigate(['/app/chat-ia'], {
-      queryParams: { mensaje }
-    });
-  }
 }
