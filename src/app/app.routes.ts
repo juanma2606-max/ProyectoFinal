@@ -16,12 +16,7 @@ import { adminGuard } from './guards/admin.guard';
 import { authGuard } from './guards/auth.guard';
 import { AmenazaformComponent } from './componentes/amenazas/amenazas-form/amenazas-form.component';
 import { ChatIaComponent } from './componentes/chat-ia/chat-ia.component';
-
-// ❌ PENDIENTES (comentados hasta actualizar):
- import { AjustesComponent } from './componentes/ajustes/ajustes.component';
-// import { PlantasFormComponent } from './componentes/plantas-form/plantas-form.component';
-// import { AdminUsuarioComponent } from './componentes/admin-usuario/admin-usuario.component';
-// import { ChatIaComponent } from './componentes/chat-ia/chat-ia.component';
+import { AjustesComponent } from './componentes/ajustes/ajustes.component';
 
 export const routes: Routes = [
 
