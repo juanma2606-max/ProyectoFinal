@@ -6,6 +6,7 @@ import { AuthService } from '../../servicios/auth.service';
 import { UserCredential } from '@angular/fire/auth';
 import { UserService } from '../../servicios/user.service';
 import { User } from '../../modelos/user.model';
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -21,6 +22,8 @@ export class LoginComponent {
   };
 
   error: string | null = null;
+  cargando: boolean = false;
+  cargandoGoogle: boolean = false;
 
   constructor(
     private router: Router,
@@ -30,70 +33,107 @@ export class LoginComponent {
 
   async onSubmit() {
     if (!this.formLogin.email || !this.formLogin.password) {
-      this.error = "Completa todos los campos";
+      this.error = "📝 Completa todos los campos";
       return;
     }
 
+    this.cargando = true;
+    this.error = null;
+
     try {
+      // 1. Intentar login en Firebase Authentication
       const userCredential: UserCredential = await this.authService.login(
         this.formLogin.email, 
         this.formLogin.password
       );
 
-      // Verificar si el usuario está baneado
-      const isBanned = await this.userService.isUserBanned(userCredential.user.uid);
+      const uid = userCredential.user.uid;
+
+      // 2. VALIDACIÓN: Verificar si el usuario está baneado
+      const banStatus = await this.userService.isUserBanned(uid);
       
-      if (isBanned) {
-        this.error = "Tu cuenta ha sido suspendida. Contacta con el administrador.";
+      if (banStatus.banned) {
         await this.authService.logout();
+        
+        this.error = `🚫 Tu cuenta ha sido suspendida. Motivo: ${banStatus.reason || 'Violación de términos de uso'}. Contacta con el administrador.`;
+        this.cargando = false;
         return;
       }
 
-      // Login exitoso
+      // 3. Login exitoso
       this.error = null;
+      this.cargando = false;
       this.router.navigate(['/app']);
-    } catch (err) {
-      console.error(err);
-      this.error = "Credenciales incorrectas";
+
+    } catch (err: any) {
+      console.error('Error en login:', err);
+      this.cargando = false;
+
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        this.error = "❌ Credenciales incorrectas";
+      } else if (err.code === 'auth/too-many-requests') {
+        this.error = "⏱️ Demasiados intentos. Intenta de nuevo más tarde.";
+      } else if (err.code === 'auth/user-disabled') {
+        this.error = "🚫 Esta cuenta ha sido deshabilitada";
+      } else {
+        this.error = "❌ Error al iniciar sesión. Inténtalo de nuevo.";
+      }
     }
   }
 
   async loginWithGoogle() {
+    this.cargandoGoogle = true;
+    this.error = null;
+
     try {
+      // 1. Login con Google
       const credential = await this.authService.loginWithGoogle();
       const user = credential.user;
+      const uid = user.uid;
 
-      // Verificar si está baneado
-      const isBanned = await this.userService.isUserBanned(user.uid);
+      // 2. VALIDACIÓN: Verificar si está baneado
+      const banStatus = await this.userService.isUserBanned(uid);
       
-      if (isBanned) {
-        this.error = "Tu cuenta ha sido suspendida. Contacta con el administrador.";
+      if (banStatus.banned) {
         await this.authService.logout();
+        
+        this.error = `🚫 Tu cuenta ha sido suspendida. Motivo: ${banStatus.reason || 'Violación de términos de uso'}. Contacta con el administrador.`;
+        this.cargandoGoogle = false;
         return;
       }
 
-      // Comprobamos si ya existe en Firebase
-      const userExistente = await this.userService.getPersonById(user.uid);
+      // 3. Verificar si ya existe en Firebase Database
+      const userExistente = await this.userService.getPersonById(uid);
 
       if (!userExistente) {
-        // Primera vez que entra con Google → lo guardamos
+        // Primera vez con Google → crear perfil
         const newUser = new User(
-          user.uid,
-          user.displayName || user.email || 'Usuario',
-          user.email || ''
+          uid,
+          user.displayName || user.email?.split('@')[0] || 'Usuario',
+          user.email || '',
+          new Date().toISOString(),
+          user.photoURL || this.userService.fotosPerfil[0], // Usar foto de Google si existe
+          false // No baneado
         );
         await this.userService.createPerson(newUser);
       }
 
+      // 4. Login exitoso
+      this.cargandoGoogle = false;
       this.router.navigate(['/app']);
+
     } catch (err: any) {
-      console.error(err);
+      console.error('Error en login con Google:', err);
+      this.cargandoGoogle = false;
       
-      // Error específico de dominio no autorizado
-      if (err.code === 'auth/unauthorized-domain') {
-        this.error = "Dominio no autorizado. Configura Firebase para este dominio.";
+      if (err.code === 'auth/popup-closed-by-user') {
+        this.error = "❌ Inicio de sesión cancelado";
+      } else if (err.code === 'auth/unauthorized-domain') {
+        this.error = "⚠️ Dominio no autorizado. Configura Firebase para este dominio.";
+      } else if (err.code === 'auth/popup-blocked') {
+        this.error = "🚫 Popup bloqueado. Permite popups para este sitio.";
       } else {
-        this.error = "Error al iniciar con Google";
+        this.error = "❌ Error al iniciar con Google";
       }
     }
   }

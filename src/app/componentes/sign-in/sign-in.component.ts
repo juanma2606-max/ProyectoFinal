@@ -18,6 +18,7 @@ import { User } from '../../modelos/user.model';
 export class SignInComponent {
   registerForm: FormGroup;
   error: string | null = null;
+  cargando: boolean = false;
 
   constructor(
     formBuilder: FormBuilder,
@@ -53,42 +54,72 @@ export class SignInComponent {
 
     // Comprobamos que el formulario sea válido
     if (this.registerForm.valid) {
+      this.cargando = true;
+      this.error = null;
+
       const username = this.registerForm.get("username")?.value;
       const email = this.registerForm.get("email")?.value;
       const password = this.registerForm.get("password")?.value;
 
       try {
-        // Registrar en Firebase Authentication
-        const userCredential: UserCredential = await this.authService.register(email, password);
+        // 1. VALIDACIÓN: Verificar si el email ya existe en la Database
+        const emailYaRegistrado = await this.userService.isEmailRegistered(email);
+        
+        if (emailYaRegistrado) {
+          this.error = "⚠️ Este correo ya está registrado. Intenta iniciar sesión o usa otro correo.";
+          this.cargando = false;
+          return;
+        }
 
-        // Crear perfil de usuario en Realtime Database
+        // 2. Registrar en Firebase Authentication
+        const userCredential: UserCredential = await this.authService.register(email, password);
+        const uid = userCredential.user.uid;
+
+        // 3. VALIDACIÓN: Verificar si el usuario está baneado
+        const banStatus = await this.userService.isUserBanned(uid);
+        
+        if (banStatus.banned) {
+          // Si está baneado, eliminar la cuenta recién creada
+          await this.authService.logout();
+          
+          this.error = `🚫 Esta cuenta ha sido baneada. Motivo: ${banStatus.reason || 'Violación de términos de uso'}`;
+          this.cargando = false;
+          return;
+        }
+
+        // 4. Crear perfil de usuario en Realtime Database
         const newUser = new User(
-          userCredential.user.uid,
+          uid,
           username,
-          email
+          email,
+          new Date().toISOString(),
+          this.userService.fotosPerfil[0], // Foto por defecto
+          false // No baneado
         );
         
         await this.userService.createPerson(newUser);
 
-        // Redirigir a la app
+        // 5. Redirigir a la app
         this.error = null;
+        this.cargando = false;
         this.router.navigate(['/app']);
 
       } catch (error: any) {
-        console.error(error);
+        console.error('Error en registro:', error);
+        this.cargando = false;
         
         if (error.code === 'auth/email-already-in-use') {
-          this.error = "El correo ya está en uso";
+          this.error = "⚠️ El correo ya está en uso en Firebase Authentication";
         } else if (error.code === 'auth/weak-password') {
-          this.error = "La contraseña es demasiado débil";
+          this.error = "🔒 La contraseña es demasiado débil (mínimo 6 caracteres)";
         } else if (error.code === 'auth/invalid-email') {
-          this.error = "El correo no es válido";
+          this.error = "📧 El correo no es válido";
         } else {
-          this.error = "Error al crear la cuenta. Inténtalo de nuevo.";
+          this.error = "❌ Error al crear la cuenta. Inténtalo de nuevo.";
         }
       }
     } else {
-      this.error = "Por favor, completa todos los campos correctamente";
+      this.error = "📝 Por favor, completa todos los campos correctamente";
     }
   }
 }

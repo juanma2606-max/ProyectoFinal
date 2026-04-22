@@ -1,0 +1,17 @@
+.foto-option {
+  border: 3px solid transparent;
+  
+  &:hover {
+    border-color: #198754;
+    transform: scale(1.05);
+  }
+  
+  &.selected {
+    border-color: #ffc107;
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
+  }
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.95);
+}

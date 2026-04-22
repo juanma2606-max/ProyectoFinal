@@ -37,6 +37,7 @@
                     formControlName="email"
                     class="form-control rounded-pill border border-success shadow-sm"
                     placeholder="usuario@email.com"
+                    [disabled]="cargando"
                   />
                   <small class="text-danger"
                     *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
@@ -52,10 +53,15 @@
                     formControlName="username"
                     class="form-control rounded-pill border border-success shadow-sm"
                     placeholder="username"
+                    [disabled]="cargando"
                   />
                   <small class="text-danger"
                     *ngIf="registerForm.get('username')?.errors?.['restrictedWord']">
                     Nombre no permitido
+                  </small>
+                  <small class="text-danger"
+                    *ngIf="registerForm.get('username')?.errors?.['minlength'] && registerForm.get('username')?.touched">
+                    Mínimo 5 caracteres
                   </small>
                 </div>
 
@@ -67,7 +73,12 @@
                     formControlName="password"
                     class="form-control rounded-pill border border-success shadow-sm"
                     placeholder="Mínimo 6 caracteres"
+                    [disabled]="cargando"
                   />
+                  <small class="text-danger"
+                    *ngIf="registerForm.get('password')?.errors?.['minlength'] && registerForm.get('password')?.touched">
+                    Mínimo 6 caracteres
+                  </small>
                 </div>
 
                 <!-- Confirmar contraseña -->
@@ -77,6 +88,7 @@
                     type="password"
                     formControlName="confirmPassword"
                     class="form-control rounded-pill border border-success shadow-sm"
+                    [disabled]="cargando"
                   />
                   <small class="text-danger"
                     *ngIf="registerForm.get('confirmPassword')?.errors?.['mismatch']">
@@ -93,8 +105,10 @@
                 <button
                   type="submit"
                   class="btn btn-success w-100 rounded-pill shadow-sm py-2"
-                  [disabled]="registerForm.invalid">
-                  Crear cuenta
+                  [disabled]="registerForm.invalid || cargando">
+                  <span *ngIf="cargando" class="spinner-border spinner-border-sm me-2"></span>
+                  <span *ngIf="!cargando">Crear cuenta</span>
+                  <span *ngIf="cargando">Creando cuenta...</span>
                 </button>
 
               </form>

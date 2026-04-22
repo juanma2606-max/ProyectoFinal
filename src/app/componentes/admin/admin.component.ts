@@ -38,6 +38,27 @@ export class AdminComponent implements OnInit {
   huertosUsuario: { [uid: string]: Huerto[] } = {};
   cargandoHuertos: { [uid: string]: boolean } = {};
 
+  // Estados de baneo
+  procesandoBaneo: { [uid: string]: boolean } = {};
+
+  // Modales
+  modalBaneo = {
+    mostrar: false,
+    usuario: null as User | null,
+    motivo: 'Violación de términos de uso'
+  };
+
+  modalDesbaneo = {
+    mostrar: false,
+    usuario: null as User | null
+  };
+
+  modalEliminar = {
+    mostrar: false,
+    usuario: null as User | null,
+    confirmacion: ''
+  };
+
   isAdmin$: Observable<boolean>;
 
   constructor(
@@ -137,11 +158,134 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  eliminarUsuario(uid: string): void {
-    if (confirm('¿Banear este usuario? No podrá volver a iniciar sesión.')) {
-      this.userService.removePerson(uid)
-        .then(() => console.log('✅ Usuario baneado'))
-        .catch(err => console.error('❌ Error:', err));
+  /**
+   * Verificar si un usuario está baneado
+   */
+  estaUsuarioBaneado(usuario: User): boolean {
+    return usuario.baneado === true;
+  }
+
+  /**
+   * ==================== MODAL BANEAR ====================
+   */
+  abrirModalBaneo(usuario: User): void {
+    this.modalBaneo.usuario = usuario;
+    this.modalBaneo.motivo = 'Violación de términos de uso';
+    this.modalBaneo.mostrar = true;
+  }
+
+  cerrarModalBaneo(): void {
+    this.modalBaneo.mostrar = false;
+    this.modalBaneo.usuario = null;
+    this.modalBaneo.motivo = 'Violación de términos de uso';
+  }
+
+  async confirmarBaneo(): Promise<void> {
+    if (!this.modalBaneo.usuario || !this.modalBaneo.motivo.trim()) return;
+    
+    const usuario = this.modalBaneo.usuario;
+    const motivo = this.modalBaneo.motivo.trim();
+    
+    this.cerrarModalBaneo();
+    
+    try {
+      this.procesandoBaneo[usuario.uid] = true;
+      
+      await this.userService.banUser(usuario.uid, motivo);
+      
+      // Actualizar el usuario en la lista local
+      const index = this.usuarios.findIndex(u => u.uid === usuario.uid);
+      if (index !== -1) {
+        this.usuarios[index].baneado = true;
+        this.usuarios[index].motivoBaneo = motivo;
+      }
+      
+      console.log('✅ Usuario baneado exitosamente');
+      
+    } catch (error) {
+      console.error('❌ Error al banear usuario:', error);
+      alert('Error al banear el usuario. Intenta de nuevo.');
+    } finally {
+      this.procesandoBaneo[usuario.uid] = false;
+    }
+  }
+
+  /**
+   * ==================== MODAL DESBANEAR ====================
+   */
+  abrirModalDesbaneo(usuario: User): void {
+    this.modalDesbaneo.usuario = usuario;
+    this.modalDesbaneo.mostrar = true;
+  }
+
+  cerrarModalDesbaneo(): void {
+    this.modalDesbaneo.mostrar = false;
+    this.modalDesbaneo.usuario = null;
+  }
+
+  async confirmarDesbaneo(): Promise<void> {
+    if (!this.modalDesbaneo.usuario) return;
+    
+    const usuario = this.modalDesbaneo.usuario;
+    
+    this.cerrarModalDesbaneo();
+    
+    try {
+      this.procesandoBaneo[usuario.uid] = true;
+      
+      await this.userService.unbanUser(usuario.uid);
+      
+      // Actualizar el usuario en la lista local
+      const index = this.usuarios.findIndex(u => u.uid === usuario.uid);
+      if (index !== -1) {
+        this.usuarios[index].baneado = false;
+        this.usuarios[index].motivoBaneo = undefined;
+      }
+      
+      console.log('✅ Usuario desbaneado exitosamente');
+      
+    } catch (error) {
+      console.error('❌ Error al desbanear usuario:', error);
+      alert('Error al desbanear el usuario. Intenta de nuevo.');
+    } finally {
+      this.procesandoBaneo[usuario.uid] = false;
+    }
+  }
+
+  /**
+   * ==================== MODAL ELIMINAR ====================
+   */
+  abrirModalEliminar(usuario: User): void {
+    this.modalEliminar.usuario = usuario;
+    this.modalEliminar.confirmacion = '';
+    this.modalEliminar.mostrar = true;
+  }
+
+  cerrarModalEliminar(): void {
+    this.modalEliminar.mostrar = false;
+    this.modalEliminar.usuario = null;
+    this.modalEliminar.confirmacion = '';
+  }
+
+  async confirmarEliminar(): Promise<void> {
+    if (!this.modalEliminar.usuario) return;
+    
+    const usuario = this.modalEliminar.usuario;
+    
+    this.cerrarModalEliminar();
+    
+    try {
+      this.procesandoBaneo[usuario.uid] = true;
+      
+      await this.userService.removePerson(usuario.uid);
+      
+      console.log('✅ Usuario eliminado completamente');
+      
+    } catch (error) {
+      console.error('❌ Error al eliminar usuario:', error);
+      alert('Error al eliminar el usuario. Intenta de nuevo.');
+    } finally {
+      this.procesandoBaneo[usuario.uid] = false;
     }
   }
 

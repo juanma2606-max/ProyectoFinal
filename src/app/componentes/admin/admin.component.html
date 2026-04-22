@@ -57,26 +57,80 @@
 
             <!-- Lista de usuarios -->
             <div *ngFor="let usuario of usuariosFiltrados"
-                 class="list-group-item bg-dark bg-opacity-50 border-secondary">
+                 class="list-group-item bg-dark bg-opacity-50 border-secondary"
+                 [class.border-danger]="estaUsuarioBaneado(usuario)">
               
               <!-- Fila principal del usuario -->
               <div class="d-flex align-items-center gap-3 py-2"
                    (click)="toggleUsuario(usuario.uid)"
                    style="cursor: pointer;">
-                <div class="avatar-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center"
-                     style="width: 45px; height: 45px; border-radius: 50%;">
-                  {{ (usuario.username || '?').charAt(0).toUpperCase() }}
-                </div>
-                <div class="flex-grow-1">
-                  <div class="fw-semibold text-light">{{ usuario.username }}</div>
-                  <div class="text-light opacity-75 small">{{ usuario.email }}</div>
-                </div>
-                <div class="d-flex gap-2" (click)="$event.stopPropagation()">
-                  <button class="btn btn-sm btn-outline-danger" title="Banear usuario"
-                    (click)="eliminarUsuario(usuario.uid)">
+                
+                <!-- Avatar -->
+                <div class="position-relative">
+                  <div class="avatar-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center"
+                       [class.bg-danger]="estaUsuarioBaneado(usuario)"
+                       style="width: 45px; height: 45px; border-radius: 50%;">
+                    {{ (usuario.username || '?').charAt(0).toUpperCase() }}
+                  </div>
+                  <!-- Badge de baneado -->
+                  <span *ngIf="estaUsuarioBaneado(usuario)"
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        title="Usuario baneado">
                     <i class="fa-solid fa-ban"></i>
+                  </span>
+                </div>
+
+                <!-- Info del usuario -->
+                <div class="flex-grow-1">
+                  <div class="fw-semibold text-light">
+                    {{ usuario.username }}
+                    <span *ngIf="estaUsuarioBaneado(usuario)" 
+                          class="badge bg-danger ms-2">BANEADO</span>
+                  </div>
+                  <div class="text-light opacity-75 small">{{ usuario.email }}</div>
+                  <div *ngIf="estaUsuarioBaneado(usuario) && usuario.motivoBaneo" 
+                       class="text-danger small mt-1">
+                    <i class="fa-solid fa-circle-info me-1"></i>
+                    Motivo: {{ usuario.motivoBaneo }}
+                  </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="d-flex gap-2" (click)="$event.stopPropagation()">
+                  
+                  <!-- Banear -->
+                  <button 
+                    *ngIf="!estaUsuarioBaneado(usuario)"
+                    class="btn btn-sm btn-outline-warning" 
+                    title="Banear usuario"
+                    [disabled]="procesandoBaneo[usuario.uid]"
+                    (click)="abrirModalBaneo(usuario)">
+                    <span *ngIf="procesandoBaneo[usuario.uid]" class="spinner-border spinner-border-sm"></span>
+                    <i *ngIf="!procesandoBaneo[usuario.uid]" class="fa-solid fa-ban"></i>
+                  </button>
+
+                  <!-- Desbanear -->
+                  <button 
+                    *ngIf="estaUsuarioBaneado(usuario)"
+                    class="btn btn-sm btn-outline-success" 
+                    title="Desbanear usuario"
+                    [disabled]="procesandoBaneo[usuario.uid]"
+                    (click)="abrirModalDesbaneo(usuario)">
+                    <span *ngIf="procesandoBaneo[usuario.uid]" class="spinner-border spinner-border-sm"></span>
+                    <i *ngIf="!procesandoBaneo[usuario.uid]" class="fa-solid fa-check"></i>
+                  </button>
+
+                  <!-- Eliminar completamente -->
+                  <button 
+                    class="btn btn-sm btn-outline-danger" 
+                    title="Eliminar usuario y sus datos"
+                    [disabled]="procesandoBaneo[usuario.uid]"
+                    (click)="abrirModalEliminar(usuario)">
+                    <i class="fa-solid fa-trash"></i>
                   </button>
                 </div>
+
+                <!-- Icono de expandir -->
                 <i class="fa-solid text-light" 
                    [class.fa-chevron-down]="usuarioExpandido !== usuario.uid"
                    [class.fa-chevron-up]="usuarioExpandido === usuario.uid"></i>
@@ -103,7 +157,7 @@
                 </div>
 
                 <!-- Lista de huertos -->
-<div *ngIf="!cargandoHuertos[usuario.uid] && huertosUsuario[usuario.uid] && huertosUsuario[usuario.uid].length > 0"
+                <div *ngIf="!cargandoHuertos[usuario.uid] && huertosUsuario[usuario.uid] && huertosUsuario[usuario.uid].length > 0"
                      class="list-group list-group-flush mb-2">
                   <div *ngFor="let huerto of huertosUsuario[usuario.uid]"
                        class="list-group-item bg-dark bg-opacity-25 border-success border-opacity-10 d-flex align-items-center gap-2 py-2 mb-2 rounded">
@@ -111,9 +165,9 @@
                     <div class="flex-grow-1">
                       <div class="text-light small fw-semibold">{{ huerto.nombre }}</div>
                       <div class="text-light opacity-50" style="font-size: 0.75rem;">
-  <i class="fa-solid fa-calendar me-1"></i>
-  {{ huerto.ubicacion || 'Sin ubicación' }}
-</div>
+                        <i class="fa-solid fa-location-dot me-1"></i>
+                        {{ huerto.ubicacion || 'Sin ubicación' }}
+                      </div>
                     </div>
                     <div class="btn-group btn-group-sm">
                       <button class="btn btn-outline-info" 
@@ -155,7 +209,6 @@
 
   <!-- ==================== PLANTAS ==================== -->
   <div *ngIf="tabActiva === 'plantas'">
-    <!-- Tu código actual de plantas (sin cambios) -->
     <div class="row justify-content-center">
       <div class="col-12 col-lg-10">
 
@@ -210,7 +263,6 @@
 
   <!-- ==================== AMENAZAS ==================== -->
   <div *ngIf="tabActiva === 'amenazas'">
-    <!-- Tu código actual de amenazas (sin cambios) -->
     <div class="row justify-content-center">
       <div class="col-12 col-lg-10">
 
@@ -266,6 +318,239 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: BANEAR USUARIO ==================== -->
+  <div 
+    *ngIf="modalBaneo.mostrar"
+    class="modal fade show d-block" 
+    tabindex="-1" 
+    style="background-color: rgba(0,0,0,0.7);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-light border border-warning">
+        
+        <div class="modal-header border-warning">
+          <h5 class="modal-title">
+            <i class="fa-solid fa-ban text-warning me-2"></i>
+            Banear Usuario
+          </h5>
+          <button 
+            type="button" 
+            class="btn-close btn-close-white" 
+            (click)="cerrarModalBaneo()">
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="alert alert-warning">
+            <strong>¿Estás seguro de banear a {{ modalBaneo.usuario?.username }}?</strong>
+            <p class="mb-0 small mt-2">
+              <i class="fa-solid fa-circle-info me-1"></i>
+              El usuario no podrá volver a iniciar sesión. Sus datos se mantendrán y podrás desbanearlo después si es necesario.
+            </p>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              <i class="fa-solid fa-comment me-1"></i>
+              Motivo del baneo:
+            </label>
+            <textarea 
+              class="form-control bg-dark text-light border-warning"
+              rows="3"
+              [(ngModel)]="modalBaneo.motivo"
+              placeholder="Ej: Violación de términos de uso, spam, comportamiento inapropiado..."
+              maxlength="200"></textarea>
+            <small class="text-muted">{{ modalBaneo.motivo.length }}/200</small>
+          </div>
+
+          <div class="alert alert-info small mb-0">
+            <i class="fa-solid fa-lightbulb me-1"></i>
+            <strong>Recuerda:</strong> Puedes desbanear al usuario en cualquier momento desde este mismo panel.
+          </div>
+        </div>
+        
+        <div class="modal-footer border-0">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="cerrarModalBaneo()">
+            <i class="fa-solid fa-times me-1"></i>
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-warning"
+            [disabled]="!modalBaneo.motivo.trim()"
+            (click)="confirmarBaneo()">
+            <i class="fa-solid fa-ban me-1"></i>
+            Banear Usuario
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: DESBANEAR USUARIO ==================== -->
+  <div 
+    *ngIf="modalDesbaneo.mostrar"
+    class="modal fade show d-block" 
+    tabindex="-1" 
+    style="background-color: rgba(0,0,0,0.7);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-light border border-success">
+        
+        <div class="modal-header border-success">
+          <h5 class="modal-title">
+            <i class="fa-solid fa-check-circle text-success me-2"></i>
+            Desbanear Usuario
+          </h5>
+          <button 
+            type="button" 
+            class="btn-close btn-close-white" 
+            (click)="cerrarModalDesbaneo()">
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="alert alert-success">
+            <strong>¿Desbanear a {{ modalDesbaneo.usuario?.username }}?</strong>
+            <p class="mb-0 small mt-2">
+              <i class="fa-solid fa-circle-info me-1"></i>
+              El usuario podrá volver a iniciar sesión normalmente.
+            </p>
+          </div>
+
+          <div *ngIf="modalDesbaneo.usuario?.motivoBaneo" class="card bg-dark bg-opacity-50 border-warning mb-3">
+            <div class="card-body py-2">
+              <small class="text-muted d-block">Motivo del baneo original:</small>
+              <p class="mb-0 text-warning">
+                <i class="fa-solid fa-quote-left me-1"></i>
+                {{ modalDesbaneo.usuario?.motivoBaneo }}
+              </p>
+            </div>
+          </div>
+
+          <div class="alert alert-info small mb-0">
+            <i class="fa-solid fa-lightbulb me-1"></i>
+            <strong>Nota:</strong> Si el usuario vuelve a violar los términos, podrás banearlo nuevamente.
+          </div>
+        </div>
+        
+        <div class="modal-footer border-0">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="cerrarModalDesbaneo()">
+            <i class="fa-solid fa-times me-1"></i>
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-success"
+            (click)="confirmarDesbaneo()">
+            <i class="fa-solid fa-check me-1"></i>
+            Desbanear Usuario
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ELIMINAR USUARIO ==================== -->
+  <div 
+    *ngIf="modalEliminar.mostrar"
+    class="modal fade show d-block" 
+    tabindex="-1" 
+    style="background-color: rgba(0,0,0,0.7);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-light border border-danger">
+        
+        <div class="modal-header border-danger">
+          <h5 class="modal-title">
+            <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
+            Eliminar Usuario Permanentemente
+          </h5>
+          <button 
+            type="button" 
+            class="btn-close btn-close-white" 
+            (click)="cerrarModalEliminar()">
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="alert alert-danger">
+            <h6 class="mb-2">
+              <i class="fa-solid fa-exclamation-triangle me-1"></i>
+              ⚠️ ADVERTENCIA: Acción irreversible
+            </h6>
+            <p class="mb-2">
+              Estás a punto de eliminar completamente a <strong>{{ modalEliminar.usuario?.username }}</strong>.
+            </p>
+            <ul class="mb-0 small ps-3">
+              <li>Se baneará permanentemente</li>
+              <li>Se eliminarán todos sus datos (perfil, huertos, cultivos)</li>
+              <li><strong>Esta acción NO se puede deshacer</strong></li>
+            </ul>
+          </div>
+
+          <div class="card bg-dark bg-opacity-50 border-danger mb-3">
+            <div class="card-body py-3">
+              <div class="row text-center">
+                <div class="col-6 border-end border-secondary">
+                  <div class="text-muted small">Usuario</div>
+                  <div class="fw-semibold">{{ modalEliminar.usuario?.username }}</div>
+                </div>
+                <div class="col-6">
+                  <div class="text-muted small">Email</div>
+                  <div class="fw-semibold small">{{ modalEliminar.usuario?.email }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              <i class="fa-solid fa-keyboard me-1"></i>
+              Para confirmar, escribe: <span class="text-danger">ELIMINAR</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control bg-dark text-light border-danger text-center fw-bold"
+              [(ngModel)]="modalEliminar.confirmacion"
+              placeholder="ELIMINAR"
+              maxlength="8"
+            />
+          </div>
+
+          <div class="alert alert-warning small mb-0">
+            <i class="fa-solid fa-info-circle me-1"></i>
+            <strong>Alternativa:</strong> Considera solo <strong>banear</strong> al usuario si quieres mantener la opción de revertir la decisión.
+          </div>
+        </div>
+        
+        <div class="modal-footer border-0">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="cerrarModalEliminar()">
+            <i class="fa-solid fa-times me-1"></i>
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-danger"
+            [disabled]="modalEliminar.confirmacion !== 'ELIMINAR'"
+            (click)="confirmarEliminar()">
+            <i class="fa-solid fa-trash me-1"></i>
+            Eliminar Permanentemente
+          </button>
+        </div>
+        
       </div>
     </div>
   </div>
