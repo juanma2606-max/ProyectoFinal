@@ -12,13 +12,15 @@ import { PlantasService } from '../../servicios/plantas.service';
 import { AmenazasService } from '../../servicios/amenazas.service';
 import { HuertosService } from '../../servicios/huertos.service';
 import { AuthService } from '../../servicios/auth.service';
+import { ImagenAmenazaComponent } from '../imagen-amenaza/imagen-amenaza.component';
+import { ImagenPlantaComponent } from '../imagen-planta/imagen-planta.component';
 
 type Tab = 'usuarios' | 'plantas' | 'amenazas';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ImagenAmenazaComponent, ImagenPlantaComponent],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
 })
@@ -38,10 +40,8 @@ export class AdminComponent implements OnInit {
   huertosUsuario: { [uid: string]: Huerto[] } = {};
   cargandoHuertos: { [uid: string]: boolean } = {};
 
-  // Estados de baneo
   procesandoBaneo: { [uid: string]: boolean } = {};
 
-  // Modales
   modalBaneo = {
     mostrar: false,
     usuario: null as User | null,
@@ -57,6 +57,16 @@ export class AdminComponent implements OnInit {
     mostrar: false,
     usuario: null as User | null,
     confirmacion: ''
+  };
+
+  modalEliminarPlanta = {
+    mostrar: false,
+    planta: null as Planta | null
+  };
+
+  modalEliminarAmenaza = {
+    mostrar: false,
+    amenaza: null as Amenaza | null
   };
 
   isAdmin$: Observable<boolean>;
@@ -158,9 +168,6 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  /**
-   * Verificar si un usuario está baneado
-   */
   estaUsuarioBaneado(usuario: User): boolean {
     return usuario.baneado === true;
   }
@@ -193,7 +200,6 @@ export class AdminComponent implements OnInit {
       
       await this.userService.banUser(usuario.uid, motivo);
       
-      // Actualizar el usuario en la lista local
       const index = this.usuarios.findIndex(u => u.uid === usuario.uid);
       if (index !== -1) {
         this.usuarios[index].baneado = true;
@@ -235,7 +241,6 @@ export class AdminComponent implements OnInit {
       
       await this.userService.unbanUser(usuario.uid);
       
-      // Actualizar el usuario en la lista local
       const index = this.usuarios.findIndex(u => u.uid === usuario.uid);
       if (index !== -1) {
         this.usuarios[index].baneado = false;
@@ -253,7 +258,7 @@ export class AdminComponent implements OnInit {
   }
 
   /**
-   * ==================== MODAL ELIMINAR ====================
+   * ==================== MODAL ELIMINAR USUARIO ====================
    */
   abrirModalEliminar(usuario: User): void {
     this.modalEliminar.usuario = usuario;
@@ -289,6 +294,67 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  /**
+   * ==================== MODAL ELIMINAR PLANTA ====================
+   */
+  abrirModalEliminarPlanta(planta: Planta): void {
+    this.modalEliminarPlanta.planta = planta;
+    this.modalEliminarPlanta.mostrar = true;
+  }
+
+  cerrarModalEliminarPlanta(): void {
+    this.modalEliminarPlanta.mostrar = false;
+    this.modalEliminarPlanta.planta = null;
+  }
+
+  async confirmarEliminarPlanta(): Promise<void> {
+    if (!this.modalEliminarPlanta.planta?.id) return;
+    
+    const plantaId = this.modalEliminarPlanta.planta.id;
+    
+    this.cerrarModalEliminarPlanta();
+    
+    try {
+      await this.plantasService.removePlanta(plantaId);
+      console.log('✅ Planta eliminada');
+    } catch (error) {
+      console.error('❌ Error eliminando planta:', error);
+      alert('Error al eliminar la planta');
+    }
+  }
+
+  /**
+   * ==================== MODAL ELIMINAR AMENAZA ====================
+   */
+  abrirModalEliminarAmenaza(amenaza: Amenaza): void {
+    this.modalEliminarAmenaza.amenaza = amenaza;
+    this.modalEliminarAmenaza.mostrar = true;
+  }
+
+  cerrarModalEliminarAmenaza(): void {
+    this.modalEliminarAmenaza.mostrar = false;
+    this.modalEliminarAmenaza.amenaza = null;
+  }
+
+  async confirmarEliminarAmenaza(): Promise<void> {
+    if (!this.modalEliminarAmenaza.amenaza?.id) return;
+    
+    const amenazaId = this.modalEliminarAmenaza.amenaza.id;
+    
+    this.cerrarModalEliminarAmenaza();
+    
+    try {
+      await this.amenazasService.removeAmenaza(amenazaId);
+      console.log('✅ Amenaza eliminada');
+    } catch (error) {
+      console.error('❌ Error eliminando amenaza:', error);
+      alert('Error al eliminar la amenaza');
+    }
+  }
+
+  /**
+   * ==================== PLANTAS ====================
+   */
   nuevaPlanta(): void {
     this.router.navigate(['/app/plantasform'], { queryParams: { from: 'admin' } });
   }
@@ -298,15 +364,9 @@ export class AdminComponent implements OnInit {
     this.router.navigate(['/app/plantasform', id], { queryParams: { from: 'admin' } });
   }
 
-  eliminarPlanta(id: string | undefined): void {
-    if (!id) return;
-    if (confirm('¿Eliminar esta planta?')) {
-      this.plantasService.removePlanta(id)
-        .then(() => console.log('✅ Planta eliminada'))
-        .catch(err => console.error('❌ Error:', err));
-    }
-  }
-
+  /**
+   * ==================== AMENAZAS ====================
+   */
   nuevaAmenaza(): void {
     this.router.navigate(['/app/amenazasform'], { queryParams: { from: 'admin' } });
   }
@@ -314,14 +374,5 @@ export class AdminComponent implements OnInit {
   editarAmenaza(id: string | undefined): void {
     if (!id) return;
     this.router.navigate(['/app/amenazasform', id], { queryParams: { from: 'admin' } });
-  }
-
-  eliminarAmenaza(id: string | undefined): void {
-    if (!id) return;
-    if (confirm('¿Eliminar esta amenaza?')) {
-      this.amenazasService.removeAmenaza(id)
-        .then(() => console.log('✅ Amenaza eliminada'))
-        .catch(err => console.error('❌ Error:', err));
-    }
   }
 }

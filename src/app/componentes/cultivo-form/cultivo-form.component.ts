@@ -10,11 +10,13 @@ import { AmenazasService } from '../../servicios/amenazas.service';
 import { Planta } from '../../modelos/planta.model';
 import { Amenaza } from '../../modelos/amenaza.model';
 import { Cultivo } from '../../modelos/cultivo.model';
+import { ImagenPlantaComponent } from '../imagen-planta/imagen-planta.component';
+import { ImagenAmenazaComponent } from '../imagen-amenaza/imagen-amenaza.component';
 
 @Component({
   selector: 'app-cultivo-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ImagenPlantaComponent, ImagenAmenazaComponent],
   templateUrl: './cultivo-form.component.html',
   styleUrl: './cultivo-form.component.scss'
 })

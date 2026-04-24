@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Database, get, listVal, push, ref, remove, update } from '@angular/fire/database';
 import { Observable } from 'rxjs';
 import { Planta } from '../modelos/planta.model';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,7 +17,6 @@ export class PlantasService {
    */
   getAllPlantasFirebase(): Observable<Planta[]> {
     const plantasRef = ref(this.database, 'plantas');
-    // keyField: 'id' inyecta la clave de Firebase en cada objeto como 'id'
     return listVal(plantasRef, { keyField: 'id' }) as Observable<Planta[]>;
   }
 
@@ -55,9 +55,8 @@ export class PlantasService {
   createPlanta(planta: Omit<Planta, 'id'>) {
     const plantasRef = ref(this.database, 'plantas');
     
-    const dataToSave = {
+    const dataToSave: any = {
       nombre: planta.nombre,
-      nombre_cientifico: planta.nombre_cientifico,
       descripcion: planta.descripcion,
       tipo: planta.tipo,
       imagen: planta.imagen,
@@ -66,11 +65,15 @@ export class PlantasService {
       riego: planta.riego,
       luz: planta.luz,
       abono: planta.abono,
-      incompatibilidades: planta.incompatibilidades,
-      amenazas: planta.amenazas
+      incompatibilidades: planta.incompatibilidades || [],
+      amenazas: planta.amenazas || []
     };
+
+    // Solo agregar nombre_cientifico si existe y no es undefined
+    if (planta.nombre_cientifico !== undefined && planta.nombre_cientifico !== null) {
+      dataToSave.nombre_cientifico = planta.nombre_cientifico;
+    }
     
-    // push() devuelve una referencia con la nueva clave generada
     return push(plantasRef, dataToSave);
   }
 
@@ -80,7 +83,26 @@ export class PlantasService {
    */
   updatePlanta(planta: Planta) {
     const plantaRef = ref(this.database, `plantas/${planta.id}`);
-    const { id, ...dataToSave } = planta; // Eliminamos el id de los datos a actualizar
+    
+    const dataToSave: any = {
+      nombre: planta.nombre,
+      descripcion: planta.descripcion,
+      tipo: planta.tipo,
+      imagen: planta.imagen,
+      estacion: planta.estacion,
+      tiempo_crecimiento: planta.tiempo_crecimiento,
+      riego: planta.riego,
+      luz: planta.luz,
+      abono: planta.abono,
+      incompatibilidades: planta.incompatibilidades || [],
+      amenazas: planta.amenazas || []
+    };
+
+    // Solo agregar nombre_cientifico si existe y no es undefined
+    if (planta.nombre_cientifico !== undefined && planta.nombre_cientifico !== null) {
+      dataToSave.nombre_cientifico = planta.nombre_cientifico;
+    }
+
     return update(plantaRef, dataToSave);
   }
 

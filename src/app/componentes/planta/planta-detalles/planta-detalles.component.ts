@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Planta } from '../../../modelos/planta.model';
 import { PlantasService } from '../../../servicios/plantas.service';
+import { ImagenPlantaComponent } from '../../imagen-planta/imagen-planta.component';
 
 @Component({
   selector: 'app-planta-detalle',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ImagenPlantaComponent],
   templateUrl: './planta-detalles.component.html'
 })
 export class PlantaDetalleComponent implements OnInit {

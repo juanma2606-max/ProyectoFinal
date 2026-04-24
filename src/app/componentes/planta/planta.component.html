@@ -67,12 +67,13 @@
           [routerLink]="[planta.id]"
           routerLinkActive="active">
           
-          <img
-            [src]="planta.imagen"
-            [alt]="planta.nombre"
-            class="rounded-circle border border-2 border-success"
-            style="width:50px; height:50px; object-fit:cover;"
-          />
+          <app-imagen-planta 
+            [planta]="planta" 
+            [size]="50" 
+            [circular]="true"
+            class="border border-2 border-success">
+          </app-imagen-planta>
+          
           <div class="flex-grow-1">
             <h6 class="mb-0 text-light fw-semibold">{{ planta.nombre }}</h6>
             <small class="text-success text-capitalize">

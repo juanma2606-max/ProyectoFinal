@@ -17,6 +17,8 @@ import { authGuard } from './guards/auth.guard';
 import { AmenazaformComponent } from './componentes/amenazas/amenazas-form/amenazas-form.component';
 import { ChatIaComponent } from './componentes/chat-ia/chat-ia.component';
 import { AjustesComponent } from './componentes/ajustes/ajustes.component';
+import { AccesoDenegadoComponent } from './componentes/acceso-denegado/acceso-denegado.component';  // ← AGREGAR IMPORT
+import { PlantasFormComponent } from './componentes/planta/planta-form/planta-form.component';
 
 export const routes: Routes = [
 
@@ -26,6 +28,7 @@ export const routes: Routes = [
   { path: '', component: PortadaComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signIn', component: SignInComponent },
+  { path: 'acceso-denegado', component: AccesoDenegadoComponent },  // ← AGREGAR RUTA
 
   // ==========================================
   // RUTAS PRIVADAS CON SIDEBAR
@@ -65,9 +68,8 @@ export const routes: Routes = [
           { path: ':id', component: PlantaDetalleComponent }
         ]
       },
-      // ❌ PENDIENTE: descomentar cuando esté listo
-      // { path: 'plantasform', component: PlantasFormComponent },
-      // { path: 'plantasform/:id', component: PlantasFormComponent },
+      { path: 'plantasform', component: PlantasFormComponent },
+      { path: 'plantasform/:id', component: PlantasFormComponent },
 
       // ------------------------------------------
       // AMENAZAS
@@ -90,35 +92,24 @@ export const routes: Routes = [
         component: AdminComponent, 
         canActivate: [adminGuard] 
       },
-      // ❌ PENDIENTE: descomentar cuando admin-usuario esté actualizado
-       { 
-         path: 'admin/usuario/:uid', 
-         component: AdminComponent, 
-         canActivate: [adminGuard] 
-       },
-       { 
-         path: 'admin/usuario/:uid/huerto/:huertoId', 
-         component: HuertoComponent, 
-         canActivate: [adminGuard] 
-       },
-       { 
-         path: 'admin/usuario/:uid/huertoform/:id', 
-         component: HuertoFormComponent, 
-         canActivate: [adminGuard] 
-       },
-      // { 
-      //   path: 'admin/usuario/:uid/cultivoform/:huertoId', 
-      //   component: CultivoFormComponent, 
-      //   canActivate: [adminGuard] 
-      // },
-      // { 
-      //   path: 'admin/usuario/:uid/cultivoform/:huertoId/:cultivoId', 
-      //   component: CultivoFormComponent, 
-      //   canActivate: [adminGuard] 
-      // },
+      { 
+        path: 'admin/usuario/:uid', 
+        component: AdminComponent, 
+        canActivate: [adminGuard] 
+      },
+      { 
+        path: 'admin/usuario/:uid/huerto/:huertoId', 
+        component: HuertoComponent, 
+        canActivate: [adminGuard] 
+      },
+      { 
+        path: 'admin/usuario/:uid/huertoform/:id', 
+        component: HuertoFormComponent, 
+        canActivate: [adminGuard] 
+      },
 
       // ------------------------------------------
-      // OTROS (pendientes)
+      // OTROS
       // ------------------------------------------
       { path: 'ajustes', component: AjustesComponent },
       { path: 'chat-ia', component: ChatIaComponent },

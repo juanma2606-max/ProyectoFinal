@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import { PlantasService } from '../../servicios/plantas.service';
 import { AuthService } from '../../servicios/auth.service';
 import { Planta } from '../../modelos/planta.model';
+import { ImagenPlantaComponent } from '../imagen-planta/imagen-planta.component';
 
 @Component({
   selector: 'app-plantas',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ImagenPlantaComponent],
   templateUrl: './planta.component.html'
 })
 export class PlantasComponent implements OnInit {

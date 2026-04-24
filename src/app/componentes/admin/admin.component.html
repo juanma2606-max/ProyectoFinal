@@ -235,8 +235,10 @@
             <div class="card bg-dark bg-opacity-75 border-success border-opacity-25 shadow-sm h-100">
               <div class="row g-0 align-items-center">
                 <div class="col-3 d-flex align-items-center justify-content-center p-2">
-                  <img [src]="planta.imagen" [alt]="planta.nombre"
-                    class="img-fluid" style="max-height: 60px; object-fit: contain;">
+                  <app-imagen-planta 
+                    [planta]="planta" 
+                    [size]="60">
+                  </app-imagen-planta>
                 </div>
                 <div class="col-9">
                   <div class="card-body py-2 px-3">
@@ -247,7 +249,7 @@
                     <button class="btn btn-sm btn-outline-warning" (click)="editarPlanta(planta.id)">
                       <i class="fa-solid fa-pen"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="eliminarPlanta(planta.id)">
+                    <button class="btn btn-sm btn-outline-danger" (click)="abrirModalEliminarPlanta(planta)">
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   </div>
@@ -289,8 +291,10 @@
             <div class="card bg-dark bg-opacity-75 border-danger border-opacity-25 shadow-sm h-100">
               <div class="row g-0 align-items-center">
                 <div class="col-3 d-flex align-items-center justify-content-center p-2">
-                  <img [src]="amenaza.imagen" [alt]="amenaza.nombre"
-                    class="img-fluid" style="max-height: 60px; object-fit: contain;">
+                  <app-imagen-amenaza 
+                    [amenaza]="amenaza" 
+                    [size]="60">
+                  </app-imagen-amenaza>
                 </div>
                 <div class="col-9">
                   <div class="card-body py-2 px-3">
@@ -298,8 +302,7 @@
                     <span class="badge small text-capitalize"
                       [ngClass]="{
                         'bg-danger': amenaza.tipo === 'plaga',
-                        'bg-warning text-dark': amenaza.tipo === 'enfermedad',
-                        'bg-info text-dark': amenaza.tipo === 'hongo'
+                        'bg-warning text-dark': amenaza.tipo === 'enfermedad'
                       }">
                       {{ amenaza.tipo }}
                     </span>
@@ -308,7 +311,7 @@
                     <button class="btn btn-sm btn-outline-warning" (click)="editarAmenaza(amenaza.id)">
                       <i class="fa-solid fa-pen"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="eliminarAmenaza(amenaza.id)">
+                    <button class="btn btn-sm btn-outline-danger" (click)="abrirModalEliminarAmenaza(amenaza)">
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   </div>
@@ -460,6 +463,134 @@
       </div>
     </div>
   </div>
+
+  <!-- ==================== MODAL: ELIMINAR PLANTA ==================== -->
+<div 
+  *ngIf="modalEliminarPlanta.mostrar"
+  class="modal fade show d-block" 
+  tabindex="-1" 
+  style="background-color: rgba(0,0,0,0.7);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-light border border-danger">
+      
+      <div class="modal-header border-danger">
+        <h5 class="modal-title">
+          <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
+          Eliminar Planta
+        </h5>
+        <button 
+          type="button" 
+          class="btn-close btn-close-white" 
+          (click)="cerrarModalEliminarPlanta()">
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="alert alert-danger">
+          <h6 class="mb-2">
+            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+            ¿Estás seguro de eliminar esta planta?
+          </h6>
+          <p class="mb-2">
+            Esta acción eliminará permanentemente:
+          </p>
+          <ul class="mb-0 small ps-3">
+            <li><strong>{{ modalEliminarPlanta.planta?.nombre }}</strong></li>
+            <li>Toda su información y configuración</li>
+            <li>Esta acción NO se puede deshacer</li>
+          </ul>
+        </div>
+
+        <div class="alert alert-warning small mb-0">
+          <i class="fa-solid fa-lightbulb me-1"></i>
+          <strong>Nota:</strong> Si hay cultivos usando esta planta, podrían verse afectados.
+        </div>
+      </div>
+      
+      <div class="modal-footer border-0">
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          (click)="cerrarModalEliminarPlanta()">
+          <i class="fa-solid fa-times me-1"></i>
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-danger"
+          (click)="confirmarEliminarPlanta()">
+          <i class="fa-solid fa-trash me-1"></i>
+          Eliminar Planta
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: ELIMINAR AMENAZA ==================== -->
+<div 
+  *ngIf="modalEliminarAmenaza.mostrar"
+  class="modal fade show d-block" 
+  tabindex="-1" 
+  style="background-color: rgba(0,0,0,0.7);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-light border border-danger">
+      
+      <div class="modal-header border-danger">
+        <h5 class="modal-title">
+          <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
+          Eliminar Amenaza
+        </h5>
+        <button 
+          type="button" 
+          class="btn-close btn-close-white" 
+          (click)="cerrarModalEliminarAmenaza()">
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="alert alert-danger">
+          <h6 class="mb-2">
+            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+            ¿Estás seguro de eliminar esta amenaza?
+          </h6>
+          <p class="mb-2">
+            Esta acción eliminará permanentemente:
+          </p>
+          <ul class="mb-0 small ps-3">
+            <li><strong>{{ modalEliminarAmenaza.amenaza?.nombre }}</strong></li>
+            <li>Toda su información (síntomas, tratamiento)</li>
+            <li>Esta acción NO se puede deshacer</li>
+          </ul>
+        </div>
+
+        <div class="alert alert-warning small mb-0">
+          <i class="fa-solid fa-lightbulb me-1"></i>
+          <strong>Nota:</strong> Si hay cultivos asociados a esta amenaza, perderán la referencia.
+        </div>
+      </div>
+      
+      <div class="modal-footer border-0">
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          (click)="cerrarModalEliminarAmenaza()">
+          <i class="fa-solid fa-times me-1"></i>
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-danger"
+          (click)="confirmarEliminarAmenaza()">
+          <i class="fa-solid fa-trash me-1"></i>
+          Eliminar Amenaza
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>
 
   <!-- ==================== MODAL: ELIMINAR USUARIO ==================== -->
   <div 

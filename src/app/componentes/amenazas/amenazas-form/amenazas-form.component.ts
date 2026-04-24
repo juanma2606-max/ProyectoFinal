@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
 import { AmenazasService } from '../../../servicios/amenazas.service';
 import { Amenaza } from '../../../modelos/amenaza.model';
 
-
 @Component({
   selector: 'app-amenazaform',
   standalone: true,
@@ -24,13 +23,6 @@ export class AmenazaformComponent implements OnInit {
   vieneDeAdmin: boolean = false;
   amenazaForm: FormGroup;
 
-  // UGH! Imágenes por tipo (plaga, enfermedad, hongo)
-  readonly imagenesPorTipo: Record<string, string> = {
-    plaga:      'images/plagas/pulgon.png',
-    enfermedad: 'images/enfermedades/mildiu.png',
-    hongo:      'images/hongos/oidio.png'
-  };
-
   constructor(
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -41,7 +33,8 @@ export class AmenazaformComponent implements OnInit {
       nombre:      ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', [Validators.required, Validators.maxLength(500)]],
       tipo:        ['', [Validators.required]],
-      tratamiento: ['', [Validators.required, Validators.maxLength(500)]], // Obligatorio según modelo
+      imagen:      ['', [Validators.maxLength(1000)]],
+      tratamiento: ['', [Validators.maxLength(500)]],
       sintomas:    this.formBuilder.array([])
     });
   }
@@ -59,7 +52,6 @@ export class AmenazaformComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Leer queryParam de forma reactiva
     this.route.queryParamMap.subscribe(queryParams => {
       this.vieneDeAdmin = queryParams.get('from') === 'admin';
     });
@@ -71,72 +63,64 @@ export class AmenazaformComponent implements OnInit {
       const amenaza = await this.amenazasService.getAmenazaById(id);
       if (!amenaza) return;
 
-      // Limpiar sintomas existentes
       this.sintomas.clear();
 
-      // Añadir síntomas de la amenaza cargada
       (amenaza.sintomas ?? []).forEach(s => {
         this.sintomas.push(this.formBuilder.control(s, Validators.required));
       });
 
-      // Llenar formulario
       this.amenazaForm.patchValue({
         nombre:      amenaza.nombre,
         descripcion: amenaza.descripcion,
         tipo:        amenaza.tipo,
-        tratamiento: amenaza.tratamiento
+        imagen:      amenaza.imagen || '',
+        tratamiento: amenaza.tratamiento || ''
       });
     });
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.amenazaForm.invalid) {
       this.amenazaForm.markAllAsTouched();
       return;
     }
 
-    const { nombre, descripcion, tipo, tratamiento, sintomas } = this.amenazaForm.value;
-    const imagen = this.imagenesPorTipo[tipo] || 'images/default-amenaza.png';
+    const formValue = this.amenazaForm.value;
+
+    const amenazaData: any = {
+      nombre:      formValue.nombre.trim(),
+      descripcion: formValue.descripcion.trim(),
+      tipo:        formValue.tipo,
+      imagen:      formValue.imagen?.trim() || '',
+      sintomas:    (formValue.sintomas as string[]).filter((s: string) => s.trim() !== '')
+    };
+
+    const tratamiento = formValue.tratamiento?.trim();
+    if (tratamiento) {
+      amenazaData.tratamiento = tratamiento;
+    }
+
+    Object.keys(amenazaData).forEach(key => {
+      if (amenazaData[key] === undefined) {
+        delete amenazaData[key];
+      }
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
 
-    // Filtrar síntomas vacíos
-    const sintomasLimpios = sintomas.filter((s: string) => s.trim() !== '');
-
-    if (id) {
-      // UGH! Actualizar amenaza existente
-      const amenazaEditada = new Amenaza(
-        nombre,
-        descripcion,
-        tipo,
-        imagen,
-        sintomasLimpios,
-        tratamiento,
-        id
+    try {
+      if (id) {
+        await this.amenazasService.updateAmenaza({ id, ...amenazaData });
+      } else {
+        await this.amenazasService.createAmenaza(amenazaData);
+      }
+      
+      await this.router.navigate(
+        this.vieneDeAdmin ? ['/app/admin'] : ['/app/amenazas']
       );
-
-      this.amenazasService.updateAmenaza(amenazaEditada)
-        .then(() => this.navegarDeVuelta())
-        .catch(error => {
-          console.error('Error actualizando amenaza:', error);
-          alert('Error al actualizar la amenaza. Inténtalo de nuevo.');
-        });
-    } else {
-      // UGH! Crear nueva amenaza
-      const nuevaAmenaza = new Amenaza(
-        nombre,
-        descripcion,
-        tipo,
-        imagen,
-        sintomasLimpios,
-        tratamiento
-      );
-
-      this.amenazasService.createAmenaza(nuevaAmenaza)
-        .then(() => this.navegarDeVuelta())
-        .catch(error => {
-          console.error('Error creando amenaza:', error);
-          alert('Error al crear la amenaza. Inténtalo de nuevo.');
-        });
+    } catch (error: any) {
+      console.error('Error guardando amenaza:', error);
+      alert('Error al guardar: ' + error.message);
     }
   }
 

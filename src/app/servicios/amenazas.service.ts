@@ -42,15 +42,19 @@ export class AmenazasService {
   /**
    * Crea una nueva amenaza (admin)
    */
-  createAmenaza(amenaza: Omit<Amenaza, 'id'>) {
-    const dataToSave = {
+  createAmenaza(amenaza: any) {
+    const dataToSave: any = {
       nombre: amenaza.nombre,
       descripcion: amenaza.descripcion,
       tipo: amenaza.tipo,
-      imagen: amenaza.imagen,
-      sintomas: amenaza.sintomas,
-      tratamiento: amenaza.tratamiento
+      imagen: amenaza.imagen || '',
+      sintomas: amenaza.sintomas || []
     };
+    
+    // Solo agregar tratamiento si existe y no es undefined
+    if (amenaza.tratamiento !== undefined && amenaza.tratamiento !== null && amenaza.tratamiento !== '') {
+      dataToSave.tratamiento = amenaza.tratamiento;
+    }
     
     return push(ref(this.database, 'amenazas'), dataToSave);
   }
@@ -58,9 +62,21 @@ export class AmenazasService {
   /**
    * Actualiza una amenaza existente (admin)
    */
-  updateAmenaza(amenaza: Amenaza) {
-    const { id, ...data } = amenaza;
-    return update(ref(this.database, `amenazas/${id}`), data);
+  updateAmenaza(amenaza: any) {
+    const dataToSave: any = {
+      nombre: amenaza.nombre,
+      descripcion: amenaza.descripcion,
+      tipo: amenaza.tipo,
+      imagen: amenaza.imagen || '',
+      sintomas: amenaza.sintomas || []
+    };
+    
+    // Solo agregar tratamiento si existe y no es undefined
+    if (amenaza.tratamiento !== undefined && amenaza.tratamiento !== null && amenaza.tratamiento !== '') {
+      dataToSave.tratamiento = amenaza.tratamiento;
+    }
+    
+    return update(ref(this.database, `amenazas/${amenaza.id}`), dataToSave);
   }
 
   /**

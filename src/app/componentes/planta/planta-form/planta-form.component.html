@@ -1,1 +1,354 @@
-<p>planta-form works!</p>
+<div class="container-fluid py-5 plantas-form-bg min-vh-100">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+      
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <div class="d-inline-block mb-3">
+          <div class="bg-success bg-opacity-25 rounded-circle p-3 d-inline-flex">
+            <i class="fa-solid fa-leaf fa-2x text-success"></i>
+          </div>
+        </div>
+        <h3 class="text-light fw-bold mb-2">
+          {{ plantaForm.get('nombre')?.value || 'Nueva Planta' }}
+        </h3>
+        <p class="text-light opacity-75 mb-0">
+          Completa los datos de la planta para el catálogo
+        </p>
+      </div>
+
+      <div class="card bg-dark border-success border-opacity-25 shadow-lg">
+        <div class="card-body p-4">
+
+          <form [formGroup]="plantaForm" (ngSubmit)="onSubmit()">
+
+            <!-- Nombre -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-seedling text-success me-2"></i>
+                Nombre *
+              </label>
+              <input type="text" 
+                class="form-control bg-dark text-light border-success border-opacity-25" 
+                formControlName="nombre"
+                placeholder="Ej. Tomate"
+                [ngClass]="{
+                  'is-valid border-success': plantaForm.get('nombre')?.valid && plantaForm.get('nombre')?.touched,
+                  'is-invalid border-danger': plantaForm.get('nombre')?.invalid && plantaForm.get('nombre')?.touched
+                }"
+              />
+              <div *ngIf="plantaForm.get('nombre')?.invalid && plantaForm.get('nombre')?.touched" 
+                   class="text-danger small mt-1">
+                <div *ngIf="plantaForm.get('nombre')?.errors?.['required']">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i>El nombre es obligatorio
+                </div>
+                <div *ngIf="plantaForm.get('nombre')?.errors?.['maxlength']">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i>Máximo 100 caracteres
+                </div>
+              </div>
+            </div>
+
+            <!-- Nombre científico -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-flask text-info me-2"></i>
+                Nombre científico
+                <span class="text-light opacity-50 fw-normal">(opcional)</span>
+              </label>
+              <input type="text" 
+                class="form-control bg-dark text-light border-success border-opacity-25" 
+                formControlName="nombre_cientifico"
+                placeholder="Ej. Solanum lycopersicum"
+              />
+              <small class="text-light opacity-50">Nombre botánico en latín</small>
+            </div>
+
+            <!-- Tipo -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-layer-group text-primary me-2"></i>
+                Tipo *
+              </label>
+              <select class="form-select bg-dark text-light border-success border-opacity-25" 
+                formControlName="tipo"
+                [ngClass]="{
+                  'is-valid border-success': plantaForm.get('tipo')?.valid && plantaForm.get('tipo')?.touched,
+                  'is-invalid border-danger': plantaForm.get('tipo')?.invalid && plantaForm.get('tipo')?.touched
+                }"
+              >
+                <option value="">Selecciona un tipo</option>
+                <option value="hortaliza">🥕 Hortaliza</option>
+                <option value="fruta">🍎 Fruta</option>
+                <option value="hierba">🌿 Hierba aromática</option>
+                <option value="flor">🌸 Flor</option>
+                <option value="arbol">🌳 Árbol</option>
+              </select>
+              <div *ngIf="plantaForm.get('tipo')?.invalid && plantaForm.get('tipo')?.touched" 
+                   class="text-danger small mt-1">
+                <i class="fa-solid fa-circle-exclamation me-1"></i>El tipo es obligatorio
+              </div>
+              <small class="text-light opacity-50">
+                <i class="fa-solid fa-circle-info me-1"></i>
+                Si no añades imagen, se mostrará un icono automático según el tipo
+              </small>
+            </div>
+
+            <!-- Imagen URL -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-image text-warning me-2"></i>
+                URL de imagen
+                <span class="text-light opacity-50 fw-normal">(opcional)</span>
+              </label>
+              <input type="url" 
+                class="form-control bg-dark text-light border-success border-opacity-25" 
+                formControlName="imagen"
+                placeholder="https://ejemplo.com/imagen.jpg"
+              />
+              <small class="text-light opacity-50">
+                <i class="fa-solid fa-lightbulb me-1"></i>
+                Deja vacío para usar icono automático. Recomendado: imágenes de Unsplash
+              </small>
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-align-left text-secondary me-2"></i>
+                Descripción *
+              </label>
+              <textarea class="form-control bg-dark text-light border-success border-opacity-25" 
+                formControlName="descripcion"
+                placeholder="Descripción general de la planta" 
+                rows="3"
+                [ngClass]="{
+                  'is-valid border-success': plantaForm.get('descripcion')?.valid && plantaForm.get('descripcion')?.touched,
+                  'is-invalid border-danger': plantaForm.get('descripcion')?.invalid && plantaForm.get('descripcion')?.touched
+                }"
+              ></textarea>
+              <div *ngIf="plantaForm.get('descripcion')?.invalid && plantaForm.get('descripcion')?.touched" 
+                   class="text-danger small mt-1">
+                <div *ngIf="plantaForm.get('descripcion')?.errors?.['required']">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i>La descripción es obligatoria
+                </div>
+                <div *ngIf="plantaForm.get('descripcion')?.errors?.['maxlength']">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i>Máximo 500 caracteres
+                </div>
+              </div>
+            </div>
+
+            <!-- Estación -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-calendar text-info me-2"></i>
+                Estaciones de cultivo *
+              </label>
+              <div formGroupName="estaciones" class="d-flex flex-wrap gap-3">
+                <div class="form-check">
+                  <input class="form-check-input bg-dark border-success" 
+                    type="checkbox" 
+                    formControlName="primavera" 
+                    id="primavera">
+                  <label class="form-check-label text-light" for="primavera">
+                    🌸 Primavera
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input bg-dark border-success" 
+                    type="checkbox" 
+                    formControlName="verano" 
+                    id="verano">
+                  <label class="form-check-label text-light" for="verano">
+                    ☀️ Verano
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input bg-dark border-success" 
+                    type="checkbox" 
+                    formControlName="otono" 
+                    id="otono">
+                  <label class="form-check-label text-light" for="otono">
+                    🍂 Otoño
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input bg-dark border-success" 
+                    type="checkbox" 
+                    formControlName="invierno" 
+                    id="invierno">
+                  <label class="form-check-label text-light" for="invierno">
+                    ❄️ Invierno
+                  </label>
+                </div>
+              </div>
+              <div *ngIf="estaciones.errors?.['atLeastOne'] && estaciones.touched" 
+                   class="text-danger small mt-1">
+                <i class="fa-solid fa-circle-exclamation me-1"></i>Selecciona al menos una estación
+              </div>
+              <small class="text-light opacity-50">Marca las estaciones en las que se puede cultivar</small>
+            </div>
+
+            <!-- Tiempo de crecimiento -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-clock text-warning me-2"></i>
+                Tiempo de crecimiento (días) *
+              </label>
+              <input type="number" 
+                class="form-control bg-dark text-light border-success border-opacity-25" 
+                formControlName="tiempo_crecimiento"
+                placeholder="Ej. 90"
+                min="1"
+                [ngClass]="{
+                  'is-valid border-success': plantaForm.get('tiempo_crecimiento')?.valid && plantaForm.get('tiempo_crecimiento')?.touched,
+                  'is-invalid border-danger': plantaForm.get('tiempo_crecimiento')?.invalid && plantaForm.get('tiempo_crecimiento')?.touched
+                }"
+              />
+              <div *ngIf="plantaForm.get('tiempo_crecimiento')?.invalid && plantaForm.get('tiempo_crecimiento')?.touched" 
+                   class="text-danger small mt-1">
+                <div *ngIf="plantaForm.get('tiempo_crecimiento')?.errors?.['required']">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i>El tiempo de crecimiento es obligatorio
+                </div>
+                <div *ngIf="plantaForm.get('tiempo_crecimiento')?.errors?.['min']">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i>Debe ser al menos 1 día
+                </div>
+              </div>
+            </div>
+
+            <!-- Riego y Luz -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label text-light fw-semibold">
+                  <i class="fa-solid fa-droplet text-primary me-2"></i>
+                  Riego *
+                </label>
+                <select class="form-select bg-dark text-light border-success border-opacity-25" 
+                  formControlName="riego">
+                  <option value="bajo">💧 Bajo</option>
+                  <option value="moderado">💧💧 Moderado</option>
+                  <option value="alto">💧💧💧 Alto</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-light fw-semibold">
+                  <i class="fa-solid fa-sun text-warning me-2"></i>
+                  Luz *
+                </label>
+                <select class="form-select bg-dark text-light border-success border-opacity-25" 
+                  formControlName="luz">
+                  <option value="sombra">🌑 Sombra</option>
+                  <option value="semi-sombra">🌤️ Semi-sombra</option>
+                  <option value="pleno-sol">☀️ Pleno sol</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Abono -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-flask-vial text-success me-2"></i>
+                Abono recomendado *
+              </label>
+              <textarea class="form-control bg-dark text-light border-success border-opacity-25" 
+                formControlName="abono"
+                placeholder="Ej. Compost cada 2 semanas durante floración" 
+                rows="2"
+                [ngClass]="{
+                  'is-valid border-success': plantaForm.get('abono')?.valid && plantaForm.get('abono')?.touched,
+                  'is-invalid border-danger': plantaForm.get('abono')?.invalid && plantaForm.get('abono')?.touched
+                }"
+              ></textarea>
+              <div *ngIf="plantaForm.get('abono')?.invalid && plantaForm.get('abono')?.touched" 
+                   class="text-danger small mt-1">
+                <i class="fa-solid fa-circle-exclamation me-1"></i>El abono es obligatorio
+              </div>
+            </div>
+
+            <!-- Incompatibilidades -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-ban text-warning me-2"></i>
+                Incompatibilidades
+                <span class="text-light opacity-50 fw-normal">(nombres de otras plantas)</span>
+              </label>
+              <div formArrayName="incompatibilidades">
+                <div *ngFor="let item of incompatibilidades.controls; let i = index" 
+                     class="input-group mb-2">
+                  <input type="text" 
+                    class="form-control bg-dark text-light border-success border-opacity-25" 
+                    [formControlName]="i"
+                    placeholder="Ej. Cebolla"
+                    [ngClass]="{ 'is-invalid border-danger': item.invalid && item.touched }"
+                  />
+                  <button type="button" 
+                    class="btn btn-outline-danger" 
+                    (click)="removeIncompatibilidad(i)">
+                    <i class="fa-solid fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <button type="button" 
+                class="btn btn-outline-success btn-sm" 
+                (click)="addIncompatibilidad()">
+                <i class="fa-solid fa-plus me-1"></i> Añadir incompatibilidad
+              </button>
+              <small class="text-light opacity-50 d-block mt-2">
+                Plantas que no deben cultivarse cerca de esta
+              </small>
+            </div>
+
+            <!-- Amenazas -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-bug text-danger me-2"></i>
+                Amenazas comunes
+                <span class="text-light opacity-50 fw-normal">(IDs de amenazas)</span>
+              </label>
+              <div formArrayName="amenazas">
+                <div *ngFor="let item of amenazas.controls; let i = index" 
+                     class="input-group mb-2">
+                  <input type="text" 
+                    class="form-control bg-dark text-light border-success border-opacity-25" 
+                    [formControlName]="i"
+                    placeholder="ID de amenaza"
+                    [ngClass]="{ 'is-invalid border-danger': item.invalid && item.touched }"
+                  />
+                  <button type="button" 
+                    class="btn btn-outline-danger" 
+                    (click)="removeAmenaza(i)">
+                    <i class="fa-solid fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <button type="button" 
+                class="btn btn-outline-success btn-sm" 
+                (click)="addAmenaza()">
+                <i class="fa-solid fa-plus me-1"></i> Añadir amenaza
+              </button>
+              <small class="text-light opacity-50 d-block mt-2">
+                Plagas y enfermedades que suelen afectar a esta planta
+              </small>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top border-secondary">
+              <a [routerLink]="vieneDeAdmin ? ['/app/admin'] : ['/app/plantas']" 
+                 class="btn btn-outline-secondary">
+                <i class="fa-solid fa-times me-1"></i>
+                Cancelar
+              </a>
+              <button type="submit" 
+                class="btn btn-success" 
+                [disabled]="plantaForm.invalid">
+                <i class="fa-solid fa-save me-1"></i>
+                Guardar
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
