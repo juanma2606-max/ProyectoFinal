@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
 
 export interface Mensaje {
   role: 'user' | 'assistant';
@@ -9,6 +10,8 @@ export interface Mensaje {
   providedIn: 'root'
 })
 export class ChatService {
+
+  private readonly API_URL = environment.backendUrl;
 
   async enviarMensaje(mensajes: Mensaje[]): Promise<string> {
     console.log('🔵 ChatService: Iniciando envío...');
@@ -22,10 +25,10 @@ export class ChatService {
     };
     
     console.log('🔵 Payload:', JSON.stringify(payload, null, 2));
-    console.log('🔵 URL:', 'http://localhost:3000/api/chat');
+    console.log('🔵 URL:', `${this.API_URL}/api/chat`);
     
     try {
-      const response = await fetch('http://localhost:3000/api/chat', {
+      const response = await fetch(`${this.API_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
