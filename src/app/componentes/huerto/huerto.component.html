@@ -6,11 +6,11 @@
     <p class="text-light opacity-75 mb-0">Gestiona y comprueba la información de tus plantaciones</p>
   </div>
 
-<div *ngIf="esVistaAdmin" class="mb-3">
-  <button class="btn btn-outline-light btn-sm" (click)="volver()">
-    <i class="fa-solid fa-arrow-left me-1"></i> Volver al usuario
-  </button>
-</div>
+  <div *ngIf="esVistaAdmin" class="mb-3">
+    <button class="btn btn-outline-light btn-sm" (click)="volver()">
+      <i class="fa-solid fa-arrow-left me-1"></i> Volver al usuario
+    </button>
+  </div>
 
   <div class="row g-5">
 
@@ -21,7 +21,7 @@
         <!-- Imagen -->
         <div class="mb-3">
           <img
-            [src]="huerto?.tipo === 'parcela' ? '/images/huerto1.jpg' : '/images/maceta.webp'"
+            [src]="huerto?.foto || '/images/huerto1.jpg'"
             [alt]="huerto?.nombre"
             class="img-fluid rounded shadow w-100"
             style="max-height: 280px; object-fit: cover;"
@@ -29,7 +29,7 @@
         </div>
 
         <!-- Descripción -->
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm mb-3">
           <div class="card-body">
             <h6 class="card-title text-muted text-uppercase fw-semibold mb-2"
                 style="font-size: 0.75rem; letter-spacing: 0.05em;">
@@ -41,21 +41,60 @@
           </div>
         </div>
 
-        <!-- Meta info -->
-        <div class="card border-0 shadow-sm mt-3">
+        <!-- Detalles del huerto -->
+        <div class="card border-0 shadow-sm">
           <div class="card-body py-2">
+            
+            <!-- Ubicación -->
             <div class="d-flex justify-content-between align-items-center">
-              <span class="text-muted small">Tipo</span>
-              <span class="badge"
-                [ngClass]="huerto?.tipo === 'parcela' ? 'bg-success' : 'bg-warning text-dark'">
-                {{ huerto?.tipo | titlecase }}
+              <span class="text-muted small"><i class="fa-solid fa-location-dot me-1"></i>Ubicación</span>
+              <strong class="small">{{ huerto?.ubicacion || '—' }}</strong>
+            </div>
+            <hr class="my-2">
+
+            <!-- Superficie -->
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small"><i class="fa-solid fa-ruler-combined me-1"></i>Superficie</span>
+              <strong class="small">{{ huerto?.superficie || 0 }} m²</strong>
+            </div>
+            <hr class="my-2">
+
+            <!-- Tipo de suelo -->
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small"><i class="fa-solid fa-mountain me-1"></i>Suelo</span>
+              <strong class="small">{{ huerto?.tipo_suelo | titlecase }}</strong>
+            </div>
+            <hr class="my-2">
+
+            <!-- Horas de sol -->
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small"><i class="fa-solid fa-sun me-1"></i>Sol directo</span>
+              <strong class="small">{{ huerto?.horas_sol }} horas/día</strong>
+            </div>
+            <hr class="my-2">
+
+            <!-- Sistema de riego -->
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small"><i class="fa-solid fa-droplet me-1"></i>Riego</span>
+              <span class="badge" [ngClass]="huerto?.tiene_riego ? 'bg-success' : 'bg-secondary'">
+                {{ huerto?.tiene_riego ? 'Automatizado' : 'Manual' }}
               </span>
             </div>
             <hr class="my-2">
+
+            <!-- Fecha de creación -->
             <div class="d-flex justify-content-between align-items-center">
-              <span class="text-muted small">Creado el</span>
-              <span class="small fw-semibold">{{ huerto?.fecha_creacion | date:'dd/MM/yyyy' }}</span>
+              <span class="text-muted small"><i class="fa-solid fa-calendar me-1"></i>Creado</span>
+              <strong class="small">{{ huerto?.fecha_creacion | date:'dd/MM/yyyy' }}</strong>
             </div>
+
+            <!-- Notas adicionales (si existen) -->
+            <div *ngIf="huerto?.notas" class="mt-3 pt-2 border-top">
+              <p class="text-muted small fst-italic mb-0">
+                <i class="fa-solid fa-note-sticky me-1"></i>{{ huerto?.notas }}
+              </p>
+            </div>
+
           </div>
         </div>
 
@@ -66,20 +105,37 @@
     <div class="col-12 col-lg-8">
 
       <!-- Cabecera de cultivos -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <h5 class="text-light fw-semibold mb-0">
           <i class="fa-solid fa-seedling text-success me-2"></i>Cultivos
         </h5>
-        <button class="btn btn-success btn-sm" (click)="irACrearCultivo()">
-          <i class="fa-solid fa-plus me-1"></i> Añadir cultivo
-        </button>
+        <div class="d-flex gap-2">
+          <!-- Botón Analizar Huerto -->
+          <button 
+            class="btn btn-warning btn-sm"
+            (click)="analizarHuertoConIA()"
+            [disabled]="analizandoHuerto"
+            title="Obtener análisis y recomendaciones del huerto completo">
+            <i class="fa-solid fa-robot me-1"></i>
+            <span *ngIf="!analizandoHuerto">Analizar Huerto</span>
+            <span *ngIf="analizandoHuerto">
+              <span class="spinner-border spinner-border-sm me-1"></span>
+              Analizando...
+            </span>
+          </button>
+          
+          <!-- Botón Añadir cultivo -->
+          <button class="btn btn-success btn-sm" (click)="irACrearCultivo()">
+            <i class="fa-solid fa-plus me-1"></i> Añadir cultivo
+          </button>
+        </div>
       </div>
 
       <ng-container *ngIf="cultivos$ | async as cultivos; else cargando">
 
         <!-- Sin cultivos -->
         <div *ngIf="cultivos.length === 0"
-             class="text-center text-light py-5 bg-dark bg-opacity-25 rounded">
+             class="text-center text-light py-5 bg-dark rounded">
           <i class="fa-solid fa-seedling fs-1 text-success opacity-50 mb-3"></i>
           <p class="mb-0">Aún no tienes cultivos en este huerto.</p>
           <button class="btn btn-outline-success btn-sm mt-3" (click)="irACrearCultivo()">
@@ -91,32 +147,38 @@
         <div *ngFor="let cultivo of cultivos"
              class="card mb-3 border-0 shadow-sm position-relative"
              [ngClass]="{
-               'border-warning border-opacity-75': cultivo.estado === 'enferma',
-               'border-danger  border-opacity-75': cultivo.estado === 'infectada'
+               'border-warning border-opacity-75': cultivo.estado === 'enfermo',
+               'border-info border-opacity-50': tieneIncompatibilidades(cultivo) && cultivo.estado !== 'enfermo'
              }">
 
           <div class="row g-0 align-items-stretch">
 
             <!-- Imagen de la planta -->
             <div class="col-md-3 d-flex align-items-center justify-content-center p-3 bg-light rounded-start">
-              <img
-                [src]="getPlanta(cultivo.plantaId)?.imagen || '/images/placeholder.png'"
-                [alt]="getPlanta(cultivo.plantaId)?.nombre"
-                class="img-fluid"
-                style="max-height: 90px; object-fit: contain;"
-              />
+              <app-imagen-planta 
+                *ngIf="getPlanta(cultivo.plantaId)"
+                [planta]="getPlanta(cultivo.plantaId)!" 
+                [size]="90">
+              </app-imagen-planta>
+              <div *ngIf="!getPlanta(cultivo.plantaId)" class="text-center">
+                <div class="spinner-border spinner-border-sm text-success"></div>
+              </div>
             </div>
 
-            <!-- Badge de alerta (esquina superior derecha) -->
+            <!-- Badge de alerta enfermedad (esquina superior derecha) -->
             <span
-              *ngIf="cultivo.estado !== 'sana'"
-              class="position-absolute top-0 end-0 m-2"
-              [ngClass]="{
-                'text-warning': cultivo.estado === 'enferma',
-                'text-danger':  cultivo.estado === 'infectada'
-              }"
-              [title]="cultivo.estado === 'enferma' ? 'Planta enferma' : 'Planta infectada por plaga'">
+              *ngIf="cultivo.estado === 'enfermo'"
+              class="position-absolute top-0 end-0 m-2 text-warning"
+              title="Planta enferma">
               <i class="fa-solid fa-circle-exclamation fs-5"></i>
+            </span>
+
+            <!-- Badge de incompatibilidad (esquina superior derecha) -->
+            <span
+              *ngIf="tieneIncompatibilidades(cultivo) && cultivo.estado !== 'enfermo'"
+              class="position-absolute top-0 end-0 m-2 text-info"
+              title="Incompatibilidad detectada">
+              <i class="fa-solid fa-triangle-exclamation fs-5"></i>
             </span>
 
             <!-- Contenido -->
@@ -124,48 +186,67 @@
               <div class="card-body pb-2">
 
                 <div class="d-flex justify-content-between align-items-start">
-                  <h5 class="card-title mb-1">
-                    {{ getPlanta(cultivo.plantaId)?.nombre || 'Cargando...' }}
-                  </h5>
+                  <div>
+                    <h5 class="card-title mb-0">
+                      {{ cultivo.nombre || 'Cultivo sin nombre' }}
+                    </h5>
+                    <small class="text-muted">
+                      <i class="fa-solid fa-leaf me-1"></i>
+                      {{ getPlanta(cultivo.plantaId)?.nombre || 'Cargando...' }}
+                    </small>
+                  </div>
+
                   <!-- Badge de estado -->
                   <span class="badge"
                     [ngClass]="{
-                      'bg-success': cultivo.estado === 'sana',
-                      'bg-warning text-dark': cultivo.estado === 'enferma',
-                      'bg-danger':  cultivo.estado === 'infectada'
+                      'bg-secondary': cultivo.estado === 'plantado',
+                      'bg-info': cultivo.estado === 'creciendo',
+                      'bg-success': cultivo.estado === 'maduro',
+                      'bg-dark': cultivo.estado === 'cosechado',
+                      'bg-warning text-dark': cultivo.estado === 'enfermo'
                     }">
                     <i class="fa-solid me-1"
                       [ngClass]="{
-                        'fa-circle-check': cultivo.estado === 'sana',
-                        'fa-virus':        cultivo.estado === 'enferma',
-                        'fa-bug':          cultivo.estado === 'infectada'
+                        'fa-seedling': cultivo.estado === 'plantado',
+                        'fa-leaf': cultivo.estado === 'creciendo',
+                        'fa-check-circle': cultivo.estado === 'maduro',
+                        'fa-box': cultivo.estado === 'cosechado',
+                        'fa-virus': cultivo.estado === 'enfermo'
                       }">
                     </i>
                     {{ cultivo.estado | titlecase }}
                   </span>
                 </div>
 
-                <!-- Panel de amenaza (solo si no está sana) -->
-                <div *ngIf="cultivo.estado !== 'sana' && cultivo.amenazaId"
-                     class="alert alert-sm py-1 px-2 mt-2 mb-0 d-flex align-items-center gap-2"
-                     [ngClass]="{
-                       'alert-warning': cultivo.estado === 'enferma',
-                       'alert-danger':  cultivo.estado === 'infectada'
-                     }">
-                  <img
-                    [src]="getAmenaza(cultivo.amenazaId)?.imagen || ''"
-                    class="rounded"
-                    style="width: 28px; height: 28px; object-fit: contain;"
-                  />
+                <!-- Panel de amenaza (solo si está enfermo) -->
+                <div *ngIf="cultivo.estado === 'enfermo' && cultivo.amenazaId"
+                     class="alert alert-warning alert-sm py-1 px-2 mt-2 mb-0 d-flex align-items-center gap-2">
+                  <app-imagen-amenaza 
+                    [amenaza]="getAmenaza(cultivo.amenazaId)!" 
+                    [size]="28">
+                  </app-imagen-amenaza>
                   <span class="small fw-semibold">
                     {{ getAmenaza(cultivo.amenazaId)?.nombre || 'Cargando...' }}
+                  </span>
+                </div>
+
+                <!-- Panel de incompatibilidad -->
+                <div *ngIf="tieneIncompatibilidades(cultivo)"
+                     class="alert alert-info alert-sm py-1 px-2 mt-2 mb-0">
+                  <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                  <span class="small fw-semibold">
+                    Incompatible con: {{ getPlantasIncompatibles(cultivo).join(', ') }}
                   </span>
                 </div>
 
                 <ul class="list-group list-group-flush mt-2">
                   <li class="list-group-item px-0 d-flex justify-content-between">
                     <span class="text-muted small">Fecha de siembra</span>
-                    <strong class="small">{{ cultivo.fechaSiembra | date:'dd/MM/yyyy' }}</strong>
+                    <strong class="small">{{ cultivo.fecha_siembra | date:'dd/MM/yyyy' }}</strong>
+                  </li>
+                  <li class="list-group-item px-0 d-flex justify-content-between">
+                    <span class="text-muted small">Cantidad</span>
+                    <strong class="small">{{ cultivo.cantidad }} plantas</strong>
                   </li>
                   <li class="list-group-item px-0 d-flex justify-content-between">
                     <span class="text-muted small">Riego</span>
@@ -194,16 +275,6 @@
                   (click)="onEditarCultivo(cultivo.id)">
                   <i class="fa-solid fa-pen"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-primary" title="Ver detalle">
-                  <i class="fa-solid fa-book"></i>
-                </button>
-                <!-- Botón Chat IA (solo si no está sana) -->
-                <button
-                  *ngIf="cultivo.estado !== 'sana'"
-                  class="btn btn-sm btn-warning"
-                  title="Consultar a la IA">
-                  <i class="fa-solid fa-robot me-1"></i> Consultar IA
-                </button>
               </div>
 
             </div>
@@ -220,6 +291,146 @@
         </div>
       </ng-template>
 
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ELIMINAR CULTIVO ==================== -->
+  <div 
+    *ngIf="modalEliminarCultivo.mostrar"
+    class="modal fade show d-block" 
+    tabindex="-1" 
+    style="background-color: rgba(0,0,0,0.7);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-light border border-danger">
+        
+        <div class="modal-header border-danger">
+          <h5 class="modal-title">
+            <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
+            Eliminar Cultivo
+          </h5>
+          <button 
+            type="button" 
+            class="btn-close btn-close-white" 
+            (click)="cerrarModalEliminarCultivo()">
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="alert alert-danger">
+            <h6 class="mb-2">
+              <i class="fa-solid fa-exclamation-triangle me-1"></i>
+              ¿Estás seguro de eliminar este cultivo?
+            </h6>
+            <p class="mb-2">
+              Esta acción eliminará permanentemente:
+            </p>
+            <ul class="mb-0 small ps-3">
+              <li><strong>{{ modalEliminarCultivo.cultivo?.nombre || 'Cultivo' }}</strong></li>
+              <li>Planta: <strong>{{ getPlanta(modalEliminarCultivo.cultivo?.plantaId!)?.nombre }}</strong></li>
+              <li>Todas sus notas y seguimiento</li>
+              <li>Esta acción NO se puede deshacer</li>
+            </ul>
+          </div>
+
+          <div class="alert alert-info small mb-0">
+            <i class="fa-solid fa-lightbulb me-1"></i>
+            <strong>Recuerda:</strong> El espacio en el huerto quedará libre para nuevos cultivos.
+          </div>
+        </div>
+        
+        <div class="modal-footer border-0">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="cerrarModalEliminarCultivo()">
+            <i class="fa-solid fa-times me-1"></i>
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-danger"
+            (click)="confirmarEliminarCultivo()">
+            <i class="fa-solid fa-trash me-1"></i>
+            Eliminar Cultivo
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Análisis IA -->
+  <div 
+    *ngIf="mostrarModalAnalisis"
+    class="modal fade show d-block" 
+    tabindex="-1" 
+    style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        
+        <!-- Header -->
+        <div class="modal-header bg-warning bg-opacity-10 border-warning">
+          <h5 class="modal-title">
+            <i class="fa-solid fa-robot me-2 text-warning"></i>
+            Análisis del Huerto
+          </h5>
+          <button 
+            type="button" 
+            class="btn-close" 
+            (click)="cerrarModalAnalisis()"
+            [disabled]="analizandoHuerto">
+          </button>
+        </div>
+        
+        <!-- Body -->
+        <div class="modal-body">
+          
+          <!-- Cargando -->
+          <div *ngIf="analizandoHuerto" class="text-center py-5">
+            <div class="spinner-border text-warning mb-3" role="status">
+              <span class="visually-hidden">Analizando...</span>
+            </div>
+            <p class="text-muted">
+              Analizando tu huerto...<br>
+              <small>Esto puede tardar unos segundos</small>
+            </p>
+          </div>
+          
+          <!-- Error -->
+          <div *ngIf="analisisError && !analizandoHuerto" class="alert alert-danger">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>
+            {{ analisisError }}
+          </div>
+          
+          <!-- Resultado -->
+          <div *ngIf="analisisResultado && !analizandoHuerto" 
+               class="analisis-contenido"
+               style="white-space: pre-wrap; line-height: 1.6;">
+            {{ analisisResultado }}
+          </div>
+          
+        </div>
+        
+        <!-- Footer -->
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            (click)="cerrarModalAnalisis()"
+            [disabled]="analizandoHuerto">
+            Cerrar
+          </button>
+          <button 
+            *ngIf="analisisResultado && !analizandoHuerto"
+            type="button" 
+            class="btn btn-warning" 
+            (click)="continuarEnChat()">
+            <i class="fa-solid fa-comments me-1"></i>
+            Continuar en Chat IA
+          </button>
+        </div>
+        
+      </div>
     </div>
   </div>
 </div>

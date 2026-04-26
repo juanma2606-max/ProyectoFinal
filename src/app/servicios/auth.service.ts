@@ -1,16 +1,20 @@
 import { inject, Injectable } from '@angular/core';
 import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, User} from '@angular/fire/auth';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private auth = inject(Auth)
+  private auth = inject(Auth);
+  
+  // 🦴 Crear Observable UNA VEZ en constructor
+  private authState$ = authState(this.auth);
+  
   constructor() { }
 
   register(email:string, password:string){
-    //Devuelve una promesa, si esta se cumple me devuelve la información que haya ingresado el usuario
     return createUserWithEmailAndPassword(this.auth, email, password)
   }
 
@@ -23,10 +27,10 @@ export class AuthService {
   }
 
   getUserAuthenticated():Observable<User|null>{
-    return authState(this.auth); 
+    return this.authState$; // ← Reusar Observable creado en contexto
   }
 
-    getCurrentUser():User|null{
+  getCurrentUser():User|null{
     return this.auth.currentUser;
   }
 
@@ -34,9 +38,16 @@ export class AuthService {
     return signInWithPopup(this.auth, new GoogleAuthProvider())
   }
 
+  // ¡UGH! Método viejo síncrono
   isAdmin(): boolean {
-  const user = this.auth.currentUser;
-  return user?.email === 'admin@huerting.com';
-}
+    const user = this.auth.currentUser;
+    return user?.email === 'admin@huerting.com';
+  }
 
+  // 🦴 NUEVO - Observable reactivo
+  isAdmin$(): Observable<boolean> {
+    return this.authState$.pipe(
+      map(user => user?.email === 'admin@huerting.com')
+    );
+  }
 }

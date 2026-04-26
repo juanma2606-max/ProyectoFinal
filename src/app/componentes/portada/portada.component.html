@@ -1,36 +1,44 @@
 <div class="container-fluid p-0">
   <div class="position-relative overflow-hidden vh-100">
 
+    <!-- Video 1 - Normal -->
     <video
-  #bgVideo
-  class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
-  autoplay
-  muted
-  loop
->
-  <source src="/video/fondo2.mp4" type="video/mp4">
-</video>
+      #video1
+      class="position-absolute top-0 start-0 w-100 h-100"
+      style="object-fit: cover;"
+      muted
+      playsinline
+    >
+      <source src="/video/fondo2.mp4" type="video/mp4">
+    </video>
 
-    <div class="content position-relative w-100 h-100 d-flex flex-column justify-content-center align-items-center px-3 px-md-0">
-      <img src="/images/logo.png" alt="Logo" class="logo mb-4 w-50">
+    <!-- Video 2 - Invertido (oculto al inicio) -->
+    <video
+      #video2
+      class="position-absolute top-0 start-0 w-100 h-100"
+      style="object-fit: cover; opacity: 0;"
+      muted
+      playsinline
+    >
+      <source src="/video/reversed.mp4" type="video/mp4">
+    </video>
 
-      <div class="d-flex gap-3">
-        <a
-          routerLink="/signIn"
-          class="btn-portada"
-        >
+    <!-- Overlay oscuro -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50"></div>
+
+    <!-- Contenido -->
+    <div class="position-relative w-100 h-100 d-flex flex-column justify-content-center align-items-center px-3 px-md-0 text-center">
+      <img src="/images/logo.png" alt="Logo" class="mb-4" style="max-width: 300px; width: 80%;">
+
+      <div class="d-flex flex-column flex-sm-row gap-3">
+        <a routerLink="/signIn" class="btn btn-success btn-lg rounded-pill px-4 shadow">
           <i class="fa-solid fa-user-plus me-2"></i>Crear cuenta
         </a>
-        <a
-          routerLink="/login"
-          class="btn-portada btn-portada-outline"
-        >
-           <i class="fa-solid fa-right-to-bracket me-2"></i>Iniciar sesión
+        <a routerLink="/login" class="btn btn-outline-light btn-lg rounded-pill px-4 shadow-sm">
+          <i class="fa-solid fa-right-to-bracket me-2"></i>Iniciar sesión
         </a>
       </div>
     </div>
 
   </div>
 </div>
-
-

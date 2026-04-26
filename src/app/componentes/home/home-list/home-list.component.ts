@@ -1,13 +1,12 @@
-// huerto-list.component.ts
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Observable, switchMap, of } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Huerto } from '../../../modelos/huerto.model';
+import { Auth, authState } from '@angular/fire/auth';
 import { HuertosService } from '../../../servicios/huertos.service';
 import { HomeResumeComponent } from '../home-resume/home-resume.component';
 import { Modal } from 'bootstrap';
-
+import { Huerto } from '../../../modelos/huerto.model';
 
 @Component({
   selector: 'app-home-list',
@@ -16,55 +15,99 @@ import { Modal } from 'bootstrap';
   templateUrl: './home-list.component.html',
   styleUrl: './home-list.component.scss'
 })
-export class HomeListComponent implements OnInit {
-  
+export class HomeListComponent implements OnInit, OnDestroy {
+
   huertos$!: Observable<Huerto[]>;
   huertoAEliminar: Huerto | null = null;
+  private modalInstance: Modal | null = null;
 
   @ViewChild('deleteModal') deleteModal!: ElementRef;
 
   constructor(
     private huertoService: HuertosService,
-    private router: Router
+    private router: Router,
+    private auth: Auth
   ) {}
 
   ngOnInit(): void {
-    this.huertos$ = this.huertoService.getAllHuertosFirebase();
+    // Esperamos a que Firebase confirme el usuario antes de cargar huertos
+    this.huertos$ = authState(this.auth).pipe(
+      switchMap(user => {
+        if (!user) return of([]);
+        return this.huertoService.getAllHuertosFirebase();
+      })
+    );
   }
 
-onEditHuerto(huerto: Huerto): void {
-  this.router.navigate(['/app/huertoform', huerto.id]);
-}
+  onEditHuerto(huerto: Huerto): void {
+    this.router.navigate(['/app/huertoform', huerto.id]);
+  }
 
   irACrear(): void {
-  this.router.navigate(['/app/huertoform']);
-}
-onDeleteHuerto(huerto: Huerto): void {
-  this.huertoAEliminar = huerto;
-  const modal = new Modal(this.deleteModal.nativeElement);
-  modal.show();
-}
+    this.router.navigate(['/app/huertoform']);
+  }
 
-confirmarEliminacion(): void {
-  if (!this.huertoAEliminar) return;
+  onDeleteHuerto(huerto: Huerto): void {
+    this.huertoAEliminar = huerto;
+    
+    // UGH! Destruir modal viejo si existir
+    if (this.modalInstance) {
+      this.modalInstance.dispose();
+      this.modalInstance = null;
+    }
+    
+    // UGH! Crear nuevo modal
+    this.modalInstance = new Modal(this.deleteModal.nativeElement);
+    this.modalInstance.show();
+  }
 
-  const modalInstance = Modal.getInstance(this.deleteModal.nativeElement);
+  confirmarEliminacion(): void {
+    if (!this.huertoAEliminar || !this.huertoAEliminar.id) {
+      this.cerrarModal();
+      return;
+    }
 
-  // 1. Escuchar cuando el modal termine de cerrarse
-  this.deleteModal.nativeElement.addEventListener('hidden.bs.modal', () => {
-    // 2. Limpiar el backdrop manualmente por si acaso
-    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-    document.body.classList.remove('modal-open');
-    document.body.style.removeProperty('overflow');
-    document.body.style.removeProperty('padding-right');
-  }, { once: true }); // { once: true } para que solo se ejecute una vez
+    // UGH! Primero cerrar modal
+    this.cerrarModal();
 
-  // 3. Eliminar y cerrar
-  this.huertoService.removeObject(this.huertoAEliminar.id)
-    .then(() => {
-      this.huertoAEliminar = null;
-      modalInstance?.hide();
-    })
-    .catch(error => console.error('Error al eliminar:', error));
-}
+    // UGH! DESPUÉS eliminar huerto
+    this.huertoService.removeObject(this.huertoAEliminar.id)
+      .then(() => {
+        console.log('✅ Huerto eliminado correctamente');
+        this.huertoAEliminar = null;
+      })
+      .catch(error => {
+        console.error('❌ Error al eliminar huerto:', error);
+      });
+  }
+
+  cerrarModal(): void {
+    // UGH! Cerrar modal si existir
+    if (this.modalInstance) {
+      this.modalInstance.hide();
+      this.modalInstance.dispose(); // ← Destruir completamente
+      this.modalInstance = null;
+    }
+
+    // UGH! Limpiar TODO backdrop y estilos
+    setTimeout(() => {
+      // Eliminar TODOS los backdrops (puede haber varios)
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      backdrops.forEach(backdrop => {
+        backdrop.remove();
+      });
+      
+      // Restaurar body a estado normal
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('padding-right');
+      
+      console.log('🧹 Modal limpiado completamente');
+    }, 150); // UGH! Más tiempo para asegurar limpieza
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar al destruir el componente
+    this.cerrarModal();
+  }
 }

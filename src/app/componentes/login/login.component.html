@@ -28,6 +28,7 @@
                 [(ngModel)]="formLogin.email"
                 class="form-control form-control-sm rounded-pill border border-success shadow-sm"
                 placeholder="email"
+                [disabled]="cargando || cargandoGoogle"
               >
             </div>
 
@@ -39,6 +40,7 @@
                 [(ngModel)]="formLogin.password"
                 class="form-control form-control-sm rounded-pill border border-success shadow-sm"
                 placeholder="********"
+                [disabled]="cargando || cargandoGoogle"
               >
             </div>
 
@@ -49,8 +51,11 @@
 
             <button
               type="submit"
-              class="btn btn-success w-100 rounded-pill shadow-sm py-2">
-              Iniciar sesión
+              class="btn btn-success w-100 rounded-pill shadow-sm py-2"
+              [disabled]="cargando || cargandoGoogle">
+              <span *ngIf="cargando" class="spinner-border spinner-border-sm me-2"></span>
+              <span *ngIf="!cargando">Iniciar sesión</span>
+              <span *ngIf="cargando">Iniciando sesión...</span>
             </button>
           </form>
 
@@ -65,9 +70,17 @@
           <button
             type="button"
             class="btn btn-outline-secondary w-100 rounded-pill shadow-sm py-2 d-flex align-items-center justify-content-center gap-2"
-            (click)="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" height="20">
-            <span>Continuar con Google</span>
+            (click)="loginWithGoogle()"
+            [disabled]="cargando || cargandoGoogle">
+            <span *ngIf="cargandoGoogle" class="spinner-border spinner-border-sm"></span>
+            <img 
+              *ngIf="!cargandoGoogle"
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+              width="20" 
+              height="20"
+            >
+            <span *ngIf="!cargandoGoogle">Continuar con Google</span>
+            <span *ngIf="cargandoGoogle">Conectando...</span>
           </button>
 
         </div>

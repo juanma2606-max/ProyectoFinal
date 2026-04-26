@@ -31,3 +31,7 @@ yarn-error.log*
 .firebase
 *-debug.log
 .runtimeconfig.json
+
+# Environment files (API keys)
+src/environments/environment.ts
+src/environments/environment.prod.ts

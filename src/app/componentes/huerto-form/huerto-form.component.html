@@ -1,7 +1,7 @@
 <!-- huerto-form.component.html -->
 <div class="contenedor-form container-fluid min-vh-100 d-flex align-items-center justify-content-center py-4 px-2 px-md-4">
  
-  <div class="form-card card border-0 shadow-lg w-100" style="max-width: 560px; border-radius: 20px;">
+  <div class="form-card card border-0 shadow-lg w-100" style="max-width: 640px; border-radius: 20px;">
  
     <!-- HEADER -->
     <div class="card-header border-0 text-center pt-4 pb-2 bg-transparent">
@@ -16,48 +16,16 @@
       <p class="text-light small mb-0">
         {{ modoEdicion ? 'Modifica los datos de tu espacio verde' : 'Crea tu nuevo espacio verde' }}
       </p>
+      <!-- Mostrar estación actual -->
+      <p class="text-success small mb-0 mt-2">
+        <i class="fa-solid fa-calendar-days me-1"></i>Estación actual: <strong>{{ estacionActual }}</strong>
+      </p>
     </div>
  
     <!-- BODY -->
     <div class="card-body px-4 py-4">
  
       <form [formGroup]="huertoForm" (ngSubmit)="onSubmit()">
- 
-        <!-- TIPO (Tabs) -->
-        <div class="mb-4">
-          <label class="form-label text-light fw-semibold mb-2">
-            <i class="fa-solid fa-list me-2 text-success"></i>Tipo de espacio
-          </label>
-          <div class="tipo-selector d-flex gap-2">
- 
-            <button
-              type="button"
-              class="tipo-btn flex-fill py-3"
-              [class.active]="huertoForm.get('tipo')?.value === 'parcela'"
-              (click)="setTipo('parcela')"
-            >
-              <i class="fa-solid fa-tractor d-block mb-1" style="font-size: 1.4rem;"></i>
-              <span class="small fw-semibold">Parcela</span>
-            </button>
- 
-            <button
-              type="button"
-              class="tipo-btn flex-fill py-3"
-              [class.active]="huertoForm.get('tipo')?.value === 'maceta'"
-              (click)="setTipo('maceta')"
-            >
-              <i class="fa-solid fa-leaf d-block mb-1" style="font-size: 1.4rem;"></i>
-              <span class="small fw-semibold">Maceta</span>
-            </button>
- 
-          </div>
-          <div
-            *ngIf="huertoForm.get('tipo')?.invalid && huertoForm.get('tipo')?.touched"
-            class="text-danger small mt-1"
-          >
-            <i class="fa-solid fa-circle-exclamation me-1"></i>Selecciona un tipo
-          </div>
-        </div>
  
         <!-- NOMBRE -->
         <div class="mb-3">
@@ -68,7 +36,7 @@
             id="nombre"
             type="text"
             class="form-control form-control-dark"
-            placeholder="Ej: Mi huerto urbano, Balcón sur..."
+            placeholder="Ej: Mi huerto urbano"
             formControlName="nombre"
             [class.is-invalid]="huertoForm.get('nombre')?.invalid && huertoForm.get('nombre')?.touched"
           />
@@ -79,9 +47,123 @@
             <span *ngIf="huertoForm.get('nombre')?.errors?.['maxlength']">Máximo 50 caracteres</span>
           </div>
         </div>
+
+        <!-- UBICACIÓN -->
+        <div class="mb-3">
+          <label for="ubicacion" class="form-label text-light fw-semibold">
+            <i class="fa-solid fa-location-dot me-2 text-success"></i>Ubicación
+          </label>
+          <input
+            id="ubicacion"
+            type="text"
+            class="form-control form-control-dark"
+            placeholder="Ej: Sevilla, España"
+            formControlName="ubicacion"
+            [class.is-invalid]="huertoForm.get('ubicacion')?.invalid && huertoForm.get('ubicacion')?.touched"
+          />
+          <div class="invalid-feedback">
+            <i class="fa-solid fa-circle-exclamation me-1"></i>
+            La ubicación es obligatoria (mínimo 3 caracteres)
+          </div>
+        </div>
+
+        <!-- FECHA DE CREACIÓN -->
+        <div class="mb-3">
+          <label for="fecha_creacion" class="form-label text-light fw-semibold">
+            <i class="fa-solid fa-calendar-days me-2 text-success"></i>Fecha de creación
+          </label>
+          <input
+            id="fecha_creacion"
+            type="date"
+            class="form-control form-control-dark"
+            formControlName="fecha_creacion"
+            [class.is-invalid]="huertoForm.get('fecha_creacion')?.invalid && huertoForm.get('fecha_creacion')?.touched"
+          />
+          <small class="text-light">¿Cuándo empezaste con este huerto?</small>
+          <div class="invalid-feedback">
+            <i class="fa-solid fa-circle-exclamation me-1"></i>
+            La fecha es obligatoria
+          </div>
+        </div>
+
+        <!-- SUPERFICIE -->
+        <div class="mb-3">
+          <label for="superficie" class="form-label text-light fw-semibold">
+            <i class="fa-solid fa-ruler-combined me-2 text-success"></i>Superficie (m²)
+          </label>
+          <input
+            id="superficie"
+            type="number"
+            step="0.1"
+            min="0.1"
+            class="form-control form-control-dark"
+            placeholder="Ej: 25"
+            formControlName="superficie"
+            [class.is-invalid]="huertoForm.get('superficie')?.invalid && huertoForm.get('superficie')?.touched"
+          />
+          <div class="invalid-feedback">
+            <i class="fa-solid fa-circle-exclamation me-1"></i>
+            Debe ser mayor a 0
+          </div>
+        </div>
+
+        <!-- TIPO DE SUELO -->
+        <div class="mb-3">
+          <label for="tipo_suelo" class="form-label text-light fw-semibold">
+            <i class="fa-solid fa-mountain me-2 text-success"></i>Tipo de suelo
+          </label>
+          <select
+            id="tipo_suelo"
+            class="form-select form-control-dark"
+            formControlName="tipo_suelo"
+          >
+            <option value="arcilloso">Arcilloso</option>
+            <option value="arenoso">Arenoso</option>
+            <option value="limoso">Limoso</option>
+            <option value="franco">Franco (recomendado)</option>
+          </select>
+        </div>
+
+        <!-- HORAS DE SOL -->
+        <div class="mb-3">
+          <label for="horas_sol" class="form-label text-light fw-semibold">
+            <i class="fa-solid fa-sun me-2 text-success"></i>Horas de sol directo al día
+          </label>
+          <input
+            id="horas_sol"
+            type="number"
+            min="0"
+            max="24"
+            class="form-control form-control-dark"
+            placeholder="Ej: 6"
+            formControlName="horas_sol"
+            [class.is-invalid]="huertoForm.get('horas_sol')?.invalid && huertoForm.get('horas_sol')?.touched"
+          />
+          <small class="text-light">Entre 0 y 24 horas</small>
+          <div class="invalid-feedback">
+            <i class="fa-solid fa-circle-exclamation me-1"></i>
+            Debe estar entre 0 y 24 horas
+          </div>
+        </div>
+
+        <!-- SISTEMA DE RIEGO -->
+        <div class="mb-3">
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="tiene_riego"
+              formControlName="tiene_riego"
+              style="cursor: pointer;"
+            />
+            <label class="form-check-label text-light fw-semibold" for="tiene_riego" style="cursor: pointer;">
+              <i class="fa-solid fa-droplet me-2 text-success"></i>¿Tiene sistema de riego?
+            </label>
+          </div>
+        </div>
  
         <!-- DESCRIPCIÓN -->
-        <div class="mb-4">
+        <div class="mb-3">
           <label for="descripcion" class="form-label text-light fw-semibold">
             <i class="fa-solid fa-align-left me-2 text-success"></i>Descripción
             <span class="text-light fw-normal small ms-1">(opcional)</span>
@@ -90,7 +172,7 @@
             id="descripcion"
             class="form-control form-control-dark"
             rows="3"
-            placeholder="Describe tu espacio: ubicación, cultivos, notas..."
+            placeholder="Describe tu huerto..."
             formControlName="descripcion"
             [class.is-invalid]="huertoForm.get('descripcion')?.invalid && huertoForm.get('descripcion')?.touched"
           ></textarea>
@@ -100,6 +182,72 @@
             </div>
             <small class="text-light ms-auto">
               {{ huertoForm.get('descripcion')?.value?.length || 0 }}/200
+            </small>
+          </div>
+        </div>
+
+        <!-- FOTO DEL HUERTO -->
+<div class="mb-4">
+  <label class="form-label text-light fw-semibold">
+    <i class="fa-solid fa-image me-2 text-success"></i>Foto del huerto
+  </label>
+  
+  <!-- Preview de la foto seleccionada -->
+  <div class="mb-3 text-center">
+    <img 
+      [src]="fotoSeleccionada" 
+      alt="Preview" 
+      class="img-fluid rounded shadow"
+      style="max-height: 200px; object-fit: cover; width: 100%;"
+    />
+  </div>
+  
+  <!-- Selector de fotos -->
+  <div class="row g-2">
+    <div 
+      *ngFor="let foto of fotosDisponibles" 
+      class="col-4 col-md-2">
+      <div 
+        class="foto-option rounded overflow-hidden border"
+        [class.selected]="fotoSeleccionada === foto"
+        (click)="seleccionarFoto(foto)"
+        style="cursor: pointer; transition: all 0.3s;">
+        <img 
+          [src]="foto" 
+          alt="Opción" 
+          class="img-fluid"
+          style="width: 100%; height: 80px; object-fit: cover;"
+        />
+      </div>
+    </div>
+  </div>
+  
+  <small class="text-light d-block mt-2">
+    <i class="fa-solid fa-info-circle me-1"></i>
+    Selecciona la imagen que mejor represente tu huerto
+  </small>
+</div>
+
+        <!-- NOTAS -->
+        <div class="mb-4">
+          <label for="notas" class="form-label text-light fw-semibold">
+            <i class="fa-solid fa-note-sticky me-2 text-success"></i>Notas adicionales
+            <span class="text-light fw-normal small ms-1">(opcional)</span>
+          </label>
+          <textarea
+            id="notas"
+            class="form-control form-control-dark"
+            rows="2"
+            placeholder="Cualquier detalle adicional..."
+            formControlName="notas"
+            [class.is-invalid]="huertoForm.get('notas')?.invalid && huertoForm.get('notas')?.touched"
+          ></textarea>
+          <div class="d-flex justify-content-between mt-1">
+            <div class="invalid-feedback d-block" *ngIf="huertoForm.get('notas')?.errors?.['maxlength'] && huertoForm.get('notas')?.touched">
+              <i class="fa-solid fa-circle-exclamation me-1"></i>Máximo 500 caracteres
+            </div>
+            <small class="text-light ms-auto">
+              {{ huertoForm.get('notas')?.value?.length || 0 }}/500
             </small>
           </div>
         </div>

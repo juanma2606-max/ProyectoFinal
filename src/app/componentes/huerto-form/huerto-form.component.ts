@@ -17,10 +17,20 @@ export class HuertoFormComponent implements OnInit {
   huertoForm!: FormGroup;
   modoEdicion = false;
   huertoId: string | null = null;
-  uid: string | null = null;       // uid del usuario que se está editando (admin)
+  uid: string | null = null;
   esVistaAdmin = false;
   cargando = false;
   errorMensaje = '';
+  estacionActual: string = '';
+
+  // Fotos disponibles para el huerto
+  fotosDisponibles: string[] = [
+    '/images/huerto1.jpg',
+    '/images/huerto2.webp',
+    '/images/huerto3.webp',
+  ];
+
+  fotoSeleccionada: string = this.fotosDisponibles[0];
 
   constructor(
     private fb: FormBuilder,
@@ -31,6 +41,7 @@ export class HuertoFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.calcularEstacion();
 
     this.route.paramMap.subscribe(async params => {
       const id = params.get('id');
@@ -47,10 +58,39 @@ export class HuertoFormComponent implements OnInit {
 
   private initForm(): void {
     this.huertoForm = this.fb.group({
-      tipo: ['parcela', Validators.required],
       nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
-      descripcion: ['', [Validators.maxLength(200)]]
+      descripcion: ['', [Validators.maxLength(200)]],
+      ubicacion: ['', [Validators.required, Validators.minLength(3)]],
+      superficie: [0, [Validators.required, Validators.min(0.1)]],
+      tipo_suelo: ['franco', Validators.required],
+      horas_sol: [6, [Validators.required, Validators.min(0), Validators.max(24)]],
+      tiene_riego: [false],
+      fecha_creacion: [this.getFechaActual(), Validators.required],
+      notas: ['', [Validators.maxLength(500)]],
+      foto: [this.fotosDisponibles[0], Validators.required]
     });
+  }
+
+  private getFechaActual(): string {
+    const hoy = new Date();
+    const año = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    return `${año}-${mes}-${dia}`;
+  }
+
+  private calcularEstacion(): void {
+    const mes = new Date().getMonth() + 1;
+    
+    if (mes >= 3 && mes <= 5) {
+      this.estacionActual = 'Primavera';
+    } else if (mes >= 6 && mes <= 8) {
+      this.estacionActual = 'Verano';
+    } else if (mes >= 9 && mes <= 11) {
+      this.estacionActual = 'Otoño';
+    } else {
+      this.estacionActual = 'Invierno';
+    }
   }
 
   private async cargarHuerto(id: string): Promise<void> {
@@ -64,10 +104,19 @@ export class HuertoFormComponent implements OnInit {
       }
 
       if (huerto) {
+        this.fotoSeleccionada = huerto.foto || this.fotosDisponibles[0];
+        
         this.huertoForm.patchValue({
-          tipo: huerto.tipo,
           nombre: huerto.nombre,
-          descripcion: huerto.descripcion || ''
+          descripcion: huerto.descripcion || '',
+          ubicacion: huerto.ubicacion,
+          superficie: huerto.superficie,
+          tipo_suelo: huerto.tipo_suelo,
+          horas_sol: huerto.horas_sol,
+          tiene_riego: huerto.tiene_riego,
+          fecha_creacion: huerto.fecha_creacion ? huerto.fecha_creacion.split('T')[0] : this.getFechaActual(),
+          notas: huerto.notas || '',
+          foto: huerto.foto || this.fotosDisponibles[0]
         });
       }
     } catch (error) {
@@ -75,9 +124,17 @@ export class HuertoFormComponent implements OnInit {
     }
   }
 
-  setTipo(tipo: 'parcela' | 'maceta'): void {
-    this.huertoForm.get('tipo')?.setValue(tipo);
-  }
+  /**
+   * Seleccionar una foto
+   */
+/**
+ * Seleccionar una foto
+ */
+seleccionarFoto(foto: string): void {
+  this.fotoSeleccionada = foto;
+  this.huertoForm.patchValue({ foto });
+  console.log('Foto seleccionada:', foto); // Para debug
+}
 
   async onSubmit(): Promise<void> {
     if (this.huertoForm.invalid) {
@@ -88,23 +145,48 @@ export class HuertoFormComponent implements OnInit {
     this.cargando = true;
     this.errorMensaje = '';
 
-    const { tipo, nombre, descripcion } = this.huertoForm.value;
+    const formValue = this.huertoForm.value;
 
     try {
       if (this.modoEdicion && this.huertoId) {
-        const huertoActualizado = new Huerto(this.huertoId, nombre, descripcion, new Date(), tipo);
+        const huertoActualizado = new Huerto(
+          formValue.nombre,
+          formValue.descripcion,
+          formValue.ubicacion,
+          formValue.superficie,
+          formValue.tipo_suelo,
+          formValue.horas_sol,
+          formValue.tiene_riego,
+          new Date(formValue.fecha_creacion).toISOString(),
+          this.huertoId,
+          formValue.notas,
+          formValue.foto
+        );
 
         if (this.esVistaAdmin && this.uid) {
           await this.huertoService.updateObjectByUid(this.uid, huertoActualizado);
         } else {
           await this.huertoService.updateObject(huertoActualizado);
         }
+
       } else {
-        const nuevoHuerto = new Huerto('', nombre, descripcion, new Date(), tipo);
+        const nuevoHuerto = new Huerto(
+          formValue.nombre,
+          formValue.descripcion,
+          formValue.ubicacion,
+          formValue.superficie,
+          formValue.tipo_suelo,
+          formValue.horas_sol,
+          formValue.tiene_riego,
+          new Date(formValue.fecha_creacion).toISOString(),
+          undefined,
+          formValue.notas,
+          formValue.foto
+        );
+        
         await this.huertoService.createHuerto(nuevoHuerto);
       }
 
-      // Redirigir según contexto
       if (this.esVistaAdmin && this.uid) {
         this.router.navigate(['/app/admin/usuario', this.uid]);
       } else {
@@ -112,6 +194,7 @@ export class HuertoFormComponent implements OnInit {
       }
 
     } catch (error) {
+      console.error('Error al guardar huerto:', error);
       this.errorMensaje = 'Ocurrió un error al guardar. Inténtalo de nuevo.';
     } finally {
       this.cargando = false;

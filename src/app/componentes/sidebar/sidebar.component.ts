@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { Auth, authState } from '@angular/fire/auth';
+import { Component } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { signOut } from '@angular/fire/auth';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../servicios/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,22 +11,22 @@ import { AuthService } from '../../servicios/auth.service';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent {
+
   sidebarOpen = false;
-  esAdmin = false;
+  esAdmin$: Observable<boolean>;
 
-  constructor(private auth: Auth, private router: Router, private authService: AuthService) {}
-
-  ngOnInit(): void {
-    // Escuchamos el estado de autenticación reactivamente
-    authState(this.auth).subscribe(user => {
-      this.esAdmin = user?.email === 'admin@huerting.com';
-    });
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {
+    // 🦴 Asignar Observable en constructor (contexto inyección)
+    this.esAdmin$ = this.authService.isAdmin$();
+    console.log('🦴 Sidebar constructor, esAdmin$ asignado');
   }
 
   cerrarSesion(): void {
-    signOut(this.auth).then(() => {
-      this.router.navigate(['/login']);
-    });
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

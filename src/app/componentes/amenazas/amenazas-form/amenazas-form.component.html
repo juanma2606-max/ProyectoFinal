@@ -1,0 +1,217 @@
+<div class="container-fluid py-5 amenazas-form-bg min-vh-100">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+      
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <div class="d-inline-block mb-3">
+          <div class="bg-danger bg-opacity-25 rounded-circle p-3 d-inline-flex">
+            <i class="fa-solid fa-bug fa-2x text-danger"></i>
+          </div>
+        </div>
+        <h3 class="text-light fw-bold mb-2">
+          {{ amenazaForm.get('nombre')?.value || 'Nueva Amenaza' }}
+        </h3>
+        <p class="text-light opacity-75 mb-0">
+          Completa los datos de la plaga o enfermedad
+        </p>
+      </div>
+
+      <div class="card bg-dark border-danger border-opacity-25 shadow-lg">
+        <div class="card-body p-4">
+
+          <form [formGroup]="amenazaForm" (ngSubmit)="onSubmit()">
+
+            <!-- Nombre -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-tag text-danger me-2"></i>
+                Nombre *
+              </label>
+              <input 
+                type="text" 
+                class="form-control bg-dark text-light border-danger border-opacity-25" 
+                formControlName="nombre"
+                placeholder="Ej. Pulgón negro, Mildiu polvoriento..."
+                [ngClass]="{
+                  'is-valid border-success': amenazaForm.get('nombre')?.valid && amenazaForm.get('nombre')?.touched,
+                  'is-invalid border-danger': amenazaForm.get('nombre')?.invalid && amenazaForm.get('nombre')?.touched
+                }"
+              />
+              <div *ngIf="amenazaForm.get('nombre')?.invalid && amenazaForm.get('nombre')?.touched" 
+                   class="text-danger small mt-1">
+                <div *ngIf="amenazaForm.get('nombre')?.errors?.['required']">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i>El nombre es obligatorio
+                </div>
+                <div *ngIf="amenazaForm.get('nombre')?.errors?.['maxlength']">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i>Máximo 100 caracteres
+                </div>
+              </div>
+            </div>
+
+            <!-- Tipo -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-list text-primary me-2"></i>
+                Tipo *
+              </label>
+              <select 
+                class="form-select bg-dark text-light border-danger border-opacity-25" 
+                formControlName="tipo"
+                [ngClass]="{
+                  'is-valid border-success': amenazaForm.get('tipo')?.valid && amenazaForm.get('tipo')?.touched,
+                  'is-invalid border-danger': amenazaForm.get('tipo')?.invalid && amenazaForm.get('tipo')?.touched
+                }"
+              >
+                <option value="">Selecciona un tipo</option>
+                <option value="plaga">🐛 Plaga</option>
+                <option value="enfermedad">🦠 Enfermedad</option>
+              </select>
+              <div *ngIf="amenazaForm.get('tipo')?.invalid && amenazaForm.get('tipo')?.touched" 
+                   class="text-danger small mt-1">
+                <i class="fa-solid fa-circle-exclamation me-1"></i>El tipo es obligatorio
+              </div>
+              <small class="text-light opacity-50">
+                <i class="fa-solid fa-circle-info me-1"></i>
+                Si no añades imagen, se mostrará un icono automático según el tipo
+              </small>
+            </div>
+
+            <!-- Imagen URL -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-image text-warning me-2"></i>
+                URL de imagen
+                <span class="text-light opacity-50 fw-normal">(opcional)</span>
+              </label>
+              <input 
+                type="url" 
+                class="form-control bg-dark text-light border-danger border-opacity-25" 
+                formControlName="imagen"
+                placeholder="https://ejemplo.com/imagen.jpg"
+              />
+              <small class="text-light opacity-50">
+                <i class="fa-solid fa-lightbulb me-1"></i>
+                Deja vacío para usar icono automático
+              </small>
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-align-left text-secondary me-2"></i>
+                Descripción *
+              </label>
+              <textarea 
+                class="form-control bg-dark text-light border-danger border-opacity-25" 
+                formControlName="descripcion"
+                placeholder="Descripción general de la amenaza, cómo identificarla..." 
+                rows="3"
+                [ngClass]="{
+                  'is-valid border-success': amenazaForm.get('descripcion')?.valid && amenazaForm.get('descripcion')?.touched,
+                  'is-invalid border-danger': amenazaForm.get('descripcion')?.invalid && amenazaForm.get('descripcion')?.touched
+                }"
+              ></textarea>
+              <div class="d-flex justify-content-between mt-1">
+                <div *ngIf="amenazaForm.get('descripcion')?.invalid && amenazaForm.get('descripcion')?.touched" 
+                     class="text-danger small">
+                  <div *ngIf="amenazaForm.get('descripcion')?.errors?.['required']">
+                    <i class="fa-solid fa-circle-exclamation me-1"></i>La descripción es obligatoria
+                  </div>
+                  <div *ngIf="amenazaForm.get('descripcion')?.errors?.['maxlength']">
+                    <i class="fa-solid fa-circle-exclamation me-1"></i>Máximo 500 caracteres
+                  </div>
+                </div>
+                <small class="text-light opacity-50 ms-auto">
+                  {{ amenazaForm.get('descripcion')?.value?.length || 0 }}/500
+                </small>
+              </div>
+            </div>
+
+            <!-- Síntomas -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-eye text-info me-2"></i>
+                Síntomas
+                <span class="text-light opacity-50 fw-normal">(¿cómo se ve?)</span>
+              </label>
+              <div formArrayName="sintomas">
+                <div *ngFor="let sintoma of sintomas.controls; let i = index" 
+                     class="input-group mb-2">
+                  <input 
+                    type="text" 
+                    class="form-control bg-dark text-light border-danger border-opacity-25" 
+                    [formControlName]="i"
+                    placeholder="Ej. Hojas amarillas con manchas marrones"
+                    [ngClass]="{
+                      'is-invalid border-danger': sintoma.invalid && sintoma.touched
+                    }"
+                  />
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-danger" 
+                    (click)="removeSintoma(i)"
+                    title="Eliminar síntoma">
+                    <i class="fa-solid fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                class="btn btn-outline-info btn-sm" 
+                (click)="addSintoma()">
+                <i class="fa-solid fa-plus me-1"></i>Añadir síntoma
+              </button>
+              <small class="text-light opacity-50 d-block mt-2">
+                Signos visibles para identificar esta amenaza
+              </small>
+            </div>
+
+            <!-- Tratamiento -->
+            <div class="mb-4">
+              <label class="form-label text-light fw-semibold">
+                <i class="fa-solid fa-kit-medical text-success me-2"></i>
+                Tratamiento
+                <span class="text-light opacity-50 fw-normal">(opcional)</span>
+              </label>
+              <textarea 
+                class="form-control bg-dark text-light border-danger border-opacity-25" 
+                formControlName="tratamiento"
+                placeholder="Cómo tratar o prevenir esta amenaza..." 
+                rows="3"
+              ></textarea>
+              <div class="d-flex justify-content-between mt-1">
+                <div *ngIf="amenazaForm.get('tratamiento')?.errors?.['maxlength']" 
+                     class="text-danger small">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i>Máximo 500 caracteres
+                </div>
+                <small class="text-light opacity-50 ms-auto">
+                  {{ amenazaForm.get('tratamiento')?.value?.length || 0 }}/500
+                </small>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top border-secondary">
+              <button 
+                type="button"
+                class="btn btn-outline-secondary" 
+                (click)="navegarDeVuelta()">
+                <i class="fa-solid fa-times me-1"></i>
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-danger" 
+                [disabled]="amenazaForm.invalid">
+                <i class="fa-solid fa-save me-1"></i>
+                Guardar
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

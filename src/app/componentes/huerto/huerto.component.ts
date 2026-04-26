@@ -1,32 +1,49 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { Planta } from '../../modelos/planta.model';
-import { Huerto } from '../../modelos/huerto.model';
+import { Observable, switchMap, of } from 'rxjs';
+import { Auth, authState } from '@angular/fire/auth';
 import { CultivosService } from '../../servicios/cultivos.service';
 import { PlantasService } from '../../servicios/plantas.service';
 import { HuertosService } from '../../servicios/huertos.service';
-import { Cultivo } from '../../modelos/cultivo.model';
-import { Amenaza } from '../../modelos/amenaza.model';
 import { AmenazasService } from '../../servicios/amenazas.service';
+import { HuertoAnalisisService } from '../../servicios/huerto-analisis.service';
+import { Cultivo } from '../../modelos/cultivo.model';
+import { Planta } from '../../modelos/planta.model';
+import { Huerto } from '../../modelos/huerto.model';
+import { Amenaza } from '../../modelos/amenaza.model';
+import { ImagenAmenazaComponent } from '../imagen-amenaza/imagen-amenaza.component';
+import { ImagenPlantaComponent } from '../imagen-planta/imagen-planta.component';
 
 @Component({
   selector: 'app-huerto',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ImagenAmenazaComponent, ImagenPlantaComponent],
   templateUrl: './huerto.component.html',
   styleUrl: './huerto.component.scss'
 })
 export class HuertoComponent implements OnInit {
 
   huertoId!: string;
-  uid: string | null = null;       // uid del usuario visto por el admin
-  esVistaAdmin: boolean = false;   // true si viene desde la ruta del admin
+  uid: string | null = null;
+  esVistaAdmin: boolean = false;
   huerto: Huerto | null = null;
   cultivos$!: Observable<Cultivo[]>;
+  cultivosArray: Cultivo[] = []; // Array local para búsqueda
   plantasMap: Map<string, Planta> = new Map();
   amenazasMap: Map<string, Amenaza> = new Map();
+
+  // Estado del análisis IA
+  analizandoHuerto: boolean = false;
+  analisisResultado: string | null = null;
+  analisisError: string | null = null;
+  mostrarModalAnalisis: boolean = false;
+
+  // Modal eliminar cultivo
+  modalEliminarCultivo = {
+    mostrar: false,
+    cultivo: null as Cultivo | null
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -34,32 +51,42 @@ export class HuertoComponent implements OnInit {
     private cultivosService: CultivosService,
     private plantasService: PlantasService,
     private huertosService: HuertosService,
-    private amenazasService: AmenazasService
+    private amenazasService: AmenazasService,
+    private analisisService: HuertoAnalisisService,
+    private auth: Auth
   ) {}
 
   ngOnInit(): void {
     this.huertoId = this.route.snapshot.paramMap.get('huertoId')
                  ?? this.route.snapshot.paramMap.get('id')!;
-
-    // Detectamos si viene desde la ruta del admin
     this.uid = this.route.snapshot.paramMap.get('uid');
     this.esVistaAdmin = !!this.uid;
 
-    // Cargamos el huerto según si es admin o usuario normal
-    if (this.esVistaAdmin && this.uid) {
-      this.huertosService.getHuertoByUidAndId(this.uid, this.huertoId).then(huerto => {
-        this.huerto = huerto;
-      });
-      this.cultivos$ = this.cultivosService.getCultivosByUidAndHuerto(this.uid, this.huertoId);
-    } else {
-      this.huertosService.getHuertoById(this.huertoId).then(huerto => {
-        this.huerto = huerto;
-      });
-      this.cultivos$ = this.cultivosService.getCultivosByHuerto(this.huertoId);
-    }
+    this.cultivos$ = authState(this.auth).pipe(
+      switchMap(user => {
+        if (!user) return of([]);
 
-    // Cargamos plantas y amenazas
+        const uidToUse = this.esVistaAdmin && this.uid ? this.uid : user.uid;
+
+        // Cargamos el huerto
+        if (this.esVistaAdmin && this.uid) {
+          this.huertosService.getHuertoByUidAndId(this.uid, this.huertoId).then(huerto => {
+            this.huerto = huerto;
+          });
+        } else {
+          this.huertosService.getHuertoById(this.huertoId).then(huerto => {
+            this.huerto = huerto;
+          });
+        }
+
+        return this.cultivosService.getCultivosByHuerto(uidToUse, this.huertoId);
+      })
+    );
+
     this.cultivos$.subscribe(cultivos => {
+      // Guardar en array local
+      this.cultivosArray = cultivos;
+      
       cultivos.forEach(cultivo => {
         if (!this.plantasMap.has(cultivo.plantaId)) {
           this.plantasService.getPlantaById(cultivo.plantaId).then(planta => {
@@ -84,29 +111,124 @@ export class HuertoComponent implements OnInit {
     return this.amenazasMap.get(amenazaId);
   }
 
-irACrearCultivo(): void {
-  if (this.esVistaAdmin && this.uid) {
-    this.router.navigate(['/app/admin/usuario', this.uid, 'cultivoform', this.huertoId]);
-  } else {
-    this.router.navigate(['/app/cultivoform', this.huertoId]);
+  /**
+   * Verifica si un cultivo tiene incompatibilidades con otros cultivos del huerto
+   */
+  tieneIncompatibilidades(cultivo: Cultivo): boolean {
+    const plantaActual = this.getPlanta(cultivo.plantaId);
+    if (!plantaActual) return false;
+    
+    const cultivosActivos = this.cultivosArray.filter(c => 
+      c.id !== cultivo.id && 
+      c.estado !== 'cosechado'
+    );
+    
+    return cultivosActivos.some(otroCultivo => {
+      const otraPlanta = this.getPlanta(otroCultivo.plantaId);
+      if (!otraPlanta) return false;
+      
+      const incompatibleDirecta = plantaActual.incompatibilidades?.some(
+        incomp => incomp.toLowerCase() === otraPlanta.nombre.toLowerCase()
+      );
+      const incompatibleInversa = otraPlanta.incompatibilidades?.some(
+        incomp => incomp.toLowerCase() === plantaActual.nombre.toLowerCase()
+      );
+      
+      return incompatibleDirecta || incompatibleInversa;
+    });
   }
-}
 
-onEliminarCultivo(cultivoId: string): void {
-  if (this.esVistaAdmin && this.uid) {
-    this.cultivosService.removeCultivoByUid(this.uid, this.huertoId, cultivoId);
-  } else {
-    this.cultivosService.removeCultivo(this.huertoId, cultivoId);
+  /**
+   * Obtiene las plantas incompatibles con este cultivo
+   */
+  getPlantasIncompatibles(cultivo: Cultivo): string[] {
+    const plantaActual = this.getPlanta(cultivo.plantaId);
+    if (!plantaActual) return [];
+    
+    const cultivosActivos = this.cultivosArray.filter(c => 
+      c.id !== cultivo.id && 
+      c.estado !== 'cosechado'
+    );
+    
+    const incompatibles: string[] = [];
+    
+    cultivosActivos.forEach(otroCultivo => {
+      const otraPlanta = this.getPlanta(otroCultivo.plantaId);
+      if (!otraPlanta) return;
+      
+      // Verificar ambas direcciones comparando por NOMBRE
+      const incompatibleDirecta = plantaActual.incompatibilidades?.some(
+        incomp => incomp.toLowerCase() === otraPlanta.nombre.toLowerCase()
+      );
+      const incompatibleInversa = otraPlanta.incompatibilidades?.some(
+        incomp => incomp.toLowerCase() === plantaActual.nombre.toLowerCase()
+      );
+      
+      if (incompatibleDirecta || incompatibleInversa) {
+        incompatibles.push(otraPlanta.nombre);
+      }
+    });
+    
+    return incompatibles;
   }
-}
 
-onEditarCultivo(cultivoId: string): void {
-  if (this.esVistaAdmin && this.uid) {
-    this.router.navigate(['/app/admin/usuario', this.uid, 'cultivoform', this.huertoId, cultivoId]);
-  } else {
-    this.router.navigate(['/app/cultivoform', this.huertoId, cultivoId]);
+  irACrearCultivo(): void {
+    if (this.esVistaAdmin && this.uid) {
+      this.router.navigate(['/app/admin/usuario', this.uid, 'cultivoform', this.huertoId]);
+    } else {
+      this.router.navigate(['/app/cultivoform', this.huertoId]);
+    }
   }
-}
+
+  /**
+   * ==================== MODAL ELIMINAR CULTIVO ====================
+   */
+  abrirModalEliminarCultivo(cultivo: Cultivo): void {
+    this.modalEliminarCultivo.cultivo = cultivo;
+    this.modalEliminarCultivo.mostrar = true;
+  }
+
+  cerrarModalEliminarCultivo(): void {
+    this.modalEliminarCultivo.mostrar = false;
+    this.modalEliminarCultivo.cultivo = null;
+  }
+
+  async confirmarEliminarCultivo(): Promise<void> {
+    if (!this.modalEliminarCultivo.cultivo?.id) return;
+    
+    const cultivoId = this.modalEliminarCultivo.cultivo.id;
+    
+    this.cerrarModalEliminarCultivo();
+    
+    try {
+      const uidToUse = this.esVistaAdmin && this.uid ? this.uid : this.auth.currentUser!.uid;
+      await this.cultivosService.removeCultivo(uidToUse, this.huertoId, cultivoId);
+      console.log('✅ Cultivo eliminado');
+    } catch (error) {
+      console.error('❌ Error eliminando cultivo:', error);
+      alert('Error al eliminar el cultivo');
+    }
+  }
+
+  onEliminarCultivo(cultivoId: string | undefined): void {
+    if (!cultivoId) return;
+    
+    // Buscar en array local
+    const cultivo = this.cultivosArray.find(c => c.id === cultivoId);
+    if (cultivo) {
+      this.abrirModalEliminarCultivo(cultivo);
+    }
+  }
+
+  onEditarCultivo(cultivoId: string | undefined): void {
+    if (!cultivoId) return;
+    
+    if (this.esVistaAdmin && this.uid) {
+      this.router.navigate(['/app/admin/usuario', this.uid, 'cultivoform', this.huertoId, cultivoId]);
+    } else {
+      this.router.navigate(['/app/cultivoform', this.huertoId, cultivoId]);
+    }
+  }
 
   volver(): void {
     if (this.esVistaAdmin && this.uid) {
@@ -114,5 +236,56 @@ onEditarCultivo(cultivoId: string): void {
     } else {
       this.router.navigate(['/app/home']);
     }
+  }
+
+  /**
+   * Analizar el huerto completo con IA
+   */
+  async analizarHuertoConIA(): Promise<void> {
+    this.analizandoHuerto = true;
+    this.analisisError = null;
+    this.analisisResultado = null;
+    this.mostrarModalAnalisis = true;
+
+    try {
+      const uidToUse = this.esVistaAdmin && this.uid ? this.uid : this.auth.currentUser!.uid;
+      
+      const resultado = await this.analisisService.analizarHuerto(uidToUse, this.huertoId);
+      
+      this.analisisResultado = resultado;
+      
+    } catch (error: any) {
+      console.error('Error al analizar huerto:', error);
+      this.analisisError = error.message || 'Error al analizar el huerto. Intenta de nuevo.';
+    } finally {
+      this.analizandoHuerto = false;
+    }
+  }
+
+  /**
+   * Cerrar el modal de análisis
+   */
+  cerrarModalAnalisis(): void {
+    this.mostrarModalAnalisis = false;
+    this.analisisResultado = null;
+    this.analisisError = null;
+  }
+
+  /**
+   * Ir al chat con el análisis como contexto
+   */
+  continuarEnChat(): void {
+    if (!this.analisisResultado) return;
+    
+    // Crear un resumen del contexto para el chat
+    const contexto = `He analizado mi huerto "${this.huerto?.nombre}" y obtuve estas recomendaciones:
+
+${this.analisisResultado}
+
+Tengo algunas preguntas adicionales sobre esto.`;
+    
+    this.router.navigate(['/app/chat-ia'], {
+      queryParams: { mensaje: contexto }
+    });
   }
 }

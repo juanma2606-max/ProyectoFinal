@@ -1,0 +1,39 @@
+.amenazas-form-bg {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d0f0f 50%, #1a1a1a 100%);
+  min-height: 100vh;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: #1a1a1a !important;
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  color: #fff !important;
+}
+
+.form-control::placeholder,
+.form-select option {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23dc3545' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.btn-outline-info:hover {
+  background-color: #0dcaf0;
+  border-color: #0dcaf0;
+  color: #000;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: #fff;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: #fff;
+}
