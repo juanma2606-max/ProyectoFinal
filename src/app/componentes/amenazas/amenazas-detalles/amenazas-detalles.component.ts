@@ -1,24 +1,22 @@
-// src/app/componentes/amenaza-detalle/amenaza-detalle.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Amenaza } from '../../../modelos/amenaza.model';
 import { AmenazasService } from '../../../servicios/amenazas.service';
-
+import { ImagenAmenazaComponent } from '../../imagen-amenaza/imagen-amenaza.component';  // IMPORTAR
 
 @Component({
   selector: 'app-amenaza-detalle',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ImagenAmenazaComponent],  // AGREGAR
   templateUrl: './amenazas-detalles.component.html'
 })
 export class AmenazaDetalleComponent implements OnInit {
 
-  amenaza?: Amenaza | null;  //Permitir null explícitamente
-  cargando: boolean = false;  //Estado de carga para UX
+  amenaza?: Amenaza | null;
+  cargando: boolean = false;
   error: string | null = null;
 
-  // Exponer Array para usar en el template
   Array = Array;
 
   constructor(
@@ -30,7 +28,6 @@ export class AmenazaDetalleComponent implements OnInit {
     this.route.paramMap.subscribe(async params => {
       const id = params.get('id');
       
-      //Validación 1: El ID existe en la URL
       if (!id) {
         this.error = 'ID de amenaza no válido';
         this.amenaza = null;
@@ -41,10 +38,8 @@ export class AmenazaDetalleComponent implements OnInit {
       this.error = null;
 
       try {
-        //Validación 2: Esperar la Promesa antes de asignar
         this.amenaza = await this.amenazasService.getAmenazaById(id);
         
-        // Si no se encontró la amenaza en Firebase
         if (!this.amenaza) {
           this.error = 'Amenaza no encontrada';
         }

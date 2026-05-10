@@ -11,7 +11,7 @@
     style="top: 15px; left: 15px; z-index: 1100;"
     (click)="sidebarOpen = !sidebarOpen"
   >
-    <i class="fas fa-bars"></i> <!-- Icono del botón hamburguesa -->
+    <i class="fas fa-bars"></i>
   </button>
 
   <!-- SIDEBAR -->
@@ -36,45 +36,29 @@
         <span class="hide-on-collapse">Home</span>
       </a>
 
-      <!-- LISTAS -->
-      <div class="sidebar-group">
+      <!-- PLANTAS -->
+      <a
+        routerLink="/app/plantas"
+        routerLinkActive="active"
+        class="sidebar-link text-decoration-none p-3"
+        (click)="sidebarOpen = false"
+      >
+        <i class="fas fa-leaf me-3"></i>
+        <span class="hide-on-collapse">Plantas</span>
+      </a>
 
-        <a
-          class="sidebar-link d-flex align-items-center justify-content-between p-3 text-decoration-none"
-          data-bs-toggle="collapse"
-          href="#listasMenu"
-          role="button"
-        >
-          <div class="d-flex align-items-center">
-            <i class="fas fa-list me-3"></i>
-            <span class="hide-on-collapse">Listas</span>
-          </div>
-          <i class="fas fa-chevron-down small transition"></i>
-        </a>
+      <!-- AMENAZAS -->
+      <a
+        routerLink="/app/amenazas"
+        routerLinkActive="active"
+        class="sidebar-link text-decoration-none p-3"
+        (click)="sidebarOpen = false"
+      >
+        <i class="fas fa-bug me-3"></i>
+        <span class="hide-on-collapse">Amenazas</span>
+      </a>
 
-        <div class="collapse ps-4 mt-1" id="listasMenu">
-          <a
-            routerLink="/app/plantas"
-            routerLinkActive="active"
-            class="sidebar-sublink d-flex align-items-center text-decoration-none py-2"
-            (click)="sidebarOpen = false"
-          >
-            <i class="fas fa-leaf me-3"></i>
-            <span class="hide-on-collapse">Plantas</span>
-          </a>
-
-          <a
-            routerLink="/app/amenazas"
-            routerLinkActive="active"
-            class="sidebar-sublink d-flex align-items-center text-decoration-none py-2"
-            (click)="sidebarOpen = false"
-          >
-            <i class="fas fa-bug me-3"></i>
-            <span class="hide-on-collapse">Amenazas</span>
-          </a>
-        </div>
-      </div>
-
+      <!-- CHAT IA -->
       <a
         routerLink="/app/chat-ia"
         routerLinkActive="active"
@@ -85,6 +69,7 @@
         <span class="hide-on-collapse">Chat IA</span>
       </a>
 
+      <!-- ADMIN -->
       <a
         routerLink="/app/admin"
         routerLinkActive="active"
@@ -92,35 +77,46 @@
         (click)="sidebarOpen = false"
         *ngIf="esAdmin$ | async">
         <i class="fas fa-shield-halved me-3"></i>
-  <span class="hide-on-collapse">Panel Admin</span>
+        <span class="hide-on-collapse">Panel Admin</span>
       </a>
 
     </div>
 
+    <!-- PERFIL DINÁMICO -->
     <a
       routerLink="/app/ajustes"
       class="profile-section mt-auto p-4 text-decoration-none"
       (click)="sidebarOpen = false"
     >
       <div class="d-flex align-items-center">
+        <!-- FOTO PERFIL -->
         <img
-          src="/images/crazy_dave.jpg"
-          style="height:60px"
+          [src]="usuario?.foto || '/images/default-avatar.png'"
+          style="height:60px; width:60px; object-fit: cover;"
           class="rounded-circle"
+          alt="Foto perfil"
         >
+        
         <div class="ms-3 profile-info">
-          <h6 class="text-white mb-0">Crazy Dave</h6>
-          <small class="text-success">Admin</small>
+          <!-- NOMBRE USUARIO -->
+          <h6 class="text-white mb-0">{{ usuario?.nombre || 'Usuario' }}</h6>
+          
+          <!-- ROL: Admin o Email -->
+          <small class="text-success">
+            {{ usuario?.email === 'admin@huerting.com' ? 'Admin' : usuario?.email }}
+          </small>
         </div>
       </div>
     </a>
-          <!-- Botón cerrar sesión -->
-<button
-  class="btn btn-outline-danger mx-3 mb-2 hide-on-collapse"
-  (click)="cerrarSesion()"
->
-  <i class="fas fa-right-from-bracket me-2"></i>Cerrar sesión
-</button>
+
+    <!-- CERRAR SESIÓN -->
+    <button
+      class="btn btn-outline-danger mx-3 mb-2 hide-on-collapse"
+      (click)="cerrarSesion()"
+    >
+      <i class="fas fa-right-from-bracket me-2"></i>Cerrar sesión
+    </button>
+
   </nav>
 
   <!-- CONTENIDO -->

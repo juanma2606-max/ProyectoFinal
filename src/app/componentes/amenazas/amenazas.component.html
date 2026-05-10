@@ -35,7 +35,7 @@
         </div>
       </div>
 
-      <!-- Lista de amenazas -->
+      <!-- Lista de amenazas CON COMPONENTE -->
       <div class="list-group mb-3 amenazas-scroll">
         <a 
           *ngFor="let amenaza of amenazasFiltradas"
@@ -43,14 +43,13 @@
           [routerLink]="[amenaza.id]"
           routerLinkActive="active">
           
-          <img
-            [src]="amenaza.imagen"
-            [alt]="amenaza.nombre"
-            class="rounded-circle border border-2"
-            [class.border-danger]="amenaza.tipo === 'plaga'"
-            [class.border-warning]="amenaza.tipo === 'enfermedad'"
-            style="width:50px; height:50px; object-fit:cover;"
-          />
+          <!-- USAR COMPONENTE -->
+          <app-imagen-amenaza
+            [amenaza]="amenaza"
+            [size]="50"
+            [circular]="true">
+          </app-imagen-amenaza>
+          
           <div class="flex-grow-1">
             <h6 class="mb-0 text-light fw-semibold">{{ amenaza.nombre }}</h6>
             <small 

@@ -16,3 +16,25 @@
   overflow-y: auto;
   padding: 1.5rem;
 }
+
+/* AGREGAR EN sidebar.component.scss */
+
+.profile-info {
+  min-width: 0; /* Permite que texto se corte */
+  flex: 1;
+  
+  h6 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px; /* Ajustar según diseño */
+  }
+  
+  small {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 150px;
+  }
+}

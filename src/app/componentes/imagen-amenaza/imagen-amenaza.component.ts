@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Amenaza } from '../../modelos/amenaza.model';
 import { IconosService } from '../../servicios/iconos.service';
@@ -54,7 +54,7 @@ import { IconosService } from '../../servicios/iconos.service';
     }
   `]
 })
-export class ImagenAmenazaComponent implements OnInit {
+export class ImagenAmenazaComponent implements OnInit, OnChanges {
   
   @Input() amenaza!: Amenaza;
   @Input() size: number = 100;
@@ -65,8 +65,22 @@ export class ImagenAmenazaComponent implements OnInit {
   constructor(public iconosService: IconosService) {}
 
   ngOnInit(): void {
+    this.verificarImagen();
+  }
+
+  // AGREGAR ngOnChanges para detectar cambios en @Input
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['amenaza']) {
+      this.verificarImagen();
+    }
+  }
+
+  private verificarImagen(): void {
     if (!this.amenaza?.imagen || this.amenaza.imagen.trim() === '') {
       this.usarIcono = true;
+    } else {
+      // RESETEAR a false cuando hay imagen nueva
+      this.usarIcono = false;
     }
   }
 

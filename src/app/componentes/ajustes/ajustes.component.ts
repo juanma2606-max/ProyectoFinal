@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Auth, signOut } from '@angular/fire/auth';
 import { UserService } from '../../servicios/user.service';
 import { User } from '../../modelos/user.model';
+import { SidebarComponent } from '../sidebar/sidebar.component';  // AGREGAR
 
 @Component({
   selector: 'app-ajustes',
@@ -18,40 +19,35 @@ export class AjustesComponent implements OnInit {
   usuario: User | null = null;
   cargando: boolean = true;
 
-  // Método de autenticación
   tienePassword: boolean = false;
   proveedorAuth: string = '';
 
-  // Edición de perfil
   editandoNombre: boolean = false;
   nuevoNombre: string = '';
   
   seleccionandoFoto: boolean = false;
   fotoSeleccionada: string = '';
 
-  // Cambio de contraseña
   mostrarCambiarPassword: boolean = false;
   passwordActual: string = '';
   passwordNueva: string = '';
   passwordConfirmar: string = '';
 
-  // Eliminar cuenta
   mostrarEliminarCuenta: boolean = false;
   passwordEliminar: string = '';
   confirmacionEliminar: string = '';
 
-  // Estados
   guardando: boolean = false;
   mensaje: string = '';
   error: string = '';
 
-  // Versión de la app
   versionApp: string = '1.0.0';
 
   constructor(
     private auth: Auth,
     public userService: UserService,
-    private router: Router
+    private router: Router,
+    private sidebarComponent: SidebarComponent  // INYECTAR SIDEBAR
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -84,9 +80,6 @@ export class AjustesComponent implements OnInit {
     }
   }
 
-  /**
-   * Verificar qué método de autenticación usa el usuario
-   */
   verificarMetodoAuth(): void {
     const user = this.auth.currentUser;
     
@@ -105,9 +98,6 @@ export class AjustesComponent implements OnInit {
     }
   }
 
-  /**
-   * Guardar nombre de usuario
-   */
   async guardarNombre(): Promise<void> {
     if (!this.nuevoNombre.trim() || !this.usuario) return;
 
@@ -126,6 +116,9 @@ export class AjustesComponent implements OnInit {
       this.editandoNombre = false;
       this.mensaje = 'Nombre actualizado correctamente';
       
+      // ACTUALIZAR SIDEBAR
+      this.sidebarComponent.recargarPerfil();
+      
       setTimeout(() => this.mensaje = '', 3000);
 
     } catch (error: any) {
@@ -142,9 +135,6 @@ export class AjustesComponent implements OnInit {
     this.error = '';
   }
 
-  /**
-   * Seleccionar foto de perfil
-   */
   seleccionarFoto(foto: string): void {
     this.fotoSeleccionada = foto;
   }
@@ -162,6 +152,9 @@ export class AjustesComponent implements OnInit {
       this.seleccionandoFoto = false;
       this.mensaje = 'Foto de perfil actualizada';
       
+      // ACTUALIZAR SIDEBAR
+      this.sidebarComponent.recargarPerfil();
+      
       setTimeout(() => this.mensaje = '', 3000);
 
     } catch (error: any) {
@@ -178,9 +171,6 @@ export class AjustesComponent implements OnInit {
     this.error = '';
   }
 
-  /**
-   * Cambiar contraseña
-   */
   async cambiarPassword(): Promise<void> {
     if (!this.passwordActual || !this.passwordNueva || !this.passwordConfirmar) {
       this.error = 'Todos los campos son obligatorios';
@@ -234,9 +224,6 @@ export class AjustesComponent implements OnInit {
     this.error = '';
   }
 
-  /**
-   * Eliminar cuenta
-   */
   async eliminarCuenta(): Promise<void> {
     if (this.tienePassword && !this.passwordEliminar) {
       this.error = 'Debes ingresar tu contraseña';
@@ -283,9 +270,6 @@ export class AjustesComponent implements OnInit {
     this.error = '';
   }
 
-  /**
-   * Cerrar sesión
-   */
   async cerrarSesion(): Promise<void> {
     try {
       await signOut(this.auth);
@@ -296,26 +280,16 @@ export class AjustesComponent implements OnInit {
     }
   }
 
-  /**
-   * Ir a página de términos y condiciones
-   */
   verTerminos(): void {
     window.open('/terminos', '_blank');
   }
 
-  /**
-   * Ir a página de política de privacidad
-   */
   verPrivacidad(): void {
     window.open('/privacidad', '_blank');
   }
 
-  /**
- * Manejar error al cargar imagen
- */
-onImageError(event: any): void {
-  console.error('Error al cargar imagen:', event.target.src);
-  // Fallback a la primera imagen disponible
-  event.target.src = this.userService.fotosPerfil[0];
-}
+  onImageError(event: any): void {
+    console.error('Error al cargar imagen:', event.target.src);
+    event.target.src = this.userService.fotosPerfil[0];
+  }
 }
