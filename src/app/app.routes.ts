@@ -28,7 +28,7 @@ export const routes: Routes = [
   { path: '', component: PortadaComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signIn', component: SignInComponent },
-  { path: 'acceso-denegado', component: AccesoDenegadoComponent },  // ← AGREGAR RUTA
+  { path: 'acceso-denegado', component: AccesoDenegadoComponent },
 
   // ==========================================
   // RUTAS PRIVADAS CON SIDEBAR
