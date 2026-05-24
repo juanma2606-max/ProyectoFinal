@@ -23,14 +23,21 @@ export class HuertoFormComponent implements OnInit {
   errorMensaje = '';
   estacionActual: string = '';
 
-  // Fotos disponibles para el huerto
-  fotosDisponibles: string[] = [
-    '/images/huerto1.jpg',
-    '/images/huerto2.webp',
-    '/images/huerto3.webp',
-  ];
+// Fotos disponibles para el huerto (solo nombres)
+fotosDisponiblesNombres: string[] = [
+  'huerto1.jpg',
+  'huerto2.webp',
+  'huerto3.webp',
+];
 
-  fotoSeleccionada: string = this.fotosDisponibles[0];
+// URLs completas generadas dinámicamente
+get fotosDisponibles(): string[] {
+  return this.fotosDisponiblesNombres.map(nombre => 
+    this.huertoService.getFotoHuertoUrl(nombre)
+  );
+}
+
+fotoSeleccionada: string = 'huerto1.jpg'; // Guardar solo el nombre
 
   constructor(
     private fb: FormBuilder,
@@ -38,6 +45,13 @@ export class HuertoFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {}
+
+  /**
+ * Obtener URL completa de la foto
+ */
+getFotoUrl(nombreFoto: string): string {
+  return this.huertoService.getFotoHuertoUrl(nombreFoto);
+}
 
   ngOnInit(): void {
     this.initForm();
@@ -56,20 +70,20 @@ export class HuertoFormComponent implements OnInit {
     });
   }
 
-  private initForm(): void {
-    this.huertoForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
-      descripcion: ['', [Validators.maxLength(200)]],
-      ubicacion: ['', [Validators.required, Validators.minLength(3)]],
-      superficie: [0, [Validators.required, Validators.min(0.1)]],
-      tipo_suelo: ['franco', Validators.required],
-      horas_sol: [6, [Validators.required, Validators.min(0), Validators.max(24)]],
-      tiene_riego: [false],
-      fecha_creacion: [this.getFechaActual(), Validators.required],
-      notas: ['', [Validators.maxLength(500)]],
-      foto: [this.fotosDisponibles[0], Validators.required]
-    });
-  }
+private initForm(): void {
+  this.huertoForm = this.fb.group({
+    nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+    descripcion: ['', [Validators.maxLength(200)]],
+    ubicacion: ['', [Validators.required, Validators.minLength(3)]],
+    superficie: [0, [Validators.required, Validators.min(0.1)]],
+    tipo_suelo: ['franco', Validators.required],
+    horas_sol: [6, [Validators.required, Validators.min(0), Validators.max(24)]],
+    tiene_riego: [false],
+    fecha_creacion: [this.getFechaActual(), Validators.required],
+    notas: ['', [Validators.maxLength(500)]],
+    foto: ['huerto1.jpg', Validators.required] // Solo nombre
+  });
+}
 
   private getFechaActual(): string {
     const hoy = new Date();
@@ -93,47 +107,48 @@ export class HuertoFormComponent implements OnInit {
     }
   }
 
-  private async cargarHuerto(id: string): Promise<void> {
-    try {
-      let huerto: Huerto | null;
+private async cargarHuerto(id: string): Promise<void> {
+  try {
+    let huerto: Huerto | null;
 
-      if (this.esVistaAdmin && this.uid) {
-        huerto = await this.huertoService.getHuertoByUidAndId(this.uid, id);
-      } else {
-        huerto = await this.huertoService.getHuertoById(id);
-      }
-
-      if (huerto) {
-        this.fotoSeleccionada = huerto.foto || this.fotosDisponibles[0];
-        
-        this.huertoForm.patchValue({
-          nombre: huerto.nombre,
-          descripcion: huerto.descripcion || '',
-          ubicacion: huerto.ubicacion,
-          superficie: huerto.superficie,
-          tipo_suelo: huerto.tipo_suelo,
-          horas_sol: huerto.horas_sol,
-          tiene_riego: huerto.tiene_riego,
-          fecha_creacion: huerto.fecha_creacion ? huerto.fecha_creacion.split('T')[0] : this.getFechaActual(),
-          notas: huerto.notas || '',
-          foto: huerto.foto || this.fotosDisponibles[0]
-        });
-      }
-    } catch (error) {
-      this.errorMensaje = 'No se pudo cargar el huerto.';
+    if (this.esVistaAdmin && this.uid) {
+      huerto = await this.huertoService.getHuertoByUidAndId(this.uid, id);
+    } else {
+      huerto = await this.huertoService.getHuertoById(id);
     }
-  }
 
-  /**
-   * Seleccionar una foto
-   */
+    if (huerto) {
+      // Guardar solo el nombre del archivo
+      this.fotoSeleccionada = huerto.foto || 'huerto1.jpg';
+      
+      this.huertoForm.patchValue({
+        nombre: huerto.nombre,
+        descripcion: huerto.descripcion || '',
+        ubicacion: huerto.ubicacion,
+        superficie: huerto.superficie,
+        tipo_suelo: huerto.tipo_suelo,
+        horas_sol: huerto.horas_sol,
+        tiene_riego: huerto.tiene_riego,
+        fecha_creacion: huerto.fecha_creacion ? huerto.fecha_creacion.split('T')[0] : this.getFechaActual(),
+        notas: huerto.notas || '',
+        foto: huerto.foto || 'huerto1.jpg'
+      });
+    }
+  } catch (error) {
+    this.errorMensaje = 'No se pudo cargar el huerto.';
+  }
+}
+
 /**
  * Seleccionar una foto
  */
-seleccionarFoto(foto: string): void {
-  this.fotoSeleccionada = foto;
-  this.huertoForm.patchValue({ foto });
-  console.log('Foto seleccionada:', foto); // Para debug
+seleccionarFoto(fotoUrl: string): void {
+  // Extraer solo el nombre del archivo de la URL
+  const nombreFoto = fotoUrl.split('/').pop() || 'huerto1.jpg';
+  
+  this.fotoSeleccionada = nombreFoto;
+  this.huertoForm.patchValue({ foto: nombreFoto });
+  console.log('Foto seleccionada:', nombreFoto);
 }
 
   async onSubmit(): Promise<void> {

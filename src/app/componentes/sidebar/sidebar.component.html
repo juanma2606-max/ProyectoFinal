@@ -90,12 +90,12 @@
     >
       <div class="d-flex align-items-center">
         <!-- FOTO PERFIL -->
-        <img
-          [src]="usuario?.foto || '/images/default-avatar.png'"
-          style="height:60px; width:60px; object-fit: cover;"
-          class="rounded-circle"
-          alt="Foto perfil"
-        >
+<img
+  [src]="getFotoPerfilUrl()"
+  style="height:60px; width:60px; object-fit: cover;"
+  class="rounded-circle"
+  alt="Foto perfil"
+>
         
         <div class="ms-3 profile-info">
           <!-- NOMBRE USUARIO -->

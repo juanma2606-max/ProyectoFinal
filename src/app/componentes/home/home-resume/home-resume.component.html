@@ -7,12 +7,12 @@
 
   <!-- Imagen -->
   <div class="huerto-img">
-    <img
-  [src]="huerto?.foto || '/images/huerto1.jpg'"
-  [alt]="huerto?.nombre"
-  class="img-fluid rounded shadow w-100"
-  style="max-height: 280px; object-fit: cover;"
-/>
+  <img
+    [src]="getFotoHuertoUrl()"
+    [alt]="huerto?.nombre"
+    class="img-fluid rounded shadow w-100"
+    style="max-height: 280px; object-fit: cover;"
+  />
   </div>
 
   <!-- Título -->

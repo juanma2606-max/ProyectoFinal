@@ -289,7 +289,22 @@ export class AjustesComponent implements OnInit {
   }
 
   onImageError(event: any): void {
-    console.error('Error al cargar imagen:', event.target.src);
-    event.target.src = this.userService.fotosPerfil[0];
-  }
+  console.error('Error al cargar imagen:', event.target.src);
+  event.target.src = this.userService.getFotoPerfilUrl(this.userService.fotosPerfil[0]);
+}
+  /**
+ * Obtener URL completa de la foto de perfil
+ */
+getFotoPerfilUrl(nombreFoto?: string): string {
+  return this.userService.getFotoPerfilUrl(nombreFoto);
+}
+
+/**
+ * Obtener URLs de todas las fotos disponibles
+ */
+getFotosDisponibles(): string[] {
+  return this.userService.fotosPerfil.map(nombre => 
+    this.userService.getFotoPerfilUrl(nombre)
+  );
+}
 }

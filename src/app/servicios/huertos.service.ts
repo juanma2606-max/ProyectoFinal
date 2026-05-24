@@ -12,6 +12,39 @@ export class HuertosService {
 
   constructor(private database: Database, private auth: Auth) { }
 
+/**
+ * Construir URL completa para foto de huerto
+ */
+getFotoHuertoUrl(nombreFoto: string | undefined): string {
+  // Si no hay foto, usar default
+  if (!nombreFoto || nombreFoto.trim() === '') {
+    return '/images/huerto1.jpg';
+  }
+  
+  // Si ya tiene el path completo, devolverlo
+  if (nombreFoto.startsWith('/images') || nombreFoto.startsWith('images')) {
+    return nombreFoto.startsWith('/') ? nombreFoto : `/${nombreFoto}`;
+  }
+  
+  // Si solo es el nombre del archivo, construir el path
+  return `/images/${nombreFoto}`;
+}
+
+/**
+ * Limpiar nombre de foto (solo el nombre del archivo)
+ */
+private limpiarNombreFotoHuerto(foto: string): string {
+  if (!foto) return 'huerto1.jpg';
+  
+  // Si tiene path, extraer solo el nombre
+  if (foto.includes('/')) {
+    const partes = foto.split('/');
+    return partes[partes.length - 1];
+  }
+  
+  return foto;
+}
+
   getUserAuth(): User | null {
     return this.auth.currentUser;
   }
@@ -69,37 +102,43 @@ export class HuertosService {
     );
   }
 
-  /**
-   * Crear un nuevo huerto
-   */
-  createHuerto(huerto: Huerto) {
-    const user = this.getUserAuth();
-    if (!user) {
-      return Promise.reject(new Error('Usuario no autenticado'));
-    }
-
-    const huertoRef = ref(this.database, `users/${user.uid}/huertos`);
-
-    const datatosave = {
-      nombre: huerto.nombre,
-      descripcion: huerto.descripcion,
-      ubicacion: huerto.ubicacion,
-      superficie: huerto.superficie,
-      tipo_suelo: huerto.tipo_suelo,
-      horas_sol: huerto.horas_sol,
-      tiene_riego: huerto.tiene_riego,
-      fecha_creacion: huerto.fecha_creacion,
-      notas: huerto.notas || '',
-      foto: huerto.foto || '/images/huerto1.jpg'  // ← AGREGAR ESTO
-    };
-
-    return push(huertoRef, datatosave);
+/**
+ * Crear un nuevo huerto
+ */
+createHuerto(huerto: Huerto) {
+  const user = this.getUserAuth();
+  if (!user) {
+    return Promise.reject(new Error('Usuario no autenticado'));
   }
+
+  const huertoRef = ref(this.database, `users/${user.uid}/huertos`);
+
+  // Limpiar el nombre de la foto antes de guardar
+  const fotoLimpia = this.limpiarNombreFotoHuerto(huerto.foto || 'huerto1.jpg');
+
+  const datatosave = {
+    nombre: huerto.nombre,
+    descripcion: huerto.descripcion,
+    ubicacion: huerto.ubicacion,
+    superficie: huerto.superficie,
+    tipo_suelo: huerto.tipo_suelo,
+    horas_sol: huerto.horas_sol,
+    tiene_riego: huerto.tiene_riego,
+    fecha_creacion: huerto.fecha_creacion,
+    notas: huerto.notas || '',
+    foto: fotoLimpia
+  };
+
+  return push(huertoRef, datatosave);
+}
 
   /**
    * Actualizar un huerto (del usuario autenticado)
    */
   updateObject(huerto: Huerto) {
+     if (huerto.foto) {
+    huerto.foto = this.limpiarNombreFotoHuerto(huerto.foto);
+  }
     const user = this.getUserAuth();
     if (!user) {
       return Promise.reject(new Error('Error al modificar el huerto'));

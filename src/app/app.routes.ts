@@ -38,12 +38,12 @@ export const routes: Routes = [
     component: SidebarComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
-      
+
       // ------------------------------------------
       // HOME
       // ------------------------------------------
       { path: 'home', component: HomeComponent },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
 
       // ------------------------------------------
       // HUERTOS
@@ -105,6 +105,16 @@ export const routes: Routes = [
       { 
         path: 'admin/usuario/:uid/huertoform/:id', 
         component: HuertoFormComponent, 
+        canActivate: [adminGuard] 
+      },
+      { 
+        path: 'admin/usuario/:uid/cultivoform/:huertoId', 
+        component: CultivoFormComponent, 
+        canActivate: [adminGuard] 
+      },
+      { 
+        path: 'admin/usuario/:uid/cultivoform/:huertoId/:cultivoId', 
+        component: CultivoFormComponent, 
         canActivate: [adminGuard] 
       },
 

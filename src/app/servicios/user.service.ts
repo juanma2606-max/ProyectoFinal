@@ -11,15 +11,48 @@ export class UserService {
 
   // Fotos de perfil disponibles
   fotosPerfil: string[] = [
-    '/images/avatars/avatar1.webp',
-    '/images/avatars/avatar2.webp',
-    '/images/avatars/avatar3.webp',
-    '/images/avatars/avatar4.webp',
-    '/images/avatars/avatar5.webp',
-    '/images/avatars/avatar6.webp'
+    'avatar1.webp',
+    'avatar2.webp',
+    'avatar3.webp',
+    'avatar4.webp',
+    'avatar5.webp',
+    'avatar6.webp'
   ];
 
   constructor(private database: Database, private auth: Auth) { }
+
+/**
+ * Construir URL completa para foto de perfil
+ */
+getFotoPerfilUrl(nombreFoto: string | undefined): string {
+  // Si no hay foto o es la vieja 'perfil.png', usar default
+  if (!nombreFoto || nombreFoto === 'perfil.png' || nombreFoto.trim() === '') {
+    return '/images/avatars/avatar2.webp';
+  }
+  
+  // Si ya tiene el path completo, devolverlo
+  if (nombreFoto.startsWith('/images') || nombreFoto.startsWith('images')) {
+    return nombreFoto.startsWith('/') ? nombreFoto : `/${nombreFoto}`;
+  }
+  
+  // Si solo es el nombre del archivo, construir el path
+  return `/images/avatars/${nombreFoto}`;
+}
+
+/**
+ * Limpiar nombre de foto (solo el nombre del archivo)
+ */
+private limpiarNombreFoto(foto: string): string {
+  if (!foto) return 'avatar2.webp';
+  
+  // Si tiene path, extraer solo el nombre
+  if (foto.includes('/')) {
+    const partes = foto.split('/');
+    return partes[partes.length - 1];
+  }
+  
+  return foto;
+}
 
   /**
    * Obtener todos los usuarios (para admin)
@@ -70,13 +103,13 @@ export class UserService {
   async createPerson(person: User): Promise<void> {
     const profileRef = ref(this.database, `users/${person.uid}/profile`);
     
-    const profileData = {
-      username: person.username,
-      email: person.email,
-      fecha_registro: person.fecha_registro,
-      fotoPerfil: person.fotoPerfil || this.fotosPerfil[0],
-      baneado: false
-    };
+   const profileData = {
+  username: person.username,
+  email: person.email,
+  fecha_registro: person.fecha_registro,
+  fotoPerfil: this.limpiarNombreFoto(person.fotoPerfil || this.fotosPerfil[0]),
+  baneado: false
+};
 
     return update(profileRef, profileData);
   }
@@ -107,13 +140,16 @@ export class UserService {
     return update(profileRef, { username: newUsername });
   }
 
-  /**
-   * Actualizar solo la foto de perfil
-   */
-  async updateProfilePhoto(uid: string, photoUrl: string): Promise<void> {
-    const profileRef = ref(this.database, `users/${uid}/profile`);
-    return update(profileRef, { fotoPerfil: photoUrl });
-  }
+/**
+ * Actualizar solo la foto de perfil
+ */
+async updateProfilePhoto(uid: string, photoUrl: string): Promise<void> {
+  // Limpiar el nombre de la foto (solo guardar el nombre del archivo)
+  const nombreFotoLimpio = this.limpiarNombreFoto(photoUrl);
+  
+  const profileRef = ref(this.database, `users/${uid}/profile`);
+  return update(profileRef, { fotoPerfil: nombreFotoLimpio });
+}
 
   /**
    * Obtener usuario autenticado actualmente

@@ -43,7 +43,7 @@
 <div class="text-center mb-4">
   <div class="position-relative d-inline-block">
     <img 
-      [src]="usuario.fotoPerfil || userService.fotosPerfil[0]" 
+      [src]="getFotoPerfilUrl(usuario.fotoPerfil)" 
       [alt]="usuario.username"
       class="rounded-circle border border-3 border-success"
       style="width: 120px; height: 120px; object-fit: cover;"
@@ -375,33 +375,36 @@
         <div class="modal-body">
           <!-- Preview grande -->
           <div class="text-center mb-4">
-            <img 
-              [src]="fotoSeleccionada" 
-              alt="Preview"
-              class="rounded-circle border border-3 border-success"
-              style="width: 150px; height: 150px; object-fit: cover;"
-            />
+  <img 
+    [src]="getFotoPerfilUrl(fotoSeleccionada)" 
+    alt="Preview"
+    class="rounded-circle border border-3 border-success"
+    style="width: 150px; height: 150px; object-fit: cover;"
+  />
           </div>
 
           <!-- Selector de fotos -->
-          <div class="row g-2">
-            <div 
-              *ngFor="let foto of userService.fotosPerfil" 
-              class="col-4">
-              <div 
-                class="foto-option rounded-circle overflow-hidden border"
-                [class.selected]="fotoSeleccionada === foto"
-                (click)="seleccionarFoto(foto)"
-                style="cursor: pointer; transition: all 0.3s; width: 80px; height: 80px; margin: 0 auto;">
-                <img 
-                  [src]="foto" 
-                  alt="Opción" 
-                  class="img-fluid"
-                  style="width: 100%; height: 100%; object-fit: cover;"
-                />
-              </div>
-            </div>
-          </div>
+          <!-- Selector de fotos -->
+<div class="row g-2">
+  <div 
+    *ngFor="let fotoUrl of getFotosDisponibles(); let i = index" 
+    class="col-4">
+    <div 
+      class="foto-option rounded-circle overflow-hidden border"
+      [class.selected]="fotoSeleccionada === userService.fotosPerfil[i]"
+      [style.border-width]="fotoSeleccionada === userService.fotosPerfil[i] ? '3px' : '1px'"
+      [style.border-color]="fotoSeleccionada === userService.fotosPerfil[i] ? '#22c55e' : '#dee2e6'"
+      (click)="seleccionarFoto(userService.fotosPerfil[i])"
+      style="cursor: pointer; transition: all 0.3s; width: 80px; height: 80px; margin: 0 auto;">
+      <img 
+        [src]="fotoUrl" 
+        alt="Opción" 
+        class="img-fluid"
+        style="width: 100%; height: 100%; object-fit: cover;"
+      />
+    </div>
+  </div>
+</div>
         </div>
         
         <div class="modal-footer">

@@ -39,25 +39,25 @@ export class SidebarComponent implements OnInit {
       const usuarioData = await this.userService.getPersonById(user.uid);
       
       if (usuarioData) {
-        this.usuario = {
-          nombre: usuarioData.username,
-          email: usuarioData.email,
-          foto: usuarioData.fotoPerfil
-        };
-        console.log('Usuario cargado:', this.usuario);
-      }
+  this.usuario = {
+    nombre: usuarioData.username,
+    email: usuarioData.email,
+    foto: usuarioData.fotoPerfil // Guardar tal cual viene de Firebase
+  };
+  console.log('Usuario cargado:', this.usuario);
+}
     } catch (error) {
-      console.error('Error cargando usuario:', error);
-      
-      const user = this.authService.getCurrentUser();
-      if (user) {
-        this.usuario = {
-          nombre: user.displayName || user.email?.split('@')[0] || 'Usuario',
-          email: user.email || '',
-          foto: user.photoURL || '/images/default-avatar.png'
-        };
-      }
-    }
+  console.error('Error cargando usuario:', error);
+  
+  const user = this.authService.getCurrentUser();
+  if (user) {
+    this.usuario = {
+      nombre: user.displayName || user.email?.split('@')[0] || 'Usuario',
+      email: user.email || '',
+      foto: 'avatar2.webp' // Usar nombre del archivo, no URL
+    };
+  }
+}
   }
 
   /**
@@ -67,6 +67,13 @@ export class SidebarComponent implements OnInit {
     console.log('🔄 Recargando perfil sidebar...');
     this.cargarDatosUsuario();
   }
+
+  /**
+ * Obtener URL completa de la foto de perfil
+ */
+getFotoPerfilUrl(): string {
+  return this.userService.getFotoPerfilUrl(this.usuario?.foto);
+}
 
   cerrarSesion(): void {
     this.authService.logout();

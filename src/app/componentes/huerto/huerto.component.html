@@ -19,14 +19,14 @@
       <div class="sticky-top" style="top: 1rem;">
 
         <!-- Imagen -->
-        <div class="mb-3">
-          <img
-            [src]="huerto?.foto || '/images/huerto1.jpg'"
-            [alt]="huerto?.nombre"
-            class="img-fluid rounded shadow w-100"
-            style="max-height: 280px; object-fit: cover;"
-          />
-        </div>
+<div class="mb-3">
+  <img
+    [src]="getFotoHuertoUrl()"
+    [alt]="huerto?.nombre"
+    class="img-fluid rounded shadow w-100"
+    style="max-height: 280px; object-fit: cover;"
+  />
+</div>
 
         <!-- Descripción -->
         <div class="card border-0 shadow-sm mb-3">

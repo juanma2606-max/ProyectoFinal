@@ -56,6 +56,13 @@ export class HuertoComponent implements OnInit {
     private auth: Auth
   ) {}
 
+  /**
+ * Obtener URL completa de la foto del huerto
+ */
+getFotoHuertoUrl(): string {
+  return this.huertosService.getFotoHuertoUrl(this.huerto?.foto);
+}
+
   ngOnInit(): void {
     this.huertoId = this.route.snapshot.paramMap.get('huertoId')
                  ?? this.route.snapshot.paramMap.get('id')!;
