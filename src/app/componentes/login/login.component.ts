@@ -85,6 +85,13 @@ export class LoginComponent {
     this.cargandoGoogle = true;
     this.error = null;
 
+    const intervalo = setInterval(() => {
+    if (this.cargandoGoogle) {
+      this.cargandoGoogle = false;
+      clearInterval(intervalo);
+    }
+  }, 5000);
+
     try {
       // 1. Login con Google
       const credential = await this.authService.loginWithGoogle();
@@ -123,18 +130,22 @@ export class LoginComponent {
       this.router.navigate(['/app']);
 
     } catch (err: any) {
-      console.error('Error en login con Google:', err);
-      this.cargandoGoogle = false;
-      
-      if (err.code === 'auth/popup-closed-by-user') {
-        this.error = "❌ Inicio de sesión cancelado";
-      } else if (err.code === 'auth/unauthorized-domain') {
-        this.error = "⚠️ Dominio no autorizado. Configura Firebase para este dominio.";
-      } else if (err.code === 'auth/popup-blocked') {
-        this.error = "🚫 Popup bloqueado. Permite popups para este sitio.";
-      } else {
-        this.error = "❌ Error al iniciar con Google";
-      }
+      clearInterval(intervalo);
+  console.error('Error en login con Google:', err);
+  this.cargandoGoogle = false;
+
+  if (
+    err.code === 'auth/popup-closed-by-user' ||
+    err.code === 'auth/cancelled-popup-request'
+  ) {
+    this.error = null; // Sin mensaje de error, el usuario simplemente cerró la ventana
+  } else if (err.code === 'auth/unauthorized-domain') {
+    this.error = "⚠️ Dominio no autorizado. Configura Firebase para este dominio.";
+  } else if (err.code === 'auth/popup-blocked') {
+    this.error = "🚫 Popup bloqueado. Permite popups para este sitio.";
+  } else {
+    this.error = "❌ Error al iniciar con Google";
+  }
     }
   }
 }
