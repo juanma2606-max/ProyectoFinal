@@ -17,6 +17,7 @@ export class PlantaDetalleComponent implements OnInit {
   planta?: Planta | null;  //Permitir null explícitamente
   cargando: boolean = false;  //Estado de carga para UX
   error: string | null = null;
+  todasLasPlantas: Planta[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -40,6 +41,9 @@ export class PlantaDetalleComponent implements OnInit {
       try {
         //Validación 2: Esperar la Promesa antes de asignar
         this.planta = await this.plantasService.getPlantaById(id);
+        this.plantasService.getAllPlantasFirebase().subscribe(plantas => {
+  this.todasLasPlantas = plantas;
+});
         
         // Si no se encontró la planta en Firebase
         if (!this.planta) {
@@ -53,4 +57,10 @@ export class PlantaDetalleComponent implements OnInit {
       }
     });
   }
+getNombrePlanta(id: string): string {
+  for (const planta of this.todasLasPlantas) {
+    if (planta.id === id) return planta.nombre;
+  }
+  return id;
+}
 }
