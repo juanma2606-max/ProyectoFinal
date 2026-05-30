@@ -273,21 +273,37 @@
                 <span class="text-light opacity-50 fw-normal">(nombres de otras plantas)</span>
               </label>
               <div formArrayName="incompatibilidades">
-                <div *ngFor="let item of incompatibilidades.controls; let i = index" 
-                     class="input-group mb-2">
-                  <input type="text" 
-                    class="form-control bg-dark text-light border-success border-opacity-25" 
-                    [formControlName]="i"
-                    placeholder="Ej. Cebolla"
-                    [ngClass]="{ 'is-invalid border-danger': item.invalid && item.touched }"
-                  />
-                  <button type="button" 
-                    class="btn btn-outline-danger" 
-                    (click)="removeIncompatibilidad(i)">
-                    <i class="fa-solid fa-times"></i>
-                  </button>
-                </div>
-              </div>
+  <div *ngFor="let item of incompatibilidades.controls; let i = index"
+       class="input-group mb-2">
+    <span class="form-control bg-dark text-light border-success border-opacity-25">
+      {{ getNombrePlanta(item.value) }}
+    </span>
+    <button type="button"
+      class="btn btn-outline-danger"
+      (click)="removeIncompatibilidad(i)">
+      <i class="fa-solid fa-times"></i>
+    </button>
+  </div>
+</div>
+
+<div class="input-group mb-2">
+  <select class="form-select bg-dark text-light border-success border-opacity-25"
+    [(ngModel)]="plantaSeleccionada"
+    [ngModelOptions]="{standalone: true}">
+    <option value="">Selecciona una planta...</option>
+    <option *ngFor="let p of todasLasPlantas"
+      [value]="p.id"
+      [disabled]="p.id === plantaActualId || esIncompatibleYaSeleccionada(p.id ?? '')">
+      {{ p.nombre }}
+    </option>
+  </select>
+  <button type="button"
+    class="btn btn-outline-success"
+    (click)="addIncompatibilidad()"
+    [disabled]="!plantaSeleccionada">
+    <i class="fa-solid fa-plus"></i>
+  </button>
+</div>
               <button type="button" 
                 class="btn btn-outline-success btn-sm" 
                 (click)="addIncompatibilidad()">

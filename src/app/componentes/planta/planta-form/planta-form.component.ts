@@ -4,22 +4,27 @@ import {
   FormGroup,
   FormArray,
   ReactiveFormsModule,
-  Validators
+  Validators,
+  FormsModule
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PlantasService } from '../../../servicios/plantas.service';
+import { Planta } from '../../../modelos/planta.model';
 
 @Component({
   selector: 'app-plantas-form',
   standalone: true,
   templateUrl: './planta-form.component.html',
   styleUrls: ['./planta-form.component.scss'],
-  imports: [CommonModule, ReactiveFormsModule, RouterModule]
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule]
 })
 export class PlantasFormComponent implements OnInit {
 
   vieneDeAdmin: boolean = false;
+  todasLasPlantas: Planta[] = [];
+  plantaSeleccionada: string = '';
+  plantaActualId: string | null = null;
 
   plantaForm: FormGroup;
 
@@ -67,9 +72,20 @@ export class PlantasFormComponent implements OnInit {
     return this.plantaForm.get('amenazas') as FormArray;
   }
 
-  addIncompatibilidad(): void {
-    this.incompatibilidades.push(this.formBuilder.control('', Validators.required));
-  }
+addIncompatibilidad(): void {
+  if (!this.plantaSeleccionada) return;
+  const yaExiste = this.incompatibilidades.controls.some(c => c.value === this.plantaSeleccionada);
+  if (yaExiste) return;
+  this.incompatibilidades.push(this.formBuilder.control(this.plantaSeleccionada, Validators.required));
+  this.plantaSeleccionada = '';
+}
+getNombrePlanta(id: string): string {
+  return this.todasLasPlantas.find(p => p.id === id)?.nombre ?? id;
+}
+
+esIncompatibleYaSeleccionada(id: string): boolean {
+  return this.incompatibilidades.controls.some(c => c.value === id);
+}
 
   removeIncompatibilidad(index: number): void {
     this.incompatibilidades.removeAt(index);
@@ -84,12 +100,16 @@ export class PlantasFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.plantasService.getAllPlantasFirebase().subscribe(plantas => {
+  this.todasLasPlantas = plantas;
+});
     this.route.queryParamMap.subscribe(queryParams => {
       this.vieneDeAdmin = queryParams.get('from') === 'admin';
     });
 
     this.route.paramMap.subscribe(async params => {
       const id = params.get('id');
+      this.plantaActualId = id;
       if (!id) return;
 
       const planta = await this.plantasService.getPlantaById(id);

@@ -113,15 +113,21 @@
             <i class="fa-solid fa-mountain me-2 text-success"></i>Tipo de suelo
           </label>
           <select
-            id="tipo_suelo"
-            class="form-select form-control-dark"
-            formControlName="tipo_suelo"
-          >
+  id="tipo_suelo"
+  class="form-select form-control-dark"
+  formControlName="tipo_suelo"
+  [class.is-invalid]="huertoForm.get('tipo_suelo')?.invalid && huertoForm.get('tipo_suelo')?.touched"
+>
+          <option value="" disabled>Selecciona un tipo de suelo</option>
             <option value="arcilloso">Arcilloso</option>
             <option value="arenoso">Arenoso</option>
             <option value="limoso">Limoso</option>
             <option value="franco">Franco (recomendado)</option>
           </select>
+          <div class="invalid-feedback">
+            <i class="fa-solid fa-circle-exclamation me-1"></i>
+            El tipo de suelo es obligatorio
+          </div>
         </div>
 
         <!-- HORAS DE SOL -->
@@ -272,10 +278,11 @@
           </button>
  
           <button
-            type="submit"
-            class="btn btn-success flex-fill"
-            [disabled]="huertoForm.invalid || cargando"
-          >
+  type="submit"
+  class="btn btn-success flex-fill"
+  [disabled]="cargando"
+  (click)="huertoForm.markAllAsTouched()"
+>
             <span *ngIf="cargando" class="spinner-border spinner-border-sm me-2" role="status"></span>
             <i *ngIf="!cargando" class="fa-solid fa-check me-2"></i>
             {{ cargando ? 'Guardando...' : (modoEdicion ? 'Guardar cambios' : 'Crear huerto') }}
