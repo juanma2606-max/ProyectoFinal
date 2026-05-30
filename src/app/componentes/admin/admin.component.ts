@@ -26,7 +26,7 @@ type Tab = 'usuarios' | 'plantas' | 'amenazas';
 })
 export class AdminComponent implements OnInit {
 
-  tabActiva: Tab = 'usuarios';
+  tabActiva: Tab = (localStorage.getItem('adminTab') as Tab) ?? 'usuarios';
 
   usuarios: User[] = [];
   plantas: Planta[] = [];
@@ -98,6 +98,7 @@ export class AdminComponent implements OnInit {
 
   cambiarTab(tab: Tab): void {
     this.tabActiva = tab;
+    localStorage.setItem('adminTab', tab);
   }
 
   get usuariosFiltrados(): User[] {
@@ -355,24 +356,25 @@ export class AdminComponent implements OnInit {
   /**
    * ==================== PLANTAS ====================
    */
-  nuevaPlanta(): void {
-    this.router.navigate(['/app/plantasform'], { queryParams: { from: 'admin' } });
-  }
+nuevaPlanta(): void {
+  localStorage.setItem('adminTab', 'plantas');
+  this.router.navigate(['/app/plantasform'], { queryParams: { from: 'admin' } });
+}
 
-  editarPlanta(id: string | undefined): void {
-    if (!id) return;
-    this.router.navigate(['/app/plantasform', id], { queryParams: { from: 'admin' } });
-  }
+editarPlanta(id: string | undefined): void {
+  if (!id) return;
+  localStorage.setItem('adminTab', 'plantas');
+  this.router.navigate(['/app/plantasform', id], { queryParams: { from: 'admin' } });
+}
 
-  /**
-   * ==================== AMENAZAS ====================
-   */
-  nuevaAmenaza(): void {
-    this.router.navigate(['/app/amenazasform'], { queryParams: { from: 'admin' } });
-  }
+nuevaAmenaza(): void {
+  localStorage.setItem('adminTab', 'amenazas');
+  this.router.navigate(['/app/amenazasform'], { queryParams: { from: 'admin' } });
+}
 
-  editarAmenaza(id: string | undefined): void {
-    if (!id) return;
-    this.router.navigate(['/app/amenazasform', id], { queryParams: { from: 'admin' } });
-  }
+editarAmenaza(id: string | undefined): void {
+  if (!id) return;
+  localStorage.setItem('adminTab', 'amenazas');
+  this.router.navigate(['/app/amenazasform', id], { queryParams: { from: 'admin' } });
+}
 }
