@@ -10,6 +10,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AmenazasService } from '../../../servicios/amenazas.service';
 import { Amenaza } from '../../../modelos/amenaza.model';
+import { CloudinaryService } from '../../../servicios/cloudinary.service';
 
 @Component({
   selector: 'app-amenazaform',
@@ -22,13 +23,17 @@ export class AmenazaformComponent implements OnInit {
 
   vieneDeAdmin: boolean = false;
   amenazaForm: FormGroup;
+  subiendoImagen: boolean = false;
+previewImagenUrl: string = '';
 
-  constructor(
-    private route: ActivatedRoute,
-    private formBuilder: FormBuilder,
-    private amenazasService: AmenazasService,
-    private router: Router
-  ) {
+constructor(
+  private route: ActivatedRoute,
+  private formBuilder: FormBuilder,
+  private amenazasService: AmenazasService,
+  private router: Router,
+  private cloudinaryService: CloudinaryService
+) {
+
     this.amenazaForm = this.formBuilder.group({
       nombre:      ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', [Validators.required, Validators.maxLength(500)]],
@@ -50,6 +55,27 @@ export class AmenazaformComponent implements OnInit {
   removeSintoma(index: number): void {
     this.sintomas.removeAt(index);
   }
+
+  async onImagenSeleccionada(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  if (!input.files || input.files.length === 0) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => this.previewImagenUrl = e.target?.result as string;
+  reader.readAsDataURL(file);
+  this.subiendoImagen = true;
+  try {
+    const url = await this.cloudinaryService.subirImagen(file);
+    this.amenazaForm.patchValue({ imagen: url });
+    this.previewImagenUrl = url;
+  } catch (e) {
+    alert('Error al subir la imagen.');
+    this.previewImagenUrl = '';
+  } finally {
+    this.subiendoImagen = false;
+    input.value = '';
+  }
+}
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(queryParams => {
@@ -76,6 +102,7 @@ export class AmenazaformComponent implements OnInit {
         imagen:      amenaza.imagen || '',
         tratamiento: amenaza.tratamiento || ''
       });
+      if (amenaza.imagen) this.previewImagenUrl = amenaza.imagen;
     });
   }
 

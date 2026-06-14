@@ -192,48 +192,55 @@
           </div>
         </div>
 
-        <!-- FOTO DEL HUERTO -->
+<!-- FOTO DEL HUERTO -->
 <div class="mb-4">
   <label class="form-label text-light fw-semibold">
     <i class="fa-solid fa-image me-2 text-success"></i>Foto del huerto
   </label>
-  
-  <!-- Preview de la foto seleccionada -->
-<div class="mb-3 text-center">
-  <img 
-    [src]="getFotoUrl(fotoSeleccionada)" 
-    alt="Preview" 
-    class="img-fluid rounded shadow"
-    style="max-height: 200px; object-fit: cover; width: 100%;"
-  />
-</div>
-  
-<!-- Selector de fotos -->
-<div class="row g-2">
-  <div 
-    *ngFor="let fotoUrl of fotosDisponibles; let i = index" 
-    class="col-4 col-md-2">
-    <div 
-      class="foto-option rounded overflow-hidden border"
-      [class.selected]="fotoSeleccionada === fotosDisponiblesNombres[i]"
-      [style.border-width]="fotoSeleccionada === fotosDisponiblesNombres[i] ? '3px' : '1px'"
-      [style.border-color]="fotoSeleccionada === fotosDisponiblesNombres[i] ? '#22c55e' : '#dee2e6'"
-      (click)="seleccionarFoto(fotoUrl)"
-      style="cursor: pointer; transition: all 0.3s;">
-      <img 
-        [src]="fotoUrl" 
-        alt="Opción" 
-        class="img-fluid"
-        style="width: 100%; height: 80px; object-fit: cover;"
-      />
+
+  <!-- Preview -->
+  <div class="mb-3 text-center">
+    <img
+      [src]="previewFotoUrl || getFotoUrl(fotoSeleccionada)"
+      alt="Preview"
+      class="img-fluid rounded shadow"
+      style="max-height: 200px; object-fit: cover; width: 100%;"
+    />
+  </div>
+
+  <!-- Subir foto propia -->
+  <input #inputFotoHuerto type="file" accept="image/*" class="d-none"
+    (change)="onFotoSeleccionada($event)" />
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <button type="button" class="btn btn-outline-success btn-sm"
+      (click)="inputFotoHuerto.click()"
+      [disabled]="subiendoFoto">
+      <span *ngIf="subiendoFoto" class="spinner-border spinner-border-sm me-1"></span>
+      <i *ngIf="!subiendoFoto" class="fa-solid fa-camera me-1"></i>
+      {{ subiendoFoto ? 'Subiendo...' : 'Subir foto propia' }}
+    </button>
+    <small *ngIf="fotoCloudinaryUrl" class="text-success">
+      <i class="fa-solid fa-check me-1"></i>Imagen lista
+    </small>
+  </div>
+
+  <small class="text-light d-block mb-2">— O elige una foto predefinida —</small>
+
+  <!-- Selector predefinidas -->
+  <div class="row g-2">
+    <div *ngFor="let fotoUrl of fotosDisponibles; let i = index" class="col-4 col-md-2">
+      <div
+        class="foto-option rounded overflow-hidden border"
+        [class.selected]="fotoSeleccionada === fotosDisponiblesNombres[i] && !fotoCloudinaryUrl"
+        [style.border-width]="fotoSeleccionada === fotosDisponiblesNombres[i] && !fotoCloudinaryUrl ? '3px' : '1px'"
+        [style.border-color]="fotoSeleccionada === fotosDisponiblesNombres[i] && !fotoCloudinaryUrl ? '#22c55e' : '#dee2e6'"
+        (click)="seleccionarFotoPredefinida(fotoUrl)"
+        style="cursor: pointer; transition: all 0.3s;">
+        <img [src]="fotoUrl" alt="Opción" class="img-fluid"
+          style="width: 100%; height: 80px; object-fit: cover;" />
+      </div>
     </div>
   </div>
-</div>
-  
-  <small class="text-light d-block mt-2">
-    <i class="fa-solid fa-info-circle me-1"></i>
-    Selecciona la imagen que mejor represente tu huerto
-  </small>
 </div>
 
         <!-- NOTAS -->

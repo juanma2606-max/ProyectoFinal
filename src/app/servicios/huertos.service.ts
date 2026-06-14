@@ -16,17 +16,20 @@ export class HuertosService {
  * Construir URL completa para foto de huerto
  */
 getFotoHuertoUrl(nombreFoto: string | undefined): string {
-  // Si no hay foto, usar default
   if (!nombreFoto || nombreFoto.trim() === '') {
     return '/images/huerto1.jpg';
   }
-  
-  // Si ya tiene el path completo, devolverlo
+  if (nombreFoto.startsWith('http')) {
+    return nombreFoto;
+  }
+  // Nombres que parecen IDs de Cloudinary (sin extensión de ruta local)
+  if (!nombreFoto.includes('huerto') && (nombreFoto.endsWith('.webp') || nombreFoto.endsWith('.jpg') || nombreFoto.endsWith('.png'))) {
+    // Es un ID de Cloudinary guardado sin URL completa — reconstruir
+    return `https://res.cloudinary.com/dedqzjwq3/image/upload/${nombreFoto}`;
+  }
   if (nombreFoto.startsWith('/images') || nombreFoto.startsWith('images')) {
     return nombreFoto.startsWith('/') ? nombreFoto : `/${nombreFoto}`;
   }
-  
-  // Si solo es el nombre del archivo, construir el path
   return `/images/${nombreFoto}`;
 }
 

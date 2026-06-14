@@ -77,24 +77,45 @@
               </small>
             </div>
 
-            <!-- Imagen URL -->
-            <div class="mb-4">
-              <label class="form-label text-light fw-semibold">
-                <i class="fa-solid fa-image text-warning me-2"></i>
-                URL de imagen
-                <span class="text-light opacity-50 fw-normal">(opcional)</span>
-              </label>
-              <input 
-                type="url" 
-                class="form-control bg-dark text-light border-danger border-opacity-25" 
-                formControlName="imagen"
-                placeholder="https://ejemplo.com/imagen.jpg"
-              />
-              <small class="text-light opacity-50">
-                <i class="fa-solid fa-lightbulb me-1"></i>
-                Deja vacío para usar icono automático
-              </small>
-            </div>
+<!-- Imagen -->
+<div class="mb-4">
+  <label class="form-label text-light fw-semibold">
+    <i class="fa-solid fa-image text-warning me-2"></i>
+    Imagen
+    <span class="text-light opacity-50 fw-normal">(opcional)</span>
+  </label>
+
+  <!-- Preview -->
+  <div *ngIf="previewImagenUrl" class="mb-2 text-center">
+    <img [src]="previewImagenUrl" alt="Preview"
+         class="rounded shadow"
+         style="max-height: 160px; max-width: 100%; object-fit: cover;" />
+  </div>
+
+  <!-- Subir desde galería -->
+  <input #inputImagen type="file" accept="image/*" class="d-none"
+    (change)="onImagenSeleccionada($event)" />
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <button type="button" class="btn btn-outline-warning btn-sm"
+      (click)="inputImagen.click()" [disabled]="subiendoImagen">
+      <span *ngIf="subiendoImagen" class="spinner-border spinner-border-sm me-1"></span>
+      <i *ngIf="!subiendoImagen" class="fa-solid fa-camera me-1"></i>
+      {{ subiendoImagen ? 'Subiendo...' : 'Subir imagen' }}
+    </button>
+    <small *ngIf="!subiendoImagen && amenazaForm.get('imagen')?.value" class="text-success">
+      <i class="fa-solid fa-check me-1"></i>Imagen lista
+    </small>
+  </div>
+
+  <!-- URL manual -->
+  <input type="url" class="form-control bg-dark text-light border-danger border-opacity-25"
+    formControlName="imagen"
+    placeholder="O pega una URL directamente..." />
+  <small class="text-light opacity-50">
+    <i class="fa-solid fa-lightbulb me-1"></i>
+    Deja vacío para usar icono automático según el tipo
+  </small>
+</div>
 
             <!-- Descripción -->
             <div class="mb-4">

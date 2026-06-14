@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 import { Auth, signOut } from '@angular/fire/auth';
 import { UserService } from '../../servicios/user.service';
 import { User } from '../../modelos/user.model';
-import { SidebarComponent } from '../sidebar/sidebar.component';  // AGREGAR
+import { SidebarComponent } from '../sidebar/sidebar.component';
+import { CloudinaryService } from '../../servicios/cloudinary.service';
 
 @Component({
   selector: 'app-ajustes',
@@ -27,6 +28,9 @@ export class AjustesComponent implements OnInit {
   
   seleccionandoFoto: boolean = false;
   fotoSeleccionada: string = '';
+  subiendoFotoPerfil: boolean = false;
+  fotoCloudinaryUrl: string = '';
+  previewFotoUrl: string = '';
 
   mostrarCambiarPassword: boolean = false;
   passwordActual: string = '';
@@ -47,7 +51,8 @@ export class AjustesComponent implements OnInit {
     private auth: Auth,
     public userService: UserService,
     private router: Router,
-    private sidebarComponent: SidebarComponent  // INYECTAR SIDEBAR
+    private sidebarComponent: SidebarComponent,
+    private cloudinaryService: CloudinaryService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -139,17 +144,62 @@ export class AjustesComponent implements OnInit {
     this.fotoSeleccionada = foto;
   }
 
+  // Seleccionar avatar predefinido (limpia la foto de Cloudinary)
+  seleccionarAvatarPredefinido(foto: string): void {
+    this.fotoSeleccionada = foto;
+    this.fotoCloudinaryUrl = '';
+    this.previewFotoUrl = '';
+  }
+
+  // Manejar selección de imagen desde galería para subir a Cloudinary
+  async onFotoPerfilSeleccionada(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+
+    // Preview local inmediato
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.previewFotoUrl = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    this.subiendoFotoPerfil = true;
+    this.error = '';
+
+    try {
+      this.fotoCloudinaryUrl = await this.cloudinaryService.subirImagen(file);
+      // Limpiar la selección de avatar predefinido
+      this.fotoSeleccionada = '';
+    } catch (e: any) {
+      console.error('Error subiendo foto de perfil:', e);
+      this.error = 'Error al subir la imagen. Inténtalo de nuevo.';
+      this.fotoCloudinaryUrl = '';
+      this.previewFotoUrl = '';
+    } finally {
+      this.subiendoFotoPerfil = false;
+      input.value = '';
+    }
+  }
+
   async guardarFoto(): Promise<void> {
     if (!this.usuario) return;
+
+    // Usar URL de Cloudinary si se subió una foto, si no usar el avatar seleccionado
+    const fotoAGuardar = this.fotoCloudinaryUrl || this.fotoSeleccionada;
+    if (!fotoAGuardar) return;
 
     try {
       this.guardando = true;
       this.error = '';
       
-      await this.userService.updateProfilePhoto(this.usuario.uid, this.fotoSeleccionada);
+      await this.userService.updateProfilePhoto(this.usuario.uid, fotoAGuardar);
       
-      this.usuario.fotoPerfil = this.fotoSeleccionada;
+      this.usuario.fotoPerfil = fotoAGuardar;
       this.seleccionandoFoto = false;
+      this.fotoCloudinaryUrl = '';
+      this.previewFotoUrl = '';
       this.mensaje = 'Foto de perfil actualizada';
       
       // ACTUALIZAR SIDEBAR
@@ -167,6 +217,8 @@ export class AjustesComponent implements OnInit {
 
   cancelarSeleccionFoto(): void {
     this.fotoSeleccionada = this.usuario?.fotoPerfil || this.userService.fotosPerfil[0];
+    this.fotoCloudinaryUrl = '';
+    this.previewFotoUrl = '';
     this.seleccionandoFoto = false;
     this.error = '';
   }

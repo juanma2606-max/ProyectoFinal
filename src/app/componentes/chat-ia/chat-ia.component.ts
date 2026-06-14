@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ChatService, Mensaje } from '../../servicios/chat.service';
+import { CloudinaryService } from '../../servicios/cloudinary.service';
 
 @Component({
   selector: 'app-chat-ia',
@@ -15,35 +16,37 @@ export class ChatIaComponent implements OnInit, AfterViewChecked {
 
   @ViewChild('mensajesContainer') mensajesContainer!: ElementRef;
   @ViewChild('textareaInput') textareaInput!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('inputImagen') inputImagen!: ElementRef<HTMLInputElement>;
 
   mensajes: Mensaje[] = [];
   inputUsuario: string = '';
   cargando: boolean = false;
   error: string = '';
-  
+
+  // Estado de imagen adjunta
+  imagenPendienteUrl: string | null = null;
+  imagenPreviewUrl: string | null = null;
+  subiendoImagen: boolean = false;
+
   private debeHacerScroll: boolean = false;
 
   constructor(
     private chatService: ChatService,
+    private cloudinaryService: CloudinaryService,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.mensajes.push({
       role: 'assistant',
-      content: '¡Hola! Soy HuertingIA 🌱 Tu asistente experto en huertos y plantas. ¿En qué puedo ayudarte hoy?'
+      content: '¡Hola! Soy HuertingIA 🌱 Tu asistente experto en huertos y plantas. ¿En qué puedo ayudarte hoy? También puedes adjuntar fotos de tus plantas para que las analice.'
     });
 
     this.route.queryParamMap.subscribe(params => {
       const mensaje = params.get('mensaje');
       if (mensaje) {
         const mensajeDecodificado = decodeURIComponent(mensaje);
-        
-        this.mensajes.push({
-          role: 'user',
-          content: mensajeDecodificado
-        });
-        
+        this.mensajes.push({ role: 'user', content: mensajeDecodificado });
         this.enviarMensajeInicial();
       }
     });
@@ -64,6 +67,53 @@ export class ChatIaComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  // -------------------------------------------------------
+  // IMAGEN
+  // -------------------------------------------------------
+  abrirSelectorImagen(): void {
+    this.inputImagen.nativeElement.click();
+  }
+
+  async onImagenSeleccionada(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+
+    // Mostrar preview local inmediato
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.imagenPreviewUrl = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    // Subir a Cloudinary
+    this.subiendoImagen = true;
+    this.error = '';
+
+    try {
+      this.imagenPendienteUrl = await this.cloudinaryService.subirImagen(file);
+      console.log('✅ Imagen subida a Cloudinary:', this.imagenPendienteUrl);
+    } catch (e: any) {
+      console.error('❌ Error subiendo imagen:', e);
+      this.error = 'Error al subir la imagen. Inténtalo de nuevo.';
+      this.imagenPendienteUrl = null;
+      this.imagenPreviewUrl = null;
+    } finally {
+      this.subiendoImagen = false;
+      // Resetear input para permitir seleccionar la misma imagen otra vez
+      input.value = '';
+    }
+  }
+
+  quitarImagen(): void {
+    this.imagenPendienteUrl = null;
+    this.imagenPreviewUrl = null;
+  }
+
+  // -------------------------------------------------------
+  // CHAT
+  // -------------------------------------------------------
   async enviarMensajeInicial(): Promise<void> {
     this.cargando = true;
     this.error = '';
@@ -83,15 +133,29 @@ export class ChatIaComponent implements OnInit, AfterViewChecked {
   }
 
   async enviarMensaje(): Promise<void> {
-    if (!this.inputUsuario.trim() || this.cargando) return;
-
     const texto = this.inputUsuario.trim();
+    const tieneImagen = !!this.imagenPendienteUrl;
+
+    if (!texto && !tieneImagen) return;
+    if (this.cargando || this.subiendoImagen) return;
+
+    const textoFinal = texto || 'Analiza esta imagen';
     this.inputUsuario = '';
     this.error = '';
-
     this.resetearAlturaTextarea();
 
-    this.mensajes.push({ role: 'user', content: texto });
+    // Crear mensaje con o sin imagen
+    const mensajeUsuario: Mensaje = {
+      role: 'user',
+      content: textoFinal,
+      ...(this.imagenPendienteUrl ? { imageUrl: this.imagenPendienteUrl } : {})
+    };
+
+    // Limpiar imagen pendiente
+    this.imagenPendienteUrl = null;
+    this.imagenPreviewUrl = null;
+
+    this.mensajes.push(mensajeUsuario);
     this.cargando = true;
     this.debeHacerScroll = true;
 
@@ -117,8 +181,7 @@ export class ChatIaComponent implements OnInit, AfterViewChecked {
 
   private resetearAlturaTextarea(): void {
     if (this.textareaInput) {
-      const textarea = this.textareaInput.nativeElement;
-      textarea.style.height = 'auto';
+      this.textareaInput.nativeElement.style.height = 'auto';
     }
   }
 

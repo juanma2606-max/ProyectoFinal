@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router, ActivatedRoute } from '@angular/router';
 import { HuertosService } from '../../servicios/huertos.service';
 import { Huerto } from '../../modelos/huerto.model';
+import { CloudinaryService } from '../../servicios/cloudinary.service';
 
 @Component({
   selector: 'app-huerto-form',
@@ -22,6 +23,9 @@ export class HuertoFormComponent implements OnInit {
   cargando = false;
   errorMensaje = '';
   estacionActual: string = '';
+  fotoCloudinaryUrl: string = '';
+previewFotoUrl: string = '';
+subiendoFoto: boolean = false;
 
 // Fotos disponibles para el huerto (solo nombres)
 fotosDisponiblesNombres: string[] = [
@@ -41,9 +45,10 @@ fotoSeleccionada: string = 'huerto1.jpg'; // Guardar solo el nombre
 
   constructor(
     private fb: FormBuilder,
-    private huertoService: HuertosService,
-    private router: Router,
-    private route: ActivatedRoute
+  private huertoService: HuertosService,
+  private router: Router,
+  private route: ActivatedRoute,
+  private cloudinaryService: CloudinaryService
   ) {}
 
   /**
@@ -149,6 +154,38 @@ seleccionarFoto(fotoUrl: string): void {
   this.fotoSeleccionada = nombreFoto;
   this.huertoForm.patchValue({ foto: nombreFoto });
   console.log('Foto seleccionada:', nombreFoto);
+}
+
+seleccionarFotoPredefinida(fotoUrl: string): void {
+  const nombreFoto = fotoUrl.split('/').pop() || 'huerto1.jpg';
+  this.fotoSeleccionada = nombreFoto;
+  this.fotoCloudinaryUrl = '';
+  this.previewFotoUrl = '';
+  this.huertoForm.patchValue({ foto: nombreFoto });
+}
+
+async onFotoSeleccionada(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  if (!input.files || input.files.length === 0) return;
+
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => this.previewFotoUrl = e.target?.result as string;
+  reader.readAsDataURL(file);
+
+  this.subiendoFoto = true;
+  try {
+    this.fotoCloudinaryUrl = await this.cloudinaryService.subirImagen(file);
+    this.huertoForm.patchValue({ foto: this.fotoCloudinaryUrl });
+    this.fotoSeleccionada = '';
+  } catch (e) {
+    this.errorMensaje = 'Error al subir la imagen.';
+    this.fotoCloudinaryUrl = '';
+    this.previewFotoUrl = '';
+  } finally {
+    this.subiendoFoto = false;
+    input.value = '';
+  }
 }
 
   async onSubmit(): Promise<void> {

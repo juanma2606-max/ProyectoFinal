@@ -4,6 +4,7 @@ import { environment } from '../../environments/environment.prod';
 export interface Mensaje {
   role: 'user' | 'assistant';
   content: string;
+  imageUrl?: string; // URL de Cloudinary opcional
 }
 
 @Injectable({
@@ -15,18 +16,29 @@ export class ChatService {
 
   async enviarMensaje(mensajes: Mensaje[]): Promise<string> {
     console.log('🔵 ChatService: Iniciando envío...');
-    console.log('🔵 Mensajes a enviar:', mensajes);
-    
+
     const payload = {
-      messages: mensajes.map(m => ({
-        role: m.role,
-        content: m.content
-      }))
+      messages: mensajes.map(m => {
+        if (m.imageUrl) {
+          // Formato multimodal para Grok con imagen
+          return {
+            role: m.role,
+            content: [
+              { type: 'text', text: m.content },
+              { type: 'image_url', image_url: { url: m.imageUrl } }
+            ]
+          };
+        }
+        return {
+          role: m.role,
+          content: m.content
+        };
+      })
     };
-    
+
     console.log('🔵 Payload:', JSON.stringify(payload, null, 2));
     console.log('🔵 URL:', `${this.API_URL}/api/chat`);
-    
+
     try {
       const response = await fetch(`${this.API_URL}/api/chat`, {
         method: 'POST',
@@ -35,7 +47,6 @@ export class ChatService {
       });
 
       console.log('🔵 Response status:', response.status);
-      console.log('🔵 Response ok:', response.ok);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -46,7 +57,7 @@ export class ChatService {
       const data = await response.json();
       console.log('✅ Respuesta recibida:', data);
       return data.content;
-      
+
     } catch (error) {
       console.error('❌ Error en fetch:', error);
       throw error;

@@ -25,17 +25,16 @@ export class UserService {
  * Construir URL completa para foto de perfil
  */
 getFotoPerfilUrl(nombreFoto: string | undefined): string {
-  // Si no hay foto o es la vieja 'perfil.png', usar default
   if (!nombreFoto || nombreFoto === 'perfil.png' || nombreFoto.trim() === '') {
     return '/images/avatars/avatar2.webp';
   }
-  
-  // Si ya tiene el path completo, devolverlo
+  // URL de Cloudinary o Google
+  if (nombreFoto.startsWith('http')) {
+    return nombreFoto;
+  }
   if (nombreFoto.startsWith('/images') || nombreFoto.startsWith('images')) {
     return nombreFoto.startsWith('/') ? nombreFoto : `/${nombreFoto}`;
   }
-  
-  // Si solo es el nombre del archivo, construir el path
   return `/images/avatars/${nombreFoto}`;
 }
 

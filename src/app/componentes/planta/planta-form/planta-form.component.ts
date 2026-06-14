@@ -11,6 +11,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PlantasService } from '../../../servicios/plantas.service';
 import { Planta } from '../../../modelos/planta.model';
+import { CloudinaryService } from '../../../servicios/cloudinary.service';
 
 @Component({
   selector: 'app-plantas-form',
@@ -25,7 +26,7 @@ export class PlantasFormComponent implements OnInit {
   todasLasPlantas: Planta[] = [];
   plantaSeleccionada: string = '';
   plantaActualId: string | null = null;
-
+  subiendoImagen: boolean = false;
   plantaForm: FormGroup;
 
   atLeastOneEstacion(group: FormGroup): { [key: string]: boolean } | null {
@@ -37,7 +38,8 @@ export class PlantasFormComponent implements OnInit {
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
     private plantasService: PlantasService,
-    private router: Router
+    private router: Router,
+    private cloudinaryService: CloudinaryService
   ) {
     this.plantaForm = this.formBuilder.group({
       nombre:             ['', [Validators.required, Validators.maxLength(100)]],
@@ -97,6 +99,23 @@ esIncompatibleYaSeleccionada(id: string): boolean {
 
   removeAmenaza(index: number): void {
     this.amenazas.removeAt(index);
+  }
+
+  // ← aquí, después de removeAmenaza y antes de ngOnInit
+  async onImagenSeleccionada(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    this.subiendoImagen = true;
+    try {
+      const url = await this.cloudinaryService.subirImagen(input.files[0]);
+      this.plantaForm.patchValue({ imagen: url });
+    } catch (e) {
+      console.error('Error subiendo imagen:', e);
+      alert('Error al subir la imagen. Inténtalo de nuevo.');
+    } finally {
+      this.subiendoImagen = false;
+      input.value = '';
+    }
   }
 
   ngOnInit(): void {

@@ -3,7 +3,7 @@
   <!-- Header -->
   <div class="bg-dark bg-opacity-75 border-bottom border-success border-opacity-25 px-4 py-3">
     <div class="d-flex align-items-center gap-3">
-      <div class="bg-success bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center border border-success border-2" 
+      <div class="bg-success bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center border border-success border-2"
            style="width: 50px; height: 50px;">
         <i class="fa-solid fa-seedling text-success fs-4"></i>
       </div>
@@ -17,10 +17,12 @@
   </div>
 
   <!-- Mensajes -->
-  <div class="flex-grow-1 overflow-auto p-4" style="background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5));" #mensajesContainer>
-    
+  <div class="flex-grow-1 overflow-auto p-4"
+       style="background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5));"
+       #mensajesContainer>
+
     <div class="container" style="max-width: 900px;">
-      
+
       <div *ngFor="let mensaje of mensajes" class="mb-4">
 
         <!-- Mensaje IA -->
@@ -37,6 +39,14 @@
         <!-- Mensaje Usuario -->
         <div *ngIf="mensaje.role === 'user'" class="d-flex justify-content-end">
           <div class="bg-success text-white rounded-3 p-3 shadow" style="max-width: 75%;">
+            <!-- Imagen adjunta si la hay -->
+            <img
+              *ngIf="mensaje.imageUrl"
+              [src]="mensaje.imageUrl"
+              alt="Imagen adjunta"
+              class="img-fluid rounded mb-2"
+              style="max-height: 200px; max-width: 100%; display: block;"
+            />
             <p class="mb-0" style="white-space: pre-wrap; line-height: 1.6;">{{ mensaje.content }}</p>
           </div>
         </div>
@@ -65,35 +75,82 @@
     </div>
   </div>
 
-<!-- Input -->
-<div class="bg-dark bg-opacity-75 border-top border-success border-opacity-25 p-3 p-md-4">
-  <div class="container" style="max-width: 900px;">
-    <div class="d-flex gap-2 shadow align-items-end">
-      <textarea
-        #textareaInput
-        class="form-control bg-dark text-light border-success border-opacity-25 flex-grow-1"
-        rows="1"
-        placeholder="Escribe tu pregunta sobre plantas, huertos, plagas..."
-        [(ngModel)]="inputUsuario"
-        (input)="ajustarAlturaTextarea()"
-        (keydown)="onKeyDown($event)"
-        [disabled]="cargando"
-        style="resize: none; max-height: 150px; overflow-y: auto;"
-      ></textarea>
-      <button
-        class="btn btn-success px-4"
-        (click)="enviarMensaje()"
-        [disabled]="cargando || !inputUsuario.trim()"
-        style="height: 38px; flex-shrink: 0;"
-      >
-        <i class="fa-solid fa-paper-plane" *ngIf="!cargando"></i>
-        <span class="spinner-border spinner-border-sm" *ngIf="cargando"></span>
-      </button>
+  <!-- Preview de imagen adjunta -->
+  <div *ngIf="imagenPreviewUrl || subiendoImagen"
+       class="bg-dark bg-opacity-90 border-top border-success border-opacity-25 px-4 py-2">
+    <div class="container d-flex align-items-center gap-3" style="max-width: 900px;">
+
+      <!-- Spinner mientras sube -->
+      <div *ngIf="subiendoImagen" class="d-flex align-items-center gap-2 text-light">
+        <span class="spinner-border spinner-border-sm text-success"></span>
+        <small>Subiendo imagen...</small>
+      </div>
+
+      <!-- Preview cuando ya está subida -->
+      <div *ngIf="imagenPreviewUrl && !subiendoImagen" class="d-flex align-items-center gap-2">
+        <img [src]="imagenPreviewUrl" alt="Preview"
+             class="rounded" style="height: 48px; width: 48px; object-fit: cover;">
+        <small class="text-success">
+          <i class="fa-solid fa-check me-1"></i>Imagen lista
+        </small>
+        <button class="btn btn-sm btn-outline-danger py-0 px-2" (click)="quitarImagen()" title="Quitar imagen">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
     </div>
-    <small class="text-light opacity-75 mt-2 d-block text-center">
-      Pulsa Enter para enviar, Shift+Enter para nueva línea
-    </small>
   </div>
-</div>
+
+  <!-- Input -->
+  <div class="bg-dark bg-opacity-75 border-top border-success border-opacity-25 p-3 p-md-4">
+    <div class="container" style="max-width: 900px;">
+      <div class="d-flex gap-2 shadow align-items-end">
+
+        <!-- Input oculto para seleccionar imagen -->
+        <input
+          #inputImagen
+          type="file"
+          accept="image/*"
+          class="d-none"
+          (change)="onImagenSeleccionada($event)"
+        />
+
+        <!-- Botón adjuntar imagen -->
+        <button
+          class="btn btn-outline-success px-3"
+          (click)="abrirSelectorImagen()"
+          [disabled]="cargando || subiendoImagen"
+          title="Adjuntar imagen"
+          style="height: 38px; flex-shrink: 0;">
+          <i class="fa-solid fa-image"></i>
+        </button>
+
+        <textarea
+          #textareaInput
+          class="form-control bg-dark text-light border-success border-opacity-25 flex-grow-1"
+          rows="1"
+          placeholder="Escribe tu pregunta sobre plantas, huertos, plagas..."
+          [(ngModel)]="inputUsuario"
+          (input)="ajustarAlturaTextarea()"
+          (keydown)="onKeyDown($event)"
+          [disabled]="cargando"
+          style="resize: none; max-height: 150px; overflow-y: auto;"
+        ></textarea>
+
+        <button
+          class="btn btn-success px-4"
+          (click)="enviarMensaje()"
+          [disabled]="cargando || subiendoImagen || (!inputUsuario.trim() && !imagenPendienteUrl)"
+          style="height: 38px; flex-shrink: 0;">
+          <i class="fa-solid fa-paper-plane" *ngIf="!cargando"></i>
+          <span class="spinner-border spinner-border-sm" *ngIf="cargando"></span>
+        </button>
+
+      </div>
+      <small class="text-light opacity-75 mt-2 d-block text-center">
+        Pulsa Enter para enviar, Shift+Enter para nueva línea. Puedes adjuntar fotos de tus plantas.
+      </small>
+    </div>
+  </div>
 
 </div>

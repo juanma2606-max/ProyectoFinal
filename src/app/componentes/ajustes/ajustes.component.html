@@ -376,12 +376,47 @@
           <!-- Preview grande -->
           <div class="text-center mb-4">
   <img 
-    [src]="getFotoPerfilUrl(fotoSeleccionada)" 
+    [src]="previewFotoUrl || getFotoPerfilUrl(fotoSeleccionada)" 
     alt="Preview"
     class="rounded-circle border border-3 border-success"
     style="width: 150px; height: 150px; object-fit: cover;"
   />
           </div>
+
+          <!-- Opción 1: Subir foto propia con Cloudinary -->
+          <div class="mb-4">
+            <p class="text-muted small mb-2 fw-semibold">
+              <i class="fa-solid fa-upload me-1"></i> Subir foto propia
+            </p>
+            <input
+              #inputFotoCloudinary
+              type="file"
+              accept="image/*"
+              class="d-none"
+              (change)="onFotoPerfilSeleccionada($event)"
+            />
+            <div class="d-flex align-items-center gap-2">
+              <button
+                class="btn btn-outline-success btn-sm"
+                (click)="inputFotoCloudinary.click()"
+                [disabled]="subiendoFotoPerfil || guardando">
+                <span *ngIf="subiendoFotoPerfil" class="spinner-border spinner-border-sm me-1"></span>
+                <i *ngIf="!subiendoFotoPerfil" class="fa-solid fa-camera me-1"></i>
+                {{ subiendoFotoPerfil ? 'Subiendo...' : 'Elegir imagen' }}
+              </button>
+              <small *ngIf="subiendoFotoPerfil" class="text-muted">Subiendo a Cloudinary...</small>
+              <small *ngIf="!subiendoFotoPerfil && fotoCloudinaryUrl" class="text-success">
+                <i class="fa-solid fa-check me-1"></i>Imagen lista
+              </small>
+            </div>
+          </div>
+
+          <hr class="text-muted" />
+
+          <!-- Opción 2: Avatares predefinidos -->
+          <p class="text-muted small mb-2 fw-semibold">
+            <i class="fa-solid fa-face-smile me-1"></i> O elige un avatar
+          </p>
 
           <!-- Selector de fotos -->
           <!-- Selector de fotos -->
@@ -391,10 +426,10 @@
     class="col-4">
     <div 
       class="foto-option rounded-circle overflow-hidden border"
-      [class.selected]="fotoSeleccionada === userService.fotosPerfil[i]"
-      [style.border-width]="fotoSeleccionada === userService.fotosPerfil[i] ? '3px' : '1px'"
-      [style.border-color]="fotoSeleccionada === userService.fotosPerfil[i] ? '#22c55e' : '#dee2e6'"
-      (click)="seleccionarFoto(userService.fotosPerfil[i])"
+      [class.selected]="fotoSeleccionada === userService.fotosPerfil[i] && !fotoCloudinaryUrl"
+      [style.border-width]="fotoSeleccionada === userService.fotosPerfil[i] && !fotoCloudinaryUrl ? '3px' : '1px'"
+      [style.border-color]="fotoSeleccionada === userService.fotosPerfil[i] && !fotoCloudinaryUrl ? '#22c55e' : '#dee2e6'"
+      (click)="seleccionarAvatarPredefinido(userService.fotosPerfil[i])"
       style="cursor: pointer; transition: all 0.3s; width: 80px; height: 80px; margin: 0 auto;">
       <img 
         [src]="fotoUrl" 
