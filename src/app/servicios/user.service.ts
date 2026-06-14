@@ -143,11 +143,13 @@ private limpiarNombreFoto(foto: string): string {
  * Actualizar solo la foto de perfil
  */
 async updateProfilePhoto(uid: string, photoUrl: string): Promise<void> {
-  // Limpiar el nombre de la foto (solo guardar el nombre del archivo)
-  const nombreFotoLimpio = this.limpiarNombreFoto(photoUrl);
-  
+  // Si es URL de Cloudinary/Google, guardarla completa; si es avatar local, solo el nombre
+  const fotoAGuardar = photoUrl.startsWith('http') 
+    ? photoUrl 
+    : this.limpiarNombreFoto(photoUrl);
+
   const profileRef = ref(this.database, `users/${uid}/profile`);
-  return update(profileRef, { fotoPerfil: nombreFotoLimpio });
+  return update(profileRef, { fotoPerfil: fotoAGuardar });
 }
 
   /**

@@ -11,19 +11,19 @@
   <!-- Tabs -->
   <div class="d-flex justify-content-center mb-4">
     <div class="btn-group shadow">
-      <button class="btn" 
+      <button class="btn"
         [ngClass]="tabActiva === 'usuarios' ? 'btn-success' : 'btn-outline-success'"
         (click)="cambiarTab('usuarios')">
         <i class="fa-solid fa-users me-2"></i>Usuarios
         <span class="badge bg-light text-dark ms-2">{{ usuariosFiltrados.length }}</span>
       </button>
-      <button class="btn" 
+      <button class="btn"
         [ngClass]="tabActiva === 'plantas' ? 'btn-success' : 'btn-outline-success'"
         (click)="cambiarTab('plantas')">
         <i class="fa-solid fa-leaf me-2"></i>Plantas
         <span class="badge bg-light text-dark ms-2">{{ plantas.length }}</span>
       </button>
-      <button class="btn" 
+      <button class="btn"
         [ngClass]="tabActiva === 'amenazas' ? 'btn-success' : 'btn-outline-success'"
         (click)="cambiarTab('amenazas')">
         <i class="fa-solid fa-bug me-2"></i>Amenazas
@@ -48,7 +48,7 @@
 
         <div class="card bg-dark bg-opacity-75 border-success border-opacity-25 shadow">
           <div class="list-group list-group-flush">
-            
+
             <!-- Estado vacío -->
             <div *ngIf="usuariosFiltrados.length === 0" class="text-center text-light opacity-75 py-4">
               <i class="fa-solid fa-user-slash fs-1 mb-2"></i>
@@ -59,20 +59,21 @@
             <div *ngFor="let usuario of usuariosFiltrados"
                  class="list-group-item bg-dark bg-opacity-50 border-secondary"
                  [class.border-danger]="estaUsuarioBaneado(usuario)">
-              
+
               <!-- Fila principal del usuario -->
               <div class="d-flex align-items-center gap-3 py-2"
                    (click)="toggleUsuario(usuario.uid)"
                    style="cursor: pointer;">
-                
-                <!-- Avatar -->
-                <div class="position-relative">
-                  <div class="avatar-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center"
-                       [class.bg-danger]="estaUsuarioBaneado(usuario)"
-                       style="width: 45px; height: 45px; border-radius: 50%;">
-                    {{ (usuario.username || '?').charAt(0).toUpperCase() }}
-                  </div>
-                  <!-- Badge de baneado -->
+
+                <!-- Avatar con foto real -->
+                <div class="position-relative" style="flex-shrink: 0;">
+                  <img
+                    [src]="userService.getFotoPerfilUrl(usuario.fotoPerfil)"
+                    [alt]="usuario.username"
+                    class="rounded-circle"
+                    style="width: 45px; height: 45px; object-fit: cover;"
+                    (error)="onAvatarError($event)"
+                  />
                   <span *ngIf="estaUsuarioBaneado(usuario)"
                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                         title="Usuario baneado">
@@ -84,11 +85,11 @@
                 <div class="flex-grow-1">
                   <div class="fw-semibold text-light">
                     {{ usuario.username }}
-                    <span *ngIf="estaUsuarioBaneado(usuario)" 
+                    <span *ngIf="estaUsuarioBaneado(usuario)"
                           class="badge bg-danger ms-2">BANEADO</span>
                   </div>
                   <div class="text-light opacity-75 small">{{ usuario.email }}</div>
-                  <div *ngIf="estaUsuarioBaneado(usuario) && usuario.motivoBaneo" 
+                  <div *ngIf="estaUsuarioBaneado(usuario) && usuario.motivoBaneo"
                        class="text-danger small mt-1">
                     <i class="fa-solid fa-circle-info me-1"></i>
                     Motivo: {{ usuario.motivoBaneo }}
@@ -97,11 +98,11 @@
 
                 <!-- Botones de acción -->
                 <div class="d-flex gap-2" (click)="$event.stopPropagation()">
-                  
+
                   <!-- Banear -->
-                  <button 
+                  <button
                     *ngIf="!estaUsuarioBaneado(usuario)"
-                    class="btn btn-sm btn-outline-warning" 
+                    class="btn btn-sm btn-outline-warning"
                     title="Banear usuario"
                     [disabled]="procesandoBaneo[usuario.uid]"
                     (click)="abrirModalBaneo(usuario)">
@@ -110,9 +111,9 @@
                   </button>
 
                   <!-- Desbanear -->
-                  <button 
+                  <button
                     *ngIf="estaUsuarioBaneado(usuario)"
-                    class="btn btn-sm btn-outline-success" 
+                    class="btn btn-sm btn-outline-success"
                     title="Desbanear usuario"
                     [disabled]="procesandoBaneo[usuario.uid]"
                     (click)="abrirModalDesbaneo(usuario)">
@@ -120,9 +121,9 @@
                     <i *ngIf="!procesandoBaneo[usuario.uid]" class="fa-solid fa-check"></i>
                   </button>
 
-                  <!-- Eliminar completamente -->
-                  <button 
-                    class="btn btn-sm btn-outline-danger" 
+                  <!-- Eliminar -->
+                  <button
+                    class="btn btn-sm btn-outline-danger"
                     title="Eliminar usuario y sus datos"
                     [disabled]="procesandoBaneo[usuario.uid]"
                     (click)="abrirModalEliminar(usuario)">
@@ -130,21 +131,21 @@
                   </button>
                 </div>
 
-                <!-- Icono de expandir -->
-                <i class="fa-solid text-light" 
+                <!-- Icono expandir -->
+                <i class="fa-solid text-light"
                    [class.fa-chevron-down]="usuarioExpandido !== usuario.uid"
                    [class.fa-chevron-up]="usuarioExpandido === usuario.uid"></i>
               </div>
 
               <!-- Desplegable de huertos -->
-              <div *ngIf="usuarioExpandido === usuario.uid" 
+              <div *ngIf="usuarioExpandido === usuario.uid"
                    class="border-top border-secondary mt-2 pt-3 px-2">
-                
+
                 <div class="d-flex justify-content-between align-items-center mb-3">
                   <h6 class="text-light mb-0">
                     <i class="fa-solid fa-seedling text-success me-2"></i>Huertos
                   </h6>
-                  <button class="btn btn-sm btn-success" 
+                  <button class="btn btn-sm btn-success"
                           (click)="nuevoHuerto(usuario.uid)">
                     <i class="fa-solid fa-plus me-1"></i>Nuevo
                   </button>
@@ -161,7 +162,13 @@
                      class="list-group list-group-flush mb-2">
                   <div *ngFor="let huerto of huertosUsuario[usuario.uid]"
                        class="list-group-item bg-dark bg-opacity-25 border-success border-opacity-10 d-flex align-items-center gap-2 py-2 mb-2 rounded">
-                    <i class="fa-solid fa-leaf text-success"></i>
+                    <img
+                      [src]="huertosService.getFotoHuertoUrl(huerto.foto)"
+                      [alt]="huerto.nombre"
+                      class="rounded"
+                      style="width: 48px; height: 48px; object-fit: cover; flex-shrink: 0;"
+                      (error)="onHuertoImgError($event)"
+                    />
                     <div class="flex-grow-1">
                       <div class="text-light small fw-semibold">{{ huerto.nombre }}</div>
                       <div class="text-light opacity-50" style="font-size: 0.75rem;">
@@ -170,18 +177,15 @@
                       </div>
                     </div>
                     <div class="btn-group btn-group-sm">
-                      <button class="btn btn-outline-info" 
-                              title="Ver huerto"
+                      <button class="btn btn-outline-info" title="Ver huerto"
                               (click)="verHuerto(usuario.uid, huerto.id!)">
                         <i class="fa-solid fa-eye"></i>
                       </button>
-                      <button class="btn btn-outline-warning" 
-                              title="Editar huerto"
+                      <button class="btn btn-outline-warning" title="Editar huerto"
                               (click)="editarHuerto(usuario.uid, huerto.id!)">
                         <i class="fa-solid fa-pen"></i>
                       </button>
-                      <button class="btn btn-outline-danger" 
-                              title="Eliminar huerto"
+                      <button class="btn btn-outline-danger" title="Eliminar huerto"
                               (click)="eliminarHuerto(usuario.uid, huerto.id!)">
                         <i class="fa-solid fa-trash"></i>
                       </button>
@@ -189,7 +193,7 @@
                   </div>
                 </div>
 
-                <!-- Estado vacío -->
+                <!-- Estado vacío huertos -->
                 <div *ngIf="!cargandoHuertos[usuario.uid] && (!huertosUsuario[usuario.uid] || huertosUsuario[usuario.uid].length === 0)"
                      class="text-center py-4">
                   <i class="fa-solid fa-seedling text-success opacity-25 fs-1 mb-2"></i>
@@ -235,10 +239,7 @@
             <div class="card bg-dark bg-opacity-75 border-success border-opacity-25 shadow-sm h-100">
               <div class="row g-0 align-items-center">
                 <div class="col-3 d-flex align-items-center justify-content-center p-2">
-                  <app-imagen-planta 
-                    [planta]="planta" 
-                    [size]="60">
-                  </app-imagen-planta>
+                  <app-imagen-planta [planta]="planta" [size]="60"></app-imagen-planta>
                 </div>
                 <div class="col-9">
                   <div class="card-body py-2 px-3">
@@ -291,10 +292,7 @@
             <div class="card bg-dark bg-opacity-75 border-danger border-opacity-25 shadow-sm h-100">
               <div class="row g-0 align-items-center">
                 <div class="col-3 d-flex align-items-center justify-content-center p-2">
-                  <app-imagen-amenaza 
-                    [amenaza]="amenaza" 
-                    [size]="60">
-                  </app-imagen-amenaza>
+                  <app-imagen-amenaza [amenaza]="amenaza" [size]="60"></app-imagen-amenaza>
                 </div>
                 <div class="col-9">
                   <div class="card-body py-2 px-3">
@@ -326,98 +324,66 @@
   </div>
 
   <!-- ==================== MODAL: BANEAR USUARIO ==================== -->
-  <div 
-    *ngIf="modalBaneo.mostrar"
-    class="modal fade show d-block" 
-    tabindex="-1" 
+  <div *ngIf="modalBaneo.mostrar"
+    class="modal fade show d-block" tabindex="-1"
     style="background-color: rgba(0,0,0,0.7);">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content bg-dark text-light border border-warning">
-        
         <div class="modal-header border-warning">
           <h5 class="modal-title">
-            <i class="fa-solid fa-ban text-warning me-2"></i>
-            Banear Usuario
+            <i class="fa-solid fa-ban text-warning me-2"></i>Banear Usuario
           </h5>
-          <button 
-            type="button" 
-            class="btn-close btn-close-white" 
-            (click)="cerrarModalBaneo()">
-          </button>
+          <button type="button" class="btn-close btn-close-white" (click)="cerrarModalBaneo()"></button>
         </div>
-        
         <div class="modal-body">
           <div class="alert alert-warning">
             <strong>¿Estás seguro de banear a {{ modalBaneo.usuario?.username }}?</strong>
             <p class="mb-0 small mt-2">
               <i class="fa-solid fa-circle-info me-1"></i>
-              El usuario no podrá volver a iniciar sesión. Sus datos se mantendrán y podrás desbanearlo después si es necesario.
+              El usuario no podrá volver a iniciar sesión. Sus datos se mantendrán y podrás desbanearlo después.
             </p>
           </div>
-
           <div class="mb-3">
             <label class="form-label fw-semibold">
-              <i class="fa-solid fa-comment me-1"></i>
-              Motivo del baneo:
+              <i class="fa-solid fa-comment me-1"></i>Motivo del baneo:
             </label>
-            <textarea 
-              class="form-control bg-dark text-light border-warning"
-              rows="3"
+            <textarea class="form-control bg-dark text-light border-warning" rows="3"
               [(ngModel)]="modalBaneo.motivo"
-              placeholder="Ej: Violación de términos de uso, spam, comportamiento inapropiado..."
+              placeholder="Ej: Violación de términos de uso, spam..."
               maxlength="200"></textarea>
             <small class="text-muted">{{ modalBaneo.motivo.length }}/200</small>
           </div>
-
           <div class="alert alert-info small mb-0">
             <i class="fa-solid fa-lightbulb me-1"></i>
-            <strong>Recuerda:</strong> Puedes desbanear al usuario en cualquier momento desde este mismo panel.
+            <strong>Recuerda:</strong> Puedes desbanear al usuario en cualquier momento.
           </div>
         </div>
-        
         <div class="modal-footer border-0">
-          <button 
-            type="button" 
-            class="btn btn-secondary"
-            (click)="cerrarModalBaneo()">
-            <i class="fa-solid fa-times me-1"></i>
-            Cancelar
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalBaneo()">
+            <i class="fa-solid fa-times me-1"></i>Cancelar
           </button>
-          <button 
-            type="button" 
-            class="btn btn-warning"
+          <button type="button" class="btn btn-warning"
             [disabled]="!modalBaneo.motivo.trim()"
             (click)="confirmarBaneo()">
-            <i class="fa-solid fa-ban me-1"></i>
-            Banear Usuario
+            <i class="fa-solid fa-ban me-1"></i>Banear Usuario
           </button>
         </div>
-        
       </div>
     </div>
   </div>
 
   <!-- ==================== MODAL: DESBANEAR USUARIO ==================== -->
-  <div 
-    *ngIf="modalDesbaneo.mostrar"
-    class="modal fade show d-block" 
-    tabindex="-1" 
+  <div *ngIf="modalDesbaneo.mostrar"
+    class="modal fade show d-block" tabindex="-1"
     style="background-color: rgba(0,0,0,0.7);">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content bg-dark text-light border border-success">
-        
         <div class="modal-header border-success">
           <h5 class="modal-title">
-            <i class="fa-solid fa-check-circle text-success me-2"></i>
-            Desbanear Usuario
+            <i class="fa-solid fa-check-circle text-success me-2"></i>Desbanear Usuario
           </h5>
-          <button 
-            type="button" 
-            class="btn-close btn-close-white" 
-            (click)="cerrarModalDesbaneo()">
-          </button>
+          <button type="button" class="btn-close btn-close-white" (click)="cerrarModalDesbaneo()"></button>
         </div>
-        
         <div class="modal-body">
           <div class="alert alert-success">
             <strong>¿Desbanear a {{ modalDesbaneo.usuario?.username }}?</strong>
@@ -426,7 +392,6 @@
               El usuario podrá volver a iniciar sesión normalmente.
             </p>
           </div>
-
           <div *ngIf="modalDesbaneo.usuario?.motivoBaneo" class="card bg-dark bg-opacity-50 border-warning mb-3">
             <div class="card-body py-2">
               <small class="text-muted d-block">Motivo del baneo original:</small>
@@ -436,189 +401,115 @@
               </p>
             </div>
           </div>
-
           <div class="alert alert-info small mb-0">
             <i class="fa-solid fa-lightbulb me-1"></i>
             <strong>Nota:</strong> Si el usuario vuelve a violar los términos, podrás banearlo nuevamente.
           </div>
         </div>
-        
         <div class="modal-footer border-0">
-          <button 
-            type="button" 
-            class="btn btn-secondary"
-            (click)="cerrarModalDesbaneo()">
-            <i class="fa-solid fa-times me-1"></i>
-            Cancelar
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalDesbaneo()">
+            <i class="fa-solid fa-times me-1"></i>Cancelar
           </button>
-          <button 
-            type="button" 
-            class="btn btn-success"
-            (click)="confirmarDesbaneo()">
-            <i class="fa-solid fa-check me-1"></i>
-            Desbanear Usuario
+          <button type="button" class="btn btn-success" (click)="confirmarDesbaneo()">
+            <i class="fa-solid fa-check me-1"></i>Desbanear Usuario
           </button>
         </div>
-        
       </div>
     </div>
   </div>
 
   <!-- ==================== MODAL: ELIMINAR PLANTA ==================== -->
-<div 
-  *ngIf="modalEliminarPlanta.mostrar"
-  class="modal fade show d-block" 
-  tabindex="-1" 
-  style="background-color: rgba(0,0,0,0.7);">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark text-light border border-danger">
-      
-      <div class="modal-header border-danger">
-        <h5 class="modal-title">
-          <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
-          Eliminar Planta
-        </h5>
-        <button 
-          type="button" 
-          class="btn-close btn-close-white" 
-          (click)="cerrarModalEliminarPlanta()">
-        </button>
-      </div>
-      
-      <div class="modal-body">
-        <div class="alert alert-danger">
-          <h6 class="mb-2">
-            <i class="fa-solid fa-exclamation-triangle me-1"></i>
-            ¿Estás seguro de eliminar esta planta?
-          </h6>
-          <p class="mb-2">
-            Esta acción eliminará permanentemente:
-          </p>
-          <ul class="mb-0 small ps-3">
-            <li><strong>{{ modalEliminarPlanta.planta?.nombre }}</strong></li>
-            <li>Toda su información y configuración</li>
-            <li>Esta acción NO se puede deshacer</li>
-          </ul>
-        </div>
-
-        <div class="alert alert-warning small mb-0">
-          <i class="fa-solid fa-lightbulb me-1"></i>
-          <strong>Nota:</strong> Si hay cultivos usando esta planta, podrían verse afectados.
-        </div>
-      </div>
-      
-      <div class="modal-footer border-0">
-        <button 
-          type="button" 
-          class="btn btn-secondary"
-          (click)="cerrarModalEliminarPlanta()">
-          <i class="fa-solid fa-times me-1"></i>
-          Cancelar
-        </button>
-        <button 
-          type="button" 
-          class="btn btn-danger"
-          (click)="confirmarEliminarPlanta()">
-          <i class="fa-solid fa-trash me-1"></i>
-          Eliminar Planta
-        </button>
-      </div>
-      
-    </div>
-  </div>
-</div>
-
-<!-- ==================== MODAL: ELIMINAR AMENAZA ==================== -->
-<div 
-  *ngIf="modalEliminarAmenaza.mostrar"
-  class="modal fade show d-block" 
-  tabindex="-1" 
-  style="background-color: rgba(0,0,0,0.7);">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark text-light border border-danger">
-      
-      <div class="modal-header border-danger">
-        <h5 class="modal-title">
-          <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
-          Eliminar Amenaza
-        </h5>
-        <button 
-          type="button" 
-          class="btn-close btn-close-white" 
-          (click)="cerrarModalEliminarAmenaza()">
-        </button>
-      </div>
-      
-      <div class="modal-body">
-        <div class="alert alert-danger">
-          <h6 class="mb-2">
-            <i class="fa-solid fa-exclamation-triangle me-1"></i>
-            ¿Estás seguro de eliminar esta amenaza?
-          </h6>
-          <p class="mb-2">
-            Esta acción eliminará permanentemente:
-          </p>
-          <ul class="mb-0 small ps-3">
-            <li><strong>{{ modalEliminarAmenaza.amenaza?.nombre }}</strong></li>
-            <li>Toda su información (síntomas, tratamiento)</li>
-            <li>Esta acción NO se puede deshacer</li>
-          </ul>
-        </div>
-
-        <div class="alert alert-warning small mb-0">
-          <i class="fa-solid fa-lightbulb me-1"></i>
-          <strong>Nota:</strong> Si hay cultivos asociados a esta amenaza, perderán la referencia.
-        </div>
-      </div>
-      
-      <div class="modal-footer border-0">
-        <button 
-          type="button" 
-          class="btn btn-secondary"
-          (click)="cerrarModalEliminarAmenaza()">
-          <i class="fa-solid fa-times me-1"></i>
-          Cancelar
-        </button>
-        <button 
-          type="button" 
-          class="btn btn-danger"
-          (click)="confirmarEliminarAmenaza()">
-          <i class="fa-solid fa-trash me-1"></i>
-          Eliminar Amenaza
-        </button>
-      </div>
-      
-    </div>
-  </div>
-</div>
-
-  <!-- ==================== MODAL: ELIMINAR USUARIO ==================== -->
-  <div 
-    *ngIf="modalEliminar.mostrar"
-    class="modal fade show d-block" 
-    tabindex="-1" 
+  <div *ngIf="modalEliminarPlanta.mostrar"
+    class="modal fade show d-block" tabindex="-1"
     style="background-color: rgba(0,0,0,0.7);">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content bg-dark text-light border border-danger">
-        
+        <div class="modal-header border-danger">
+          <h5 class="modal-title">
+            <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>Eliminar Planta
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="cerrarModalEliminarPlanta()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-danger">
+            <h6 class="mb-2">¿Estás seguro de eliminar esta planta?</h6>
+            <ul class="mb-0 small ps-3">
+              <li><strong>{{ modalEliminarPlanta.planta?.nombre }}</strong></li>
+              <li>Toda su información y configuración</li>
+              <li>Esta acción NO se puede deshacer</li>
+            </ul>
+          </div>
+          <div class="alert alert-warning small mb-0">
+            <i class="fa-solid fa-lightbulb me-1"></i>
+            <strong>Nota:</strong> Si hay cultivos usando esta planta, podrían verse afectados.
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalEliminarPlanta()">
+            <i class="fa-solid fa-times me-1"></i>Cancelar
+          </button>
+          <button type="button" class="btn btn-danger" (click)="confirmarEliminarPlanta()">
+            <i class="fa-solid fa-trash me-1"></i>Eliminar Planta
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ELIMINAR AMENAZA ==================== -->
+  <div *ngIf="modalEliminarAmenaza.mostrar"
+    class="modal fade show d-block" tabindex="-1"
+    style="background-color: rgba(0,0,0,0.7);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-light border border-danger">
+        <div class="modal-header border-danger">
+          <h5 class="modal-title">
+            <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>Eliminar Amenaza
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="cerrarModalEliminarAmenaza()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-danger">
+            <h6 class="mb-2">¿Estás seguro de eliminar esta amenaza?</h6>
+            <ul class="mb-0 small ps-3">
+              <li><strong>{{ modalEliminarAmenaza.amenaza?.nombre }}</strong></li>
+              <li>Toda su información (síntomas, tratamiento)</li>
+              <li>Esta acción NO se puede deshacer</li>
+            </ul>
+          </div>
+          <div class="alert alert-warning small mb-0">
+            <i class="fa-solid fa-lightbulb me-1"></i>
+            <strong>Nota:</strong> Si hay cultivos asociados a esta amenaza, perderán la referencia.
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalEliminarAmenaza()">
+            <i class="fa-solid fa-times me-1"></i>Cancelar
+          </button>
+          <button type="button" class="btn btn-danger" (click)="confirmarEliminarAmenaza()">
+            <i class="fa-solid fa-trash me-1"></i>Eliminar Amenaza
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ELIMINAR USUARIO ==================== -->
+  <div *ngIf="modalEliminar.mostrar"
+    class="modal fade show d-block" tabindex="-1"
+    style="background-color: rgba(0,0,0,0.7);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-light border border-danger">
         <div class="modal-header border-danger">
           <h5 class="modal-title">
             <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
             Eliminar Usuario Permanentemente
           </h5>
-          <button 
-            type="button" 
-            class="btn-close btn-close-white" 
-            (click)="cerrarModalEliminar()">
-          </button>
+          <button type="button" class="btn-close btn-close-white" (click)="cerrarModalEliminar()"></button>
         </div>
-        
         <div class="modal-body">
           <div class="alert alert-danger">
-            <h6 class="mb-2">
-              <i class="fa-solid fa-exclamation-triangle me-1"></i>
-              ⚠️ ADVERTENCIA: Acción irreversible
-            </h6>
+            <h6 class="mb-2">⚠️ ADVERTENCIA: Acción irreversible</h6>
             <p class="mb-2">
               Estás a punto de eliminar completamente a <strong>{{ modalEliminar.usuario?.username }}</strong>.
             </p>
@@ -628,7 +519,6 @@
               <li><strong>Esta acción NO se puede deshacer</strong></li>
             </ul>
           </div>
-
           <div class="card bg-dark bg-opacity-50 border-danger mb-3">
             <div class="card-body py-3">
               <div class="row text-center">
@@ -643,45 +533,32 @@
               </div>
             </div>
           </div>
-
           <div class="mb-3">
             <label class="form-label fw-semibold">
               <i class="fa-solid fa-keyboard me-1"></i>
               Para confirmar, escribe: <span class="text-danger">ELIMINAR</span>
             </label>
-            <input 
-              type="text" 
+            <input type="text"
               class="form-control bg-dark text-light border-danger text-center fw-bold"
               [(ngModel)]="modalEliminar.confirmacion"
               placeholder="ELIMINAR"
-              maxlength="8"
-            />
+              maxlength="8" />
           </div>
-
           <div class="alert alert-warning small mb-0">
             <i class="fa-solid fa-info-circle me-1"></i>
-            <strong>Alternativa:</strong> Considera solo <strong>banear</strong> al usuario si quieres mantener la opción de revertir la decisión.
+            <strong>Alternativa:</strong> Considera solo <strong>banear</strong> al usuario si quieres poder revertir la decisión.
           </div>
         </div>
-        
         <div class="modal-footer border-0">
-          <button 
-            type="button" 
-            class="btn btn-secondary"
-            (click)="cerrarModalEliminar()">
-            <i class="fa-solid fa-times me-1"></i>
-            Cancelar
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalEliminar()">
+            <i class="fa-solid fa-times me-1"></i>Cancelar
           </button>
-          <button 
-            type="button" 
-            class="btn btn-danger"
+          <button type="button" class="btn btn-danger"
             [disabled]="modalEliminar.confirmacion !== 'ELIMINAR'"
             (click)="confirmarEliminar()">
-            <i class="fa-solid fa-trash me-1"></i>
-            Eliminar Permanentemente
+            <i class="fa-solid fa-trash me-1"></i>Eliminar Permanentemente
           </button>
         </div>
-        
       </div>
     </div>
   </div>

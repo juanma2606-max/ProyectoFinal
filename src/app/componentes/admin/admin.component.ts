@@ -72,10 +72,10 @@ export class AdminComponent implements OnInit {
   isAdmin$: Observable<boolean>;
 
   constructor(
-    private userService: UserService,
+    public userService: UserService,
     private plantasService: PlantasService,
     private amenazasService: AmenazasService,
-    private huertosService: HuertosService,
+    public huertosService: HuertosService,
     private authService: AuthService,
     private router: Router
   ) {
@@ -376,5 +376,15 @@ editarAmenaza(id: string | undefined): void {
   if (!id) return;
   localStorage.setItem('adminTab', 'amenazas');
   this.router.navigate(['/app/amenazasform', id], { queryParams: { from: 'admin' } });
+}
+
+onAvatarError(event: Event): void {
+  const img = event.target as HTMLImageElement;
+  img.src = '/images/avatars/avatar2.webp';
+}
+
+onHuertoImgError(event: Event): void {
+  const img = event.target as HTMLImageElement;
+  img.src = '/images/huerto1.jpg';
 }
 }
