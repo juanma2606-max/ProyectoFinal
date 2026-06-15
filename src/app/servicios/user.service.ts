@@ -43,6 +43,10 @@ getFotoPerfilUrl(nombreFoto: string | undefined): string {
  */
 private limpiarNombreFoto(foto: string): string {
   if (!foto) return 'avatar2.webp';
+    // Si es URL completa (Google, Cloudinary), guardarla tal cual
+  if (foto.startsWith('http')) {
+    return foto;
+  }
   
   // Si tiene path, extraer solo el nombre
   if (foto.includes('/')) {
